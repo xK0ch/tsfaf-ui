@@ -1,0 +1,12 @@
+services:
+  tsfaf-ui:
+    build: .
+    container_name: tsfaf-ui
+    networks:
+      - proxy-net
+    restart: unless-stopped
+
+networks:
+  proxy-net:
+    name: proxy-net
+    external: true
