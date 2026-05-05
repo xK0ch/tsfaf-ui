@@ -1,59 +1,115 @@
-# TsfafUi
+# tsfaf-ui
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.8.
+Frontend für die ADTV-Tanzschule Family &amp; Friends Neumünster.
+Angular 21 Standalone Workspace, signal-basiert, OnPush, Lazy-Routing.
 
-## Development server
+## Voraussetzungen
 
-To start a local development server, run:
+- Node.js 20 oder 22 (LTS)
+- npm 11 (über `package.json#packageManager` festgelegt)
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Setup
 
 ```bash
-ng generate component component-name
+npm install
+npm start          # ng serve auf http://localhost:4200
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Weitere Skripte:
 
 ```bash
-ng generate --help
+npm run build      # Production-Build nach dist/tsfaf-ui
+npm run watch      # Build im Watch-Modus (Development-Konfiguration)
+npm test           # Vitest
 ```
 
-## Building
+## Stand
 
-To build the project run:
+Das Projekt befindet sich in einer frühen Vorschau-Phase. Vorhanden sind:
 
-```bash
-ng build
+- Globale Design-Tokens (Farben, Type-Scale, Spacing, Radien, Shadows, Motion) in `src/styles.scss`, übernommen aus dem Design-System (Claude Design).
+- Layout-Wrapper (Header mit Mobile-Drawer + Footer) in `src/app/layout/`.
+- Lazy-Loading-Routing für alle zehn Seiten in `src/app/app.routes.ts`.
+- Vollständige Startseite in `src/app/pages/home/` mit allen sieben Sektionen aus dem Design (Hero, Zielgruppen, Tanzstile, Veranstaltungen, Neuigkeiten, Kontakt-Strip, Gutschein-Band).
+- Stub-Komponenten für die übrigen neun Seiten.
+
+Nicht enthalten:
+
+- Produktivbilder (alle Seiten arbeiten aktuell mit dem Logo aus `public/logo.png` und SVG-Patterns).
+- Echte API-Anbindung (siehe Roadmap).
+
+## Verzeichnis-Struktur
+
+```
+src/
+├── index.html              Manrope-Font-Preconnect, lang="de"
+├── styles.scss             Design-Tokens, Reset, globale UI-Klassen
+└── app/
+    ├── app.ts              Root-Component (nur <router-outlet/>)
+    ├── app.config.ts       Provider-Setup
+    ├── app.routes.ts       Lazy-Routes (Layout-Wrapper + 10 Seiten)
+    ├── layout/
+    │   ├── layout.ts       Wrapper aus Header + <router-outlet/> + Footer
+    │   ├── header/         Fixed Header, Scroll-Shrink, Mobile-Drawer
+    │   └── footer/         Dark-Theme-Footer mit 4-Spalten-Grid
+    └── pages/              Eine Komponente pro Route, alle ChangeDetectionStrategy.OnPush
+        ├── home/                Vollständig (Hero, Zielgruppen, Tanzstile, ...)
+        ├── kurse/               Stub
+        ├── veranstaltungen/     Stub
+        ├── galerie/             Stub
+        ├── neuigkeiten/         Stub
+        ├── ueber-uns/           Stub
+        ├── kontakt/             Stub
+        ├── gutscheine/          Stub
+        ├── faq/                 Stub
+        └── impressum/           Stub
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Globale UI-Klassen (in `styles.scss`)
 
-## Running unit tests
+Diese Klassen sind seitenübergreifend nutzbar, ohne dass eine Komponente sie selbst stylen muss.
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+| Klasse                | Varianten / Modifier                                                                |
+| --------------------- | ----------------------------------------------------------------------------------- |
+| `.container`          | Responsive Page-Wrapper mit max-width 1200                                          |
+| `.btn`                | `.btn-primary`, `.btn-secondary`, `.btn-outline-secondary`, `.btn-outline-light`, `.btn-ghost`, `.btn-icon`; Größen `.btn-sm`, `.btn-lg` |
+| `.badge`              | `.badge-open`, `.badge-few`, `.badge-full` mit `.badge-dot`                         |
+| `.tag`                | `.tag-primary`, `.tag-secondary`                                                    |
+| `.date-pill`          | mit `.date-pill-day`, `.date-pill-month`                                            |
+| `.field` / `.input`   | `.field-label`, `.field-hint`, `.field-error`, `.input-error`, `.select-wrap`, `.checkbox-label`, `.radio-label` |
+| `.card`               | `.card-interactive` für Hover-Lift                                                  |
+| `.accordion`          | `.accordion-item`, `.accordion-trigger`, `.accordion-icon` (`.open`), `.accordion-body` (`.open`) |
+| `.filter-bar`         | `.filter-chip` (`.active`)                                                          |
+| `.pagination`         | `.page-btn` (`.active`)                                                             |
+| `.skeleton`           | `.skeleton-text`, `.skeleton-title`, `.skeleton-card`                               |
+| `.section`            | `.section-sm`, `.section-header` (`.section-header-split`), `.section-eyebrow`, `.section-title`, `.section-sub`, `.section-link` |
 
-```bash
-ng test
-```
+## Coding-Konventionen
 
-## Running end-to-end tests
+- Standalone-Komponenten, kein NgModule, kein `standalone: true` (Default in Angular 20+).
+- `ChangeDetectionStrategy.OnPush` in jedem `@Component`.
+- `inject()` statt Constructor-Injection.
+- Signals für State, `computed()` für abgeleiteten State.
+- Native Control-Flow (`@if`, `@for`, `@switch`), keine Strukturdirektiven.
+- `class`/`style`-Bindings, nicht `ngClass`/`ngStyle`.
+- `NgOptimizedImage` für statische Bilder.
+- Reactive Forms statt Template-driven Forms.
+- Host-Bindings im `host`-Object des Decorators, nicht via `@HostBinding`/`@HostListener`.
+- Detail-Vorgaben: siehe [`.claude/CLAUDE.md`](.claude/CLAUDE.md).
 
-For end-to-end (e2e) testing, run:
+## Roadmap
 
-```bash
-ng e2e
-```
+Die Foundation und die Startseite sind fertig. Offen:
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+1. **Seiten-Implementierungen.** Die anderen neun Routen sind Stubs. Reihenfolge nach Pattern-Wiederverwendung:
+   1. `kurse` — etabliert das List-/Filter-Pattern, wiederverwendbar für `veranstaltungen`, `neuigkeiten`, `galerie`.
+   2. `kontakt` — etabliert das Form-Pattern, wiederverwendbar für `gutscheine`.
+   3. `ueber-uns` — Marketing-Seite analog zu `home`.
+   4. `veranstaltungen`, `neuigkeiten`, `galerie`, `gutscheine`.
+   5. `faq`, `impressum` — statische Inhalte.
+2. **Echte Bilder.** Aktuell ausschließlich SVG-Patterns und das Logo (`public/logo.png`). Nach Abstimmung mit dem Kunden: WebP plus `srcset` über `NgOptimizedImage`.
+3. **API-Anbindung.** Joomla- und Cotas-Endpunkte, via Service-Layer pro Domäne (`CourseService`, `EventService`, `NewsService`, ...). Aktuell stehen die Daten als hartcodierte Mocks in den Komponenten.
 
-## Additional Resources
+## Lizenz
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Privates Projekt der Tanzschule Family &amp; Friends, alle Rechte vorbehalten.
