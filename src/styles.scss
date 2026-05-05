@@ -576,6 +576,60 @@ select.input {
 .skeleton-title { height: 20px; width: 60%; margin-bottom: var(--space-12); }
 .skeleton-card  { height: 160px; border-radius: var(--radius-lg); }
 
+/* ─── PAGE HERO (shared across content pages) ────────────────────── */
+.page-hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: 48px 0 40px;
+}
+
+.page-hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.page-hero-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.page-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin-bottom: var(--space-12);
+}
+
+.page-eyebrow::before {
+  content: '';
+  width: 20px;
+  height: 2px;
+  background: var(--color-primary);
+  border-radius: 2px;
+}
+
+.page-title {
+  font-size: var(--text-h1);
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: var(--space-12);
+}
+
+.page-sub {
+  font-size: var(--text-body-lg);
+  color: var(--color-text-muted);
+  max-width: 520px;
+  line-height: 1.55;
+}
+
 /* ─── SECTIONS ───────────────────────────────────────────────────── */
 .section    { padding: var(--space-96) 0; }
 .section-sm { padding: var(--space-64) 0; }

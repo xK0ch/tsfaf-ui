@@ -1,0 +1,30 @@
+<article class="team-card">
+  <div class="team-avatar" [style.background]="avatarBackground()" aria-hidden="true">
+    {{ initials() }}
+    <span class="team-avatar-ring"></span>
+  </div>
+  <h3 class="team-name">{{ member().name }}</h3>
+  <p class="team-role">{{ member().role }}</p>
+  <ul class="team-quals">
+    @for (q of member().qualifications; track q) {
+      <li class="qual-tag">{{ q }}</li>
+    }
+  </ul>
+  @if (member().bio) {
+    <button
+      type="button"
+      class="team-bio-toggle"
+      [attr.aria-expanded]="bioOpen()"
+      [attr.aria-controls]="'team-bio-' + member().id"
+      (click)="toggleBio()"
+    >
+      <span aria-hidden="true">{{ bioOpen() ? '▲' : '▼' }}</span>
+      {{ bioOpen() ? 'Weniger' : 'Mehr erfahren' }}
+    </button>
+    @if (bioOpen()) {
+      <div class="team-bio" [id]="'team-bio-' + member().id">
+        {{ member().bio }}
+      </div>
+    }
+  }
+</article>
