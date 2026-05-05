@@ -1,0 +1,28 @@
+<aside class="sidebar">
+  <div class="sidebar-widget">
+    <h2 class="sidebar-title">Alle Beiträge</h2>
+    <nav class="sidebar-link-list" aria-label="Beitragsliste">
+      @for (n of articles; track n.id) {
+        <a
+          [routerLink]="['/neuigkeiten', n.slug]"
+          routerLinkActive="active"
+          class="sidebar-link"
+          [class.is-current]="currentSlug() === n.slug"
+        >
+          <span class="sidebar-link-title">{{ n.title }}</span>
+          <span class="sidebar-link-count">{{ n.dateShort }}</span>
+        </a>
+      }
+    </nav>
+  </div>
+
+  <div class="sidebar-widget sidebar-cta">
+    <h2 class="sidebar-title">Kurs finden</h2>
+    <p class="sidebar-cta-text">
+      Interesse geweckt? Schau dir unser aktuelles Kursangebot an.
+    </p>
+    <a routerLink="/kurse" class="btn btn-primary btn-sm sidebar-cta-btn">
+      Zum Kursangebot →
+    </a>
+  </div>
+</aside>

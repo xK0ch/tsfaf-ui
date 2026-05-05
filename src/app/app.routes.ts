@@ -32,6 +32,12 @@ export const routes: Routes = [
         title: 'Neuigkeiten — Tanzschule Family & Friends',
       },
       {
+        path: 'neuigkeiten/:slug',
+        loadComponent: () =>
+          import('./pages/neuigkeiten/detail/neuigkeiten-detail').then(m => m.NeuigkeitenDetail),
+        title: 'Beitrag — Tanzschule Family & Friends',
+      },
+      {
         path: 'ueber-uns',
         loadComponent: () => import('./pages/ueber-uns/ueber-uns').then(m => m.UeberUns),
         title: 'Über uns — Tanzschule Family & Friends',

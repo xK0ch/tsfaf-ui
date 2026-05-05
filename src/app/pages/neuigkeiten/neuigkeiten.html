@@ -1,0 +1,92 @@
+<!-- ─── PAGE HERO ─────────────────────────────────────────────────── -->
+<header class="page-hero">
+  <div class="page-hero-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 260" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="news-list-grad-1" cx="8%" cy="55%" r="50%">
+          <stop offset="0%"   stop-color="#DC8C50" stop-opacity="0.08" />
+          <stop offset="100%" stop-color="#DC8C50" stop-opacity="0" />
+        </radialGradient>
+        <radialGradient id="news-list-grad-2" cx="92%" cy="40%" r="48%">
+          <stop offset="0%"   stop-color="#64B4C8" stop-opacity="0.07" />
+          <stop offset="100%" stop-color="#64B4C8" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="1200" height="260" fill="white" />
+      <rect width="1200" height="260" fill="url(#news-list-grad-1)" />
+      <rect width="1200" height="260" fill="url(#news-list-grad-2)" />
+    </svg>
+  </div>
+  <div class="container page-hero-inner">
+    <p class="page-eyebrow">Aktuelles</p>
+    <h1 class="page-title">Neuigkeiten</h1>
+    <p class="page-sub">
+      Was es Neues aus der Tanzschule gibt: Ankündigungen, Rückblicke, Termine.
+    </p>
+  </div>
+</header>
+
+<!-- ─── LIST ──────────────────────────────────────────────────────── -->
+<section class="list-section">
+  <div class="container">
+    <div class="list-layout">
+      <div>
+        <div class="news-grid">
+          @for (item of pageItems(); track item.article.id) {
+            <a
+              [routerLink]="['/neuigkeiten', item.article.slug]"
+              class="news-card"
+              [class.news-card-featured]="item.featured"
+            >
+              <div class="news-card-cover">
+                <app-news-cover [id]="item.article.id" [orange]="item.article.orange" />
+              </div>
+              <div class="news-card-body">
+                <p class="news-card-date">{{ item.article.dateLong }}</p>
+                <h2 class="news-card-title">{{ item.article.title }}</h2>
+                <p class="news-card-excerpt">{{ item.article.excerpt }}</p>
+                <span class="news-card-link">
+                  Weiterlesen <span aria-hidden="true">→</span>
+                </span>
+              </div>
+            </a>
+          }
+        </div>
+
+        @if (totalPages() > 1) {
+          <nav class="pagination" aria-label="Seitennavigation">
+            <button
+              type="button"
+              class="page-btn arrow"
+              (click)="prev()"
+              [disabled]="!canPrev()"
+              aria-label="Vorherige Seite"
+            >
+              <span aria-hidden="true">‹</span>
+            </button>
+            @for (p of pageNumbers(); track p) {
+              <button
+                type="button"
+                class="page-btn"
+                [class.active]="currentPage() === p"
+                [attr.aria-current]="currentPage() === p ? 'page' : null"
+                (click)="goToPage(p)"
+              >{{ p }}</button>
+            }
+            <button
+              type="button"
+              class="page-btn arrow"
+              (click)="next()"
+              [disabled]="!canNext()"
+              aria-label="Nächste Seite"
+            >
+              <span aria-hidden="true">›</span>
+            </button>
+          </nav>
+        }
+      </div>
+
+      <app-news-sidebar />
+    </div>
+  </div>
+</section>

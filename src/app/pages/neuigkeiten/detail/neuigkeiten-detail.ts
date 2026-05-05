@@ -1,0 +1,79 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DOCUMENT,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Title } from '@angular/platform-browser';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { map } from 'rxjs';
+import { findArticleBySlug } from '../neuigkeiten-data';
+import { NewsCover } from '../news-cover/news-cover';
+import { NewsSidebar } from '../news-sidebar/news-sidebar';
+
+@Component({
+  selector: 'app-neuigkeiten-detail',
+  imports: [RouterLink, NewsCover, NewsSidebar],
+  templateUrl: './neuigkeiten-detail.html',
+  styleUrl: './neuigkeiten-detail.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class NeuigkeitenDetail {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly title = inject(Title);
+  private readonly document = inject(DOCUMENT);
+
+  protected readonly slug = toSignal(
+    this.route.paramMap.pipe(map(p => p.get('slug') ?? '')),
+    { initialValue: '' },
+  );
+
+  protected readonly article = computed(() => findArticleBySlug(this.slug()) ?? null);
+
+  protected readonly copied = signal(false);
+  private copyTimer: ReturnType<typeof setTimeout> | null = null;
+
+  protected readonly whatsappUrl = computed(() => {
+    const a = this.article();
+    if (!a) {
+      return '';
+    }
+    const text = `${a.title} – Tanzschule Family und Friends`;
+    return `https://wa.me/?text=${encodeURIComponent(text)}`;
+  });
+
+  constructor() {
+    effect(() => {
+      const a = this.article();
+      const slug = this.slug();
+      if (a) {
+        this.title.setTitle(`${a.title} - Tanzschule Family & Friends`);
+        this.document.defaultView?.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (slug !== '') {
+        this.router.navigate(['/neuigkeiten'], { replaceUrl: true });
+      }
+    });
+  }
+
+  protected async copyLink(): Promise<void> {
+    const win = this.document.defaultView;
+    if (!win) {
+      return;
+    }
+    try {
+      await win.navigator.clipboard.writeText(win.location.href);
+      this.copied.set(true);
+      if (this.copyTimer !== null) {
+        clearTimeout(this.copyTimer);
+      }
+      this.copyTimer = setTimeout(() => this.copied.set(false), 2000);
+    } catch {
+      // Clipboard API may be unavailable. Fail silently.
+    }
+  }
+}
