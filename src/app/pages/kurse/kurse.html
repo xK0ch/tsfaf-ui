@@ -1,0 +1,179 @@
+<!-- ─── PAGE HERO ─────────────────────────────────────────────────── -->
+<header class="page-hero">
+  <div class="page-hero-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 260" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="kurse-grad-1" cx="15%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#DC8C50" stop-opacity="0.08" />
+          <stop offset="100%" stop-color="#DC8C50" stop-opacity="0" />
+        </radialGradient>
+        <radialGradient id="kurse-grad-2" cx="90%" cy="40%" r="45%">
+          <stop offset="0%"   stop-color="#64B4C8" stop-opacity="0.07" />
+          <stop offset="100%" stop-color="#64B4C8" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="1200" height="260" fill="white" />
+      <rect width="1200" height="260" fill="url(#kurse-grad-1)" />
+      <rect width="1200" height="260" fill="url(#kurse-grad-2)" />
+      <path
+        d="M -30 190 C 80 70, 260 30, 400 100 C 450 124, 455 175, 415 200 C 345 238, 165 215, 55 228 C -10 236, -30 225, -30 190 Z"
+        fill="#DC8C50" opacity="0.07"
+      />
+      <path
+        d="M 1050 20 C 1140 55, 1220 140, 1195 210 C 1178 248, 1130 255, 1090 235 C 1040 210, 1025 158, 1045 100 C 1055 55, 1010 0, 1050 20 Z"
+        fill="#64B4C8" opacity="0.06"
+      />
+    </svg>
+  </div>
+  <div class="container page-hero-inner">
+    <p class="page-eyebrow">Kursangebot</p>
+    <h1 class="page-title">Kurse</h1>
+    <p class="page-sub">
+      Wähle deine Zielgruppe und finde den passenden Kurs: von den Minis bis zu den Senioren.
+    </p>
+  </div>
+</header>
+
+<!-- ─── FILTER AREA ───────────────────────────────────────────────── -->
+<div class="filter-area">
+  <div class="zg-tabs">
+    <div class="container">
+      <div class="zg-tabs-inner" role="tablist" aria-label="Zielgruppe wählen">
+        @for (g of targetGroups; track g.id) {
+          <button
+            type="button"
+            role="tab"
+            class="zg-tab"
+            [class.active]="activeGroup() === g.id"
+            [attr.aria-selected]="activeGroup() === g.id"
+            (click)="selectGroup(g.id)"
+          >
+            <span class="zg-tab-icon" aria-hidden="true">{{ g.icon }}</span>
+            {{ g.label }}
+            <span class="zg-tab-count">{{ groupCounts[g.id] || 0 }}</span>
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (categories().length > 2) {
+    <div class="cat-chips">
+      <div class="container">
+        <div class="cat-chips-inner">
+          @for (cat of categories(); track cat) {
+            <button
+              type="button"
+              class="chip"
+              [class.active]="activeCategory() === cat"
+              (click)="selectCategory(cat)"
+            >{{ cat }}</button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- ─── MAIN CONTENT ──────────────────────────────────────────────── -->
+<section class="page-content">
+  <div class="container">
+    <div class="results-meta">
+      <p class="results-count">
+        <strong>{{ filteredCount() }}</strong>
+        @if (filteredCount() === 1) { Kurs } @else { Kurse } gefunden
+        @if (activeCategory() !== allCategoriesLabel) {
+          in <em>{{ activeCategory() }}</em>
+        }
+      </p>
+    </div>
+
+    @if (filteredCount() === 0) {
+      <div class="state-box">
+        <div class="state-icon" aria-hidden="true">🎭</div>
+        <h2 class="state-title">Aktuell keine Kurse</h2>
+        <p class="state-sub">
+          In dieser Auswahl gibt es gerade keine Kurse. Schau bald wieder vorbei oder ruf uns an:
+          <strong>04321 – 1 49 00</strong>
+        </p>
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="resetCategory()">
+          Alle Kategorien anzeigen
+        </button>
+      </div>
+    } @else {
+      <div class="course-grid">
+        @for (course of filtered(); track course.id) {
+          <article class="course-card">
+            <div class="course-card-accent" [style.background]="statusMap[course.status].accent"></div>
+            <div class="course-card-body">
+              <div class="course-card-head">
+                <h3 class="course-name">{{ course.name }}</h3>
+                <span class="badge" [class]="'badge ' + statusMap[course.status].cls">
+                  <span class="badge-dot" aria-hidden="true"></span>
+                  {{ statusMap[course.status].label }}
+                </span>
+              </div>
+              <p class="course-desc">{{ course.description }}</p>
+              <div class="course-meta">
+                <div class="course-meta-row">
+                  <span class="meta-icon" aria-hidden="true">🕐</span>
+                  {{ course.weekday }}, {{ course.startTime }} Uhr · {{ course.duration }} Min.
+                </div>
+                <div class="course-meta-row">
+                  <span class="meta-icon" aria-hidden="true">📅</span>
+                  Start: {{ course.startDate }}
+                </div>
+                <div class="course-meta-row">
+                  <span class="meta-icon" aria-hidden="true">👤</span>
+                  {{ course.instructor }}
+                </div>
+              </div>
+              <div class="avail-bar-wrap">
+                <div class="avail-bar-track">
+                  <div
+                    class="avail-bar-fill"
+                    [style.width.%]="availabilityFillPercent(course)"
+                    [style.background]="availabilityColor(course.status)"
+                  ></div>
+                </div>
+                <div class="avail-bar-label">
+                  @if (course.status === 'full') {
+                    Kurs ausgebucht
+                  } @else {
+                    {{ course.available }} von {{ course.capacity }} Plätzen frei
+                  }
+                </div>
+              </div>
+            </div>
+            <div class="course-card-footer">
+              <div>
+                <div class="course-price">
+                  @if (course.price === 0) {
+                    {{ course.priceLabel }}
+                  } @else {
+                    {{ course.price }} €
+                  }
+                </div>
+                @if (course.price > 0) {
+                  <div class="course-price-label">{{ course.priceLabel }}</div>
+                }
+              </div>
+              <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                [disabled]="course.status === 'full'"
+                (click)="openBooking(course)"
+              >
+                @if (course.status === 'full') { Ausgebucht } @else { Anmelden }
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</section>
+
+@if (bookCourse(); as course) {
+  <app-anmelde-modal [course]="course" (closed)="closeBooking()" />
+}
