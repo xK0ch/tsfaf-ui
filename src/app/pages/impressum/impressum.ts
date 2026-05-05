@@ -1,25 +1,45 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DOCUMENT, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { map } from 'rxjs';
+
+type LegalTab = 'impressum' | 'datenschutz';
+
+interface TabDef {
+  readonly id: LegalTab;
+  readonly label: string;
+}
 
 @Component({
   selector: 'app-impressum',
-  template: `
-    <div class="container page-stub">
-      <p class="page-stub-eyebrow">Impressum</p>
-      <h1>Impressum</h1>
-      <p class="page-stub-text">Rechtliche Angaben folgen hier.</p>
-    </div>
-  `,
-  styles: `
-    :host { display: block; padding-top: 120px; }
-    .page-stub { padding-block: var(--space-48); }
-    .page-stub-eyebrow {
-      font-size: 11px; font-weight: 700; letter-spacing: .12em;
-      text-transform: uppercase; color: var(--color-primary);
-      margin-bottom: var(--space-8);
-    }
-    h1 { font-size: var(--text-h1); margin-bottom: var(--space-16); }
-    .page-stub-text { color: var(--color-text-muted); max-width: 60ch; }
-  `,
+  imports: [RouterLink],
+  templateUrl: './impressum.html',
+  styleUrl: './impressum.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Impressum {}
+export class Impressum {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly document = inject(DOCUMENT);
+
+  protected readonly tabs: readonly TabDef[] = [
+    { id: 'impressum',   label: 'Impressum' },
+    { id: 'datenschutz', label: 'Datenschutz' },
+  ];
+
+  protected readonly activeTab = toSignal(
+    this.route.queryParamMap.pipe(
+      map(p => (p.get('tab') === 'datenschutz' ? 'datenschutz' : 'impressum') as LegalTab),
+    ),
+    { initialValue: 'impressum' as LegalTab },
+  );
+
+  protected selectTab(tab: LegalTab): void {
+    this.router.navigate([], {
+      queryParams: { tab: tab === 'impressum' ? null : tab },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+    this.document.defaultView?.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}

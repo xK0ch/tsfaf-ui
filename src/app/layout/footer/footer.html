@@ -46,7 +46,7 @@
       <span>&copy; {{ currentYear }} Tanzschule Family &amp; Friends</span>
       <div class="site-footer-legal">
         <a routerLink="/impressum">Impressum</a>
-        <a routerLink="/impressum">Datenschutz</a>
+        <a routerLink="/impressum" [queryParams]="{ tab: 'datenschutz' }">Datenschutz</a>
       </div>
     </div>
   </div>
