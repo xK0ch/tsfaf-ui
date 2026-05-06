@@ -1,0 +1,131 @@
+<!-- ─── PAGE HERO ─────────────────────────────────────────────────── -->
+<header class="page-hero">
+  <div class="page-hero-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 260" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="faq-grad-1" cx="8%" cy="55%" r="50%">
+          <stop offset="0%"   stop-color="#DC8C50" stop-opacity="0.08" />
+          <stop offset="100%" stop-color="#DC8C50" stop-opacity="0" />
+        </radialGradient>
+        <radialGradient id="faq-grad-2" cx="92%" cy="40%" r="48%">
+          <stop offset="0%"   stop-color="#64B4C8" stop-opacity="0.07" />
+          <stop offset="100%" stop-color="#64B4C8" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="1200" height="260" fill="white" />
+      <rect width="1200" height="260" fill="url(#faq-grad-1)" />
+      <rect width="1200" height="260" fill="url(#faq-grad-2)" />
+    </svg>
+  </div>
+  <div class="container page-hero-inner">
+    <p class="page-eyebrow">Häufige Fragen</p>
+    <h1 class="page-title">FAQ</h1>
+    <div class="search-wrap">
+      <input
+        type="search"
+        class="search-input"
+        placeholder="Frage suchen..."
+        [value]="query()"
+        (input)="onQueryInput($any($event.target).value)"
+        aria-label="FAQ durchsuchen"
+      />
+      <span class="search-icon" aria-hidden="true">🔍</span>
+    </div>
+  </div>
+</header>
+
+<!-- ─── LAYOUT ────────────────────────────────────────────────────── -->
+<main>
+  <div class="container">
+    <div class="faq-layout">
+      <nav class="faq-nav" aria-label="Kategorien">
+        <p class="cat-label">Kategorien</p>
+        <div class="cat-sidebar">
+          @for (cat of categories(); track cat.name) {
+            <button
+              type="button"
+              class="cat-btn"
+              [class.active]="activeCategory() === cat.name"
+              [attr.aria-pressed]="activeCategory() === cat.name"
+              (click)="selectCategory(cat.name)"
+            >
+              <span>{{ cat.name }}</span>
+              <span class="cat-count">{{ cat.count }}</span>
+            </button>
+          }
+        </div>
+      </nav>
+
+      <div class="faq-content">
+        @if (query()) {
+          <p class="faq-results-info">
+            {{ totalVisible() }}
+            {{ totalVisible() === 1 ? 'Ergebnis' : 'Ergebnisse' }}
+            für „{{ query() }}"
+          </p>
+        }
+
+        @if (!hasResults()) {
+          <div class="empty-state">
+            <div class="empty-icon" aria-hidden="true">🔍</div>
+            <p class="empty-title">Keine Ergebnisse</p>
+            <p>
+              Deine Frage ist nicht dabei? Ruf uns gerne an:
+              <a href="tel:+4943211490" class="empty-phone">04321 – 1 49 00</a>
+            </p>
+          </div>
+        } @else {
+          @for (group of filteredGroups(); track group.category) {
+            <div class="faq-section">
+              @if (showSectionTitles()) {
+                <p class="faq-section-title">{{ group.category }}</p>
+              }
+              <div class="accordion">
+                @for (item of group.items; track item.id) {
+                  <div class="accordion-item" [id]="item.id">
+                    <button
+                      type="button"
+                      class="accordion-trigger"
+                      (click)="toggleItem(item.id)"
+                      [attr.aria-expanded]="openId() === item.id"
+                      [attr.aria-controls]="item.id + '-body'"
+                    >
+                      <span [innerHTML]="item.questionHtml"></span>
+                      <span
+                        class="accordion-icon"
+                        [class.open]="openId() === item.id"
+                        aria-hidden="true"
+                      >+</span>
+                    </button>
+                    @if (openId() === item.id) {
+                      <div
+                        class="accordion-body"
+                        [id]="item.id + '-body'"
+                        role="region"
+                      >
+                        <div class="accordion-content" [innerHTML]="item.answerHtml"></div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        }
+
+        <div class="faq-cta">
+          <p class="faq-cta-title">Noch Fragen?</p>
+          <p class="faq-cta-text">
+            Wir helfen dir gerne persönlich weiter: per Telefon, E-Mail oder direkt in der Tanzschule.
+          </p>
+          <div class="faq-cta-actions">
+            <a href="tel:+4943211490" class="btn btn-primary btn-sm">
+              <span aria-hidden="true">📞</span> 04321 – 1 49 00
+            </a>
+            <a routerLink="/kontakt" class="btn btn-sm faq-cta-secondary">Kontaktformular</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
