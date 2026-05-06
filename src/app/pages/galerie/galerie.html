@@ -1,0 +1,114 @@
+<!-- ─── PAGE HERO ─────────────────────────────────────────────────── -->
+<header class="page-hero">
+  <div class="page-hero-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 260" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="gallery-grad-1" cx="8%" cy="55%" r="50%">
+          <stop offset="0%"   stop-color="#DC8C50" stop-opacity="0.08" />
+          <stop offset="100%" stop-color="#DC8C50" stop-opacity="0" />
+        </radialGradient>
+        <radialGradient id="gallery-grad-2" cx="92%" cy="40%" r="48%">
+          <stop offset="0%"   stop-color="#64B4C8" stop-opacity="0.07" />
+          <stop offset="100%" stop-color="#64B4C8" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="1200" height="260" fill="white" />
+      <rect width="1200" height="260" fill="url(#gallery-grad-1)" />
+      <rect width="1200" height="260" fill="url(#gallery-grad-2)" />
+    </svg>
+  </div>
+  <div class="container page-hero-inner">
+    <p class="page-eyebrow">Erinnerungen</p>
+    <h1 class="page-title">Galerie</h1>
+    <p class="page-sub">
+      {{ totalCount() }} Alben, tausende Momente: schau dir an, was wir erlebt haben.
+    </p>
+  </div>
+</header>
+
+<!-- ─── TOOLBAR ───────────────────────────────────────────────────── -->
+<div class="gallery-toolbar">
+  <div class="container toolbar-inner">
+    <p class="results-count">
+      <strong>{{ totalCount() }}</strong> Alben
+    </p>
+    <select
+      class="sort-select"
+      [value]="sort()"
+      (change)="onSortChange($any($event.target).value)"
+      aria-label="Sortierung"
+    >
+      <option value="newest">Neueste zuerst</option>
+      <option value="oldest">Älteste zuerst</option>
+    </select>
+  </div>
+</div>
+
+<!-- ─── GRID ──────────────────────────────────────────────────────── -->
+<main class="page-content">
+  <div class="container">
+    <div class="album-grid">
+      @for (album of pageAlbums(); track album.id) {
+        <a
+          [routerLink]="['/galerie', album.id]"
+          class="album-card"
+          [attr.aria-label]="'Album ' + album.title + ' öffnen'"
+        >
+          <div class="album-cover">
+            <div class="album-cover-bg">
+              <app-album-cover [seed]="album.seed" />
+            </div>
+            <div class="album-cover-overlay">
+              <span class="album-cover-icon" aria-hidden="true">▶</span>
+            </div>
+            <div class="album-teal-accent"></div>
+          </div>
+          <div class="album-info">
+            <div class="album-title">{{ album.title }}</div>
+            <div class="album-meta">
+              <span>{{ album.dateShort }}</span>
+              <span>{{ album.photoCount }} Fotos</span>
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="pagination gallery-pagination" aria-label="Seitennavigation">
+        <button
+          type="button"
+          class="page-btn arrow"
+          (click)="prev()"
+          [disabled]="!canPrev()"
+          aria-label="Vorherige Seite"
+        >
+          <span aria-hidden="true">‹</span>
+        </button>
+        @for (token of paginationTokens(); track token.key) {
+          @if (token.kind === 'ellipsis') {
+            <span class="page-ellipsis" aria-hidden="true">…</span>
+          } @else {
+            <button
+              type="button"
+              class="page-btn"
+              [class.active]="currentPage() === token.value"
+              [attr.aria-current]="currentPage() === token.value ? 'page' : null"
+              [attr.aria-label]="'Seite ' + token.value"
+              (click)="goToPage(token.value)"
+            >{{ token.value }}</button>
+          }
+        }
+        <button
+          type="button"
+          class="page-btn arrow"
+          (click)="next()"
+          [disabled]="!canNext()"
+          aria-label="Nächste Seite"
+        >
+          <span aria-hidden="true">›</span>
+        </button>
+      </nav>
+    }
+  </div>
+</main>

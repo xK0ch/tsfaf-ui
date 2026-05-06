@@ -1,0 +1,56 @@
+@if (album(); as a) {
+  <main class="page-content">
+    <div class="container">
+      <div class="detail-header">
+        <a routerLink="/galerie" class="back-btn">
+          <span aria-hidden="true">←</span> Alle Alben
+        </a>
+        <div class="detail-title-block">
+          <h1 class="detail-album-title">{{ a.title }}</h1>
+          <div class="detail-album-meta">
+            {{ a.dateLong }} · {{ photos().length }} Fotos
+          </div>
+        </div>
+      </div>
+
+      <p class="detail-album-desc">
+        Erinnerungen an einen unvergesslichen Abend. Klick auf ein Bild, um es in voller Größe zu sehen.
+        <br />
+        <span class="detail-album-hint">Hier kommen bald die echten Fotos hin.</span>
+      </p>
+
+      <div class="photo-grid">
+        @for (p of photos(); track p.id; let i = $index) {
+          <button
+            type="button"
+            class="photo-thumb"
+            (click)="openLightbox(i)"
+            (keydown)="onThumbKey($event, i)"
+            [attr.aria-label]="'Bild ' + (i + 1) + ' öffnen'"
+          >
+            <div class="photo-thumb-bg">
+              <app-album-cover [seed]="p.seed" />
+            </div>
+            <div class="photo-thumb-overlay">
+              <span class="photo-thumb-overlay-icon" aria-hidden="true">⊕</span>
+            </div>
+          </button>
+        }
+      </div>
+
+      <div class="detail-back-bottom">
+        <a routerLink="/galerie" class="btn btn-outline btn-sm">
+          <span aria-hidden="true">←</span> Zurück zur Übersicht
+        </a>
+      </div>
+    </div>
+  </main>
+
+  @if (lightboxOpen()) {
+    <app-lightbox
+      [photos]="photos()"
+      [startIdx]="lightboxIdx() ?? 0"
+      (closed)="closeLightbox()"
+    />
+  }
+}

@@ -27,6 +27,12 @@ export const routes: Routes = [
         title: 'Galerie — Tanzschule Family & Friends',
       },
       {
+        path: 'galerie/:id',
+        loadComponent: () =>
+          import('./pages/galerie/detail/galerie-detail').then(m => m.GalerieDetail),
+        title: 'Album — Tanzschule Family & Friends',
+      },
+      {
         path: 'neuigkeiten',
         loadComponent: () => import('./pages/neuigkeiten/neuigkeiten').then(m => m.Neuigkeiten),
         title: 'Neuigkeiten — Tanzschule Family & Friends',
