@@ -53,7 +53,6 @@ export class NeuigkeitenDetail {
       const slug = this.slug();
       if (a) {
         this.title.setTitle(`${a.title} - Tanzschule Family & Friends`);
-        this.document.defaultView?.scrollTo({ top: 0, behavior: 'smooth' });
       } else if (slug !== '') {
         this.router.navigate(['/neuigkeiten'], { replaceUrl: true });
       }

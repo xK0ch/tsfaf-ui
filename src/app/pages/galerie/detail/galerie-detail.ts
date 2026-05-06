@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DOCUMENT,
   effect,
   inject,
   signal,
@@ -26,7 +25,6 @@ export class GalerieDetail {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly title = inject(Title);
-  private readonly document = inject(DOCUMENT);
 
   protected readonly id = toSignal(
     this.route.paramMap.pipe(map(p => p.get('id') ?? '')),
@@ -49,7 +47,6 @@ export class GalerieDetail {
       const id = this.id();
       if (a) {
         this.title.setTitle(`${a.title} - Tanzschule Family & Friends`);
-        this.document.defaultView?.scrollTo({ top: 0, behavior: 'smooth' });
       } else if (id !== '') {
         this.router.navigate(['/galerie'], { replaceUrl: true });
       }
