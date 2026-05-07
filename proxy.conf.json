@@ -1,0 +1,20 @@
+{
+  "/cotas-api": {
+    "target": "https://anmeldung.tanzschule-family-and-friends.de",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/cotas-api": "/api/index.php"
+    },
+    "logLevel": "debug"
+  },
+  "/joomla-api": {
+    "target": "https://www.tanzschule-family-and-friends.de",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/joomla-api": ""
+    },
+    "logLevel": "debug"
+  }
+}
