@@ -1,13 +1,15 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import {
+  CategoryWithClasses,
   ConfirmRegistrationResponse,
-  DanceClassesCombinedResponse,
-  DanceClassesFilteredResponse,
-  DanceClassesResponse,
+  CotasDanceClass,
+  CotasDanceClassesFilteredResponse,
+  CotasDanceClassesResponse,
+  DanceClassCatalog,
   RegistrationPreviewResponse,
   RegistrationSubmitPayload,
   RegistrationSubmitResponse,
@@ -19,13 +21,11 @@ import {
 /**
  * HTTP-Client fuer die selbstgebaute cotas-api.
  *
- * Eine Methode pro Endpoint. Returns sind Observables. Components werden
- * typischerweise per `toSignal(...)` daraus Signals machen.
+ * Eine Methode pro Endpoint plus loadCatalog() das die Roh-Antwort von
+ * /danceclasses normalisiert und an die Komponente in einer
+ * praesentations-freundlichen Form rauslegt.
  *
- * Die Base-URL kommt aus environment.cotasApiBase. Im Dev-Build greift der
- * Angular-Dev-Server-Proxy (proxy.conf.json) und leitet '/cotas-api' an
- * die lokale PHP-Instanz weiter. Im Prod-Build zeigt die Base relativ
- * auf '/cotas-webmodule/cotas/api', d.h. same-origin.
+ * Base-URL kommt aus environment.cotasApiBase. Im Dev greift der Proxy.
  */
 @Injectable({ providedIn: 'root' })
 export class CotasApiService {
@@ -40,42 +40,35 @@ export class CotasApiService {
 
   // ---------- Kursliste ----------
 
-  /**
-   * Voller Kurs-Katalog ohne Filter.
-   */
-  listDanceClasses(): Observable<DanceClassesResponse> {
-    return this.http.get<DanceClassesResponse>(`${this.base}/danceclasses`);
+  /** Roh-Antwort der ungefilterten Liste (selten direkt benoetigt). */
+  listDanceClasses(): Observable<CotasDanceClassesResponse> {
+    return this.http.get<CotasDanceClassesResponse>(`${this.base}/danceclasses`);
   }
 
   /**
-   * Gefilterte Kursliste. UUIDs aus Cotas X. '0' bzw. leer = beliebig.
+   * Laedt den vollen Katalog und normalisiert ihn zu einer
+   * komponenten-freundlichen Struktur (Maps, sortierte Listen).
+   */
+  loadCatalog(): Observable<DanceClassCatalog> {
+    return this.listDanceClasses().pipe(map(resp => normalizeCatalog(resp)));
+  }
+
+  /**
+   * Gefilterte Kursliste fuer detaillierten Drill-Down. UUIDs aus Cotas X.
+   * '0' bzw. leer = beliebig.
    */
   listDanceClassesFiltered(
     kategorieId: string,
     zielgruppeId: string,
-  ): Observable<DanceClassesFilteredResponse> {
+  ): Observable<CotasDanceClassesFilteredResponse> {
     const params = new HttpParams()
       .set('kategorie', kategorieId || '0')
       .set('zielgruppe', zielgruppeId || '0');
-    return this.http.get<DanceClassesFilteredResponse>(`${this.base}/danceclasses`, { params });
-  }
-
-  /**
-   * Kategorien mit eingebetteten Kursen, Filter per Zielgruppen-Namen-Praefix.
-   * Aufruf z.B. mit "Kinder" -> liefert alle Kinder-Kategorien mit ihren Kursen.
-   */
-  listDanceClassesCombined(targetGroupName: string): Observable<DanceClassesCombinedResponse> {
-    const params = new HttpParams().set('name', targetGroupName);
-    return this.http.get<DanceClassesCombinedResponse>(`${this.base}/danceclasses/combined`, {
-      params,
-    });
+    return this.http.get<CotasDanceClassesFilteredResponse>(`${this.base}/danceclasses`, { params });
   }
 
   // ---------- Anmeldung ----------
 
-  /**
-   * Holt Vorabdaten fuers Anmeldeformular (Kurs, Kategorie, Default-Toggles).
-   */
   previewRegistration(
     danceClassId: string,
     opts: { partner?: 0 | 1; debit_charge?: 0 | 1 } = {},
@@ -92,18 +85,10 @@ export class CotasApiService {
     });
   }
 
-  /**
-   * Sendet das ausgefuellte Anmeldeformular ab. Backend validiert, persistiert
-   * und schickt Bestaetigungs-Mail. Bei Validation-Errors kommt
-   * { errors: true, err_<feld>: 1, ... } mit HTTP 422 zurueck.
-   */
   submitRegistration(payload: RegistrationSubmitPayload): Observable<RegistrationSubmitResponse> {
     return this.http.post<RegistrationSubmitResponse>(`${this.base}/registrations`, payload);
   }
 
-  /**
-   * Wird vom Bestaetigungs-Mail-Link aufgerufen.
-   */
   confirmRegistration(session: string): Observable<ConfirmRegistrationResponse> {
     const params = new HttpParams().set('session', session);
     return this.http.get<ConfirmRegistrationResponse>(`${this.base}/registrations/confirm`, {
@@ -125,4 +110,73 @@ export class CotasApiService {
     const params = new HttpParams().set('session', session);
     return this.http.get<VoucherOrderResponse>(`${this.base}/voucher-orders/confirm`, { params });
   }
+}
+
+/**
+ * Normalisiert die Roh-Antwort von /danceclasses zu einer
+ * Maps-basierten Struktur, die in der Component direkt konsumierbar ist.
+ *
+ * Roh-Form: dance_classes ist ein dict {tg_id: [[class, class, ...]]} mit
+ * verschachtelten Arrays. Wir flachen das aus und gruppieren nach Kategorie.
+ */
+function normalizeCatalog(resp: CotasDanceClassesResponse): DanceClassCatalog {
+  const targetGroups = [...(resp.target_groups ?? [])].sort(
+    (a, b) => (a.priority ?? 0) - (b.priority ?? 0),
+  );
+
+  const classesByGroup = new Map<string, CotasDanceClass[]>();
+  const categoriesByGroup = new Map<string, CategoryWithClasses[]>();
+
+  for (const tg of targetGroups) {
+    const raw = resp.dance_classes?.[tg.id];
+    const flat = flattenClasses(raw);
+
+    // Sortieren: erst kategorie_priority, dann kurs_bez
+    flat.sort((a, b) => {
+      const pa = parseInt(a.kategorie_priority, 10) || 0;
+      const pb = parseInt(b.kategorie_priority, 10) || 0;
+      if (pa !== pb) return pa - pb;
+      return (a.kurs_bez ?? '').localeCompare(b.kurs_bez ?? '', 'de');
+    });
+
+    classesByGroup.set(tg.id, flat);
+
+    // Kategorien aggregieren (nur die mit mind. einer Klasse)
+    const catMap = new Map<string, CategoryWithClasses>();
+    for (const c of flat) {
+      const cid = c.kategorie_id;
+      if (!cid) continue;
+      let entry = catMap.get(cid);
+      if (!entry) {
+        entry = {
+          id: cid,
+          bez: c.kategorie_bez ?? cid,
+          priority: parseInt(c.kategorie_priority, 10) || 0,
+          classes: [],
+        };
+        catMap.set(cid, entry);
+      }
+      (entry.classes as CotasDanceClass[]).push(c);
+    }
+    const cats = [...catMap.values()].sort((a, b) => {
+      if (a.priority !== b.priority) return a.priority - b.priority;
+      return a.bez.localeCompare(b.bez, 'de');
+    });
+    categoriesByGroup.set(tg.id, cats);
+  }
+
+  return { targetGroups, classesByGroup, categoriesByGroup };
+}
+
+function flattenClasses(raw: CotasDanceClass[][] | CotasDanceClass[] | undefined): CotasDanceClass[] {
+  if (!Array.isArray(raw)) return [];
+  const out: CotasDanceClass[] = [];
+  for (const item of raw) {
+    if (Array.isArray(item)) {
+      out.push(...item);
+    } else if (item && typeof item === 'object') {
+      out.push(item);
+    }
+  }
+  return out;
 }

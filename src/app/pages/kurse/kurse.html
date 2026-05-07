@@ -34,145 +34,168 @@
   </div>
 </header>
 
-<!-- ─── FILTER AREA ───────────────────────────────────────────────── -->
-<div class="filter-area">
-  <div class="zg-tabs">
+<!-- ─── LOADING / EMPTY-STATES ────────────────────────────────────── -->
+@if (catalog() === null) {
+  <section class="page-content">
     <div class="container">
-      <div class="zg-tabs-inner" role="tablist" aria-label="Zielgruppe wählen">
-        @for (g of targetGroups; track g.id) {
-          <button
-            type="button"
-            role="tab"
-            class="zg-tab"
-            [class.active]="activeGroup() === g.id"
-            [attr.aria-selected]="activeGroup() === g.id"
-            (click)="selectGroup(g.id)"
-          >
-            <span class="zg-tab-icon" aria-hidden="true">{{ g.icon }}</span>
-            {{ g.label }}
-            <span class="zg-tab-count">{{ groupCounts[g.id] || 0 }}</span>
-          </button>
-        }
+      <div class="state-box">
+        <div class="state-icon" aria-hidden="true">⏳</div>
+        <h2 class="state-title">Kurse werden geladen</h2>
+        <p class="state-sub">Einen Moment, wir holen die aktuellen Kursdaten.</p>
       </div>
     </div>
-  </div>
-
-  @if (categories().length > 2) {
-    <div class="cat-chips">
-      <div class="container">
-        <div class="cat-chips-inner">
-          @for (cat of categories(); track cat) {
-            <button
-              type="button"
-              class="chip"
-              [class.active]="activeCategory() === cat"
-              (click)="selectCategory(cat)"
-            >{{ cat }}</button>
-          }
-        </div>
-      </div>
-    </div>
-  }
-</div>
-
-<!-- ─── MAIN CONTENT ──────────────────────────────────────────────── -->
-<section class="page-content">
-  <div class="container">
-    <div class="results-meta">
-      <p class="results-count">
-        <strong>{{ filteredCount() }}</strong>
-        @if (filteredCount() === 1) { Kurs } @else { Kurse } gefunden
-        @if (activeCategory() !== allCategoriesLabel) {
-          in <em>{{ activeCategory() }}</em>
-        }
-      </p>
-    </div>
-
-    @if (filteredCount() === 0) {
+  </section>
+} @else if (targetGroups().length === 0) {
+  <section class="page-content">
+    <div class="container">
       <div class="state-box">
         <div class="state-icon" aria-hidden="true">🎭</div>
         <h2 class="state-title">Aktuell keine Kurse</h2>
         <p class="state-sub">
-          In dieser Auswahl gibt es gerade keine Kurse. Schau bald wieder vorbei oder ruf uns an:
-          <strong>04321 – 1 49 00</strong>
+          Wir konnten keine Kurse vom Server abrufen. Schau bald wieder vorbei oder ruf uns an:
+          <strong>04321 - 1 49 00</strong>
         </p>
-        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="resetCategory()">
-          Alle Kategorien anzeigen
-        </button>
       </div>
-    } @else {
-      <div class="course-grid">
-        @for (course of filtered(); track course.id) {
-          <article class="course-card">
-            <div class="course-card-accent" [style.background]="statusMap[course.status].accent"></div>
-            <div class="course-card-body">
-              <div class="course-card-head">
-                <h3 class="course-name">{{ course.name }}</h3>
-                <span class="badge" [class]="'badge ' + statusMap[course.status].cls">
-                  <span class="badge-dot" aria-hidden="true"></span>
-                  {{ statusMap[course.status].label }}
-                </span>
-              </div>
-              <p class="course-desc">{{ course.description }}</p>
-              <div class="course-meta">
-                <div class="course-meta-row">
-                  <span class="meta-icon" aria-hidden="true">🕐</span>
-                  {{ course.weekday }}, {{ course.startTime }} Uhr · {{ course.duration }} Min.
-                </div>
-                <div class="course-meta-row">
-                  <span class="meta-icon" aria-hidden="true">📅</span>
-                  Start: {{ course.startDate }}
-                </div>
-                <div class="course-meta-row">
-                  <span class="meta-icon" aria-hidden="true">👤</span>
-                  {{ course.instructor }}
-                </div>
-              </div>
-              <div class="avail-bar-wrap">
-                <div class="avail-bar-track">
-                  <div
-                    class="avail-bar-fill"
-                    [style.width.%]="availabilityFillPercent(course)"
-                    [style.background]="availabilityColor(course.status)"
-                  ></div>
-                </div>
-                <div class="avail-bar-label">
-                  @if (course.status === 'full') {
-                    Kurs ausgebucht
-                  } @else {
-                    {{ course.available }} von {{ course.capacity }} Plätzen frei
-                  }
-                </div>
-              </div>
-            </div>
-            <div class="course-card-footer">
-              <div>
-                <div class="course-price">
-                  @if (course.price === 0) {
-                    {{ course.priceLabel }}
-                  } @else {
-                    {{ course.price }} €
-                  }
-                </div>
-                @if (course.price > 0) {
-                  <div class="course-price-label">{{ course.priceLabel }}</div>
-                }
-              </div>
+    </div>
+  </section>
+} @else {
+  <!-- ─── FILTER AREA ───────────────────────────────────────────────── -->
+  <div class="filter-area">
+    <div class="zg-tabs">
+      <div class="container">
+        <div class="zg-tabs-inner" role="tablist" aria-label="Zielgruppe wählen">
+          @for (g of targetGroups(); track g.id) {
+            <button
+              type="button"
+              role="tab"
+              class="zg-tab"
+              [class.active]="currentGroupId() === g.id"
+              [attr.aria-selected]="currentGroupId() === g.id"
+              (click)="selectGroup(g.id)"
+            >
+              <span class="zg-tab-icon" aria-hidden="true">{{ iconFor(g) }}</span>
+              {{ g.bez }}
+              <span class="zg-tab-count">{{ groupCounts()[g.id] || 0 }}</span>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    @if (categories().length > 1) {
+      <div class="cat-chips">
+        <div class="container">
+          <div class="cat-chips-inner">
+            <button
+              type="button"
+              class="chip"
+              [class.active]="activeCategoryId() === allCategoriesId"
+              (click)="selectCategory(allCategoriesId)"
+            >Alle</button>
+            @for (cat of categories(); track cat.id) {
               <button
                 type="button"
-                class="btn btn-primary btn-sm"
-                [disabled]="course.status === 'full'"
-                (click)="openBooking(course)"
-              >
-                @if (course.status === 'full') { Ausgebucht } @else { Anmelden }
-              </button>
-            </div>
-          </article>
-        }
+                class="chip"
+                [class.active]="activeCategoryId() === cat.id"
+                (click)="selectCategory(cat.id)"
+              >{{ cat.bez }}</button>
+            }
+          </div>
+        </div>
       </div>
     }
   </div>
-</section>
+
+  <!-- ─── MAIN CONTENT ──────────────────────────────────────────────── -->
+  <section class="page-content">
+    <div class="container">
+      <div class="results-meta">
+        <p class="results-count">
+          <strong>{{ filteredCount() }}</strong>
+          @if (filteredCount() === 1) { Kurs } @else { Kurse } gefunden
+          @if (activeCategoryLabel()) {
+            in <em>{{ activeCategoryLabel() }}</em>
+          }
+        </p>
+      </div>
+
+      @if (filteredCount() === 0) {
+        <div class="state-box">
+          <div class="state-icon" aria-hidden="true">🎭</div>
+          <h2 class="state-title">Aktuell keine Kurse</h2>
+          <p class="state-sub">
+            In dieser Auswahl gibt es gerade keine Kurse. Schau bald wieder vorbei oder ruf uns an:
+            <strong>04321 - 1 49 00</strong>
+          </p>
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="resetCategory()">
+            Alle Kategorien anzeigen
+          </button>
+        </div>
+      } @else {
+        <div class="course-grid">
+          @for (course of filtered(); track course.id) {
+            <article class="course-card">
+              <div class="course-card-accent" [style.background]="status(course).accent"></div>
+              <div class="course-card-body">
+                <div class="course-card-head">
+                  <h3 class="course-name">{{ course.kurs_bez }}</h3>
+                  <span class="badge" [class]="'badge ' + status(course).cls">
+                    <span class="badge-dot" aria-hidden="true"></span>
+                    {{ status(course).label }}
+                  </span>
+                </div>
+                @if (description(course)) {
+                  <p class="course-desc">{{ description(course) }}</p>
+                }
+                <div class="course-meta">
+                  <div class="course-meta-row">
+                    <span class="meta-icon" aria-hidden="true">🕐</span>
+                    {{ course.tag }}, {{ startTime(course) }} Uhr
+                    @if (duration(course) > 0) {
+                      · {{ duration(course) }} Min.
+                    }
+                  </div>
+                  <div class="course-meta-row">
+                    <span class="meta-icon" aria-hidden="true">📅</span>
+                    Start: {{ course.tmpl_kurs_beginn }}
+                  </div>
+                  @if (course.kursleiter) {
+                    <div class="course-meta-row">
+                      <span class="meta-icon" aria-hidden="true">👤</span>
+                      {{ course.kursleiter }}
+                    </div>
+                  }
+                </div>
+              </div>
+              <div class="course-card-footer">
+                <div>
+                  <div class="course-price">
+                    @if (priceNumber(course) > 0) {
+                      {{ priceNumber(course) | number:'1.2-2' }} €
+                    } @else {
+                      Auf Anfrage
+                    }
+                  </div>
+                  @if (priceLabel(course)) {
+                    <div class="course-price-label">{{ priceLabel(course) }}</div>
+                  }
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm"
+                  [disabled]="isFull(course)"
+                  (click)="openBooking(course)"
+                >
+                  @if (isFull(course)) { Ausgebucht } @else { Anmelden }
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </div>
+  </section>
+}
 
 @if (bookCourse(); as course) {
   <app-anmelde-modal [course]="course" (closed)="closeBooking()" />

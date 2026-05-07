@@ -2,60 +2,138 @@
  * Typen fuer Antworten/Anfragen der cotas-api.
  *
  * Das alte cotas-webmodule liefert PHP-Arrays als JSON. Die genauen Felder
- * pro DAO sind nicht 100% dokumentiert. Wir typisieren die uns bekannten
- * Felder explizit und lassen den Rest per Index-Signatur offen, damit die
- * Templates nicht durchfallen wenn weitere Felder ankommen.
+ * sind in den DAOs definiert. Wir typisieren die uns bekannten Felder
+ * explizit (gewonnen via curl gegen /api/index.php/danceclasses), und
+ * lassen den Rest per Index-Signatur offen, damit die Templates
+ * forwards-kompatibel bleiben.
  */
 
-export interface DanceClass {
+export interface CotasTargetGroup {
   id: string;
-  kurskennung?: string;
-  kategorie_id?: string;
-  bez?: string;
+  name: string;
+  bez: string;
+  beschreibung: string;
+  priority: number;
+  active: string; // "active" oder leer
+  [key: string]: unknown;
+}
+
+export interface CotasCategory {
+  id: string;
+  bez: string;
   name?: string;
   beschreibung?: string;
-  honorar?: string | number;
-  // Weitere unbekannte Felder
-  [key: string]: unknown;
-}
-
-export interface Category {
-  id: string;
-  bez?: string;
-  priority?: number;
-  dance_classes?: DanceClass[];
-  [key: string]: unknown;
-}
-
-export interface TargetGroup {
-  id: string;
-  kennung?: string;
-  name?: string;
-  bez?: string;
   priority?: number;
   [key: string]: unknown;
 }
 
-export interface DanceClassesResponse {
-  result?: unknown;
+/**
+ * Eine Tanzklasse (ein konkreter Kurs).
+ * Felder wie in /api/index.php/danceclasses verifiziert.
+ */
+export interface CotasDanceClass {
+  id: string;
+  kurskennung: string;       // UUID, fuer Registrierung
+  kurs_bez: string;          // Anzeigename (z.B. "Welttanzprogramm 1 Erwachsene")
+  kurs_nr: string;
+  saison: string;
+  jahr: string;
+  standort: string;
+  saal_bez: string;
+  kzclub: string;
+
+  // Zielgruppe
+  zielgruppen_id: string;
+  zielgruppen_bez: string;
+  zielgruppen_priority: string;
+
+  // Kategorie
+  kategorie_id: string;
+  kategorie_bez: string;
+  kategorie_priority: string;
+
+  // Termine / Zeitplan
+  tag: string;               // Wochentag, "Montag"
+  kurs_beginn: string;       // ISO-Date "2026-05-11"
+  tmpl_kurs_beginn: string;  // formatiert "11.05.2026"
+  start: string;             // "20:30:00"
+  ende: string;              // "22:15:00"
+  tmpl_start: string;        // "20:30"
+  einheiten: string;         // Anzahl Termine
+  terminrhythmus: string;
+  next_date: string | null;
+
+  // Preis / Inhalt
+  honorar: string;           // "0.00" oder Preis als Decimal-String
+  umsatzsteuerfrei: string;
+  kursleiter: string;
+  assistent: string;
+  info_text: string;         // HTML-Beschreibung
+  headline: string;
+
+  // Flags
+  full: boolean | number | string | null;
+  started: number;
+  finished: number;
+  show_next: number;
+  schnupperkurs: string;     // "0" oder "1"
+
+  // Optionen (1-15, je mit _bez Label)
+  // Wir behandeln sie generisch via Index-Signatur unten.
+
+  // Vertraege (nullable, wird vom Detail-Endpoint befuellt)
+  contracts: unknown;
+
+  type: string;              // "kurs"
+
   [key: string]: unknown;
 }
 
-export interface DanceClassesFilteredResponse {
+/**
+ * Top-Level-Antwort von GET /danceclasses (ungefiltert).
+ */
+export interface CotasDanceClassesResponse {
+  target_groups: CotasTargetGroup[];
+  categories?: CotasCategory[];
+  dance_classes: Record<string, CotasDanceClass[][]>;
+  [key: string]: unknown;
+}
+
+/**
+ * Antwort von GET /danceclasses?kategorie=X&zielgruppe=Y (gefiltert).
+ * Struktur ist enger, wird vom alten Service als "result" Hash geliefert.
+ */
+export interface CotasDanceClassesFilteredResponse {
   result?: unknown;
   not_found?: boolean;
   [key: string]: unknown;
 }
 
-export interface DanceClassesCombinedResponse {
-  categories?: Category[];
-  target_group_name?: string;
-  [key: string]: unknown;
+/**
+ * Normalisierte Form, die im Frontend praktisch ist. Wird von
+ * CotasApiService.loadCatalog() aus der Roh-Antwort gebaut.
+ */
+export interface DanceClassCatalog {
+  /** Sortiert nach priority ASC */
+  targetGroups: CotasTargetGroup[];
+  /** zielgruppen_id -> flache, kategorie-priorisierte Klassenliste */
+  classesByGroup: ReadonlyMap<string, readonly CotasDanceClass[]>;
+  /** zielgruppen_id -> Kategorien fuer dieses Tab (nur die mit Klassen) */
+  categoriesByGroup: ReadonlyMap<string, readonly CategoryWithClasses[]>;
 }
 
+export interface CategoryWithClasses {
+  id: string;
+  bez: string;
+  priority: number;
+  classes: readonly CotasDanceClass[];
+}
+
+// ----- Registrierung -----
+
 export interface RegistrationPreviewResponse {
-  dance_class?: DanceClass;
-  category?: Category;
+  dance_class?: CotasDanceClass;
+  category?: CotasCategory;
   partner?: number;
   same_bank?: number;
   debit_charge?: number;
@@ -63,7 +141,7 @@ export interface RegistrationPreviewResponse {
 }
 
 /**
- * Felder im POST-Body fuer /registrations.
+ * POST-Body fuer /registrations.
  * Pflichtfelder gemaess get_mandatory_fields() im alten Service.
  */
 export interface RegistrationSubmitPayload {
@@ -89,7 +167,7 @@ export interface RegistrationSubmitPayload {
   inhaber?: string;
   bemerkung?: string;
 
-  // Partner-Felder, nur befuellen wenn partner === 1
+  // Partner-Felder (nur befuellen wenn partner === 1)
   p_anrede?: number;
   p_vorname?: string;
   p_nachname?: string;
@@ -122,6 +200,8 @@ export interface ConfirmRegistrationResponse {
   err_mail?: number;
   [key: string]: unknown;
 }
+
+// ----- Vouchers (vorerst lose typisiert) -----
 
 export interface VoucherResponse {
   voucher_id?: string;

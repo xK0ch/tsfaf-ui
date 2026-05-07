@@ -3,7 +3,7 @@
     <div class="modal-header">
       <div>
         <p class="modal-eyebrow">Anmeldung</p>
-        <h2 class="modal-title" id="anmelde-modal-title">{{ course().name }}</h2>
+        <h2 class="modal-title" id="anmelde-modal-title">{{ courseDisplay.kurs_bez }}</h2>
       </div>
       <button
         type="button"
@@ -19,15 +19,28 @@
       <div class="modal-body">
         <div class="modal-course-info">
           <div class="modal-meta">
-            <span><span class="meta-icon" aria-hidden="true">🕐</span>{{ course().weekday }}, {{ course().startTime }} Uhr · {{ course().duration }} Min.</span>
-            <span><span class="meta-icon" aria-hidden="true">📅</span>Start: {{ course().startDate }}</span>
-            <span><span class="meta-icon" aria-hidden="true">👤</span>{{ course().instructor }}</span>
+            <span>
+              <span class="meta-icon" aria-hidden="true">🕐</span>
+              {{ courseDisplay.tag }}, {{ startTime() }} Uhr
+              @if (duration() > 0) { · {{ duration() }} Min. }
+            </span>
+            <span>
+              <span class="meta-icon" aria-hidden="true">📅</span>
+              Start: {{ courseDisplay.tmpl_kurs_beginn }}
+            </span>
+            @if (courseDisplay.kursleiter) {
+              <span>
+                <span class="meta-icon" aria-hidden="true">👤</span>
+                {{ courseDisplay.kursleiter }}
+              </span>
+            }
             <span>
               <span class="meta-icon" aria-hidden="true">🎟</span>
-              @if (course().price === 0) {
-                {{ course().priceLabel }}
+              @if (priceNumber() > 0) {
+                {{ priceNumber() | number:'1.2-2' }} €
+                @if (priceLabel()) { · {{ priceLabel() }} }
               } @else {
-                {{ course().price }} € · {{ course().priceLabel }}
+                Auf Anfrage
               }
             </span>
           </div>
@@ -105,7 +118,7 @@
               type="tel"
               class="input"
               formControlName="telefon"
-              placeholder="04321 – 1 49 00"
+              placeholder="04321 - 1 49 00"
               autocomplete="tel"
             />
           </div>
@@ -123,26 +136,42 @@
           }
 
           <div class="form-actions">
-            <button type="submit" class="btn btn-primary form-actions-submit">
-              Jetzt anmelden
+            <button type="submit" class="btn btn-primary form-actions-submit" [disabled]="submitting()">
+              @if (submitting()) { Sende... } @else { Jetzt anmelden }
             </button>
-            <button type="button" class="btn btn-outline-secondary" (click)="requestClose()">
+            <button type="button" class="btn btn-outline-secondary" (click)="requestClose()" [disabled]="submitting()">
               Abbrechen
             </button>
           </div>
         </form>
       </div>
-    } @else {
+    } @else if (step() === 'success') {
       <div class="success-state">
         <div class="success-icon" aria-hidden="true">✓</div>
         <h3 class="success-title">Danke!</h3>
         <p class="success-text">
-          Wir haben deine Anmeldung für <strong>{{ course().name }}</strong> erhalten und melden uns
-          in Kürze bei dir.
+          Wir haben deine Anmeldung für <strong>{{ courseDisplay.kurs_bez }}</strong> erhalten.
+          Du bekommst gleich eine Bestätigungs-E-Mail mit dem Aktivierungs-Link.
         </p>
         <button type="button" class="btn btn-primary btn-sm" (click)="requestClose()">
           Schließen
         </button>
+      </div>
+    } @else {
+      <div class="success-state">
+        <div class="success-icon" aria-hidden="true" style="color: var(--color-danger)">!</div>
+        <h3 class="success-title">Anmeldung nicht angenommen</h3>
+        <p class="success-text">
+          {{ serverError() }}
+        </p>
+        <div class="form-actions">
+          <button type="button" class="btn btn-primary btn-sm" (click)="backToForm()">
+            Erneut versuchen
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="requestClose()">
+            Schließen
+          </button>
+        </div>
       </div>
     }
   </div>
