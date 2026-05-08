@@ -1,0 +1,364 @@
+:host {
+  display: block;
+  padding-top: 72px;
+}
+
+/* Globales styles.scss liefert alle Form-Bausteine: .field, .input,
+   .select-wrap, .field-error, .field-hint, .checkbox-label, .btn-*, .badge,
+   .page-hero, .page-eyebrow, .page-title, .page-sub. Hier nur das Layout
+   das spezifisch fuer die Anmeldungs-Seite ist. */
+
+/* ─── Hero (back-link + title) ───────────────────────────────────── */
+
+/* WICHTIG: nur top/bottom anfassen, sonst ueberschreibt das padding-shorthand
+   das horizontale Container-Padding und der Text klebt am Rand. */
+.page-hero-inner {
+  padding-top: var(--space-32);
+  padding-bottom: var(--space-24);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--color-secondary-deep);
+  margin-bottom: var(--space-16);
+  text-decoration: none;
+  transition: color var(--transition-fast), gap var(--transition-fast);
+}
+.back-link:hover {
+  color: var(--color-primary);
+  gap: var(--space-8);
+}
+
+.page-content {
+  padding: var(--space-48) 0 var(--space-96);
+}
+
+/* ─── Layout: Sidebar + Formular ─────────────────────────────────── */
+
+.anmeldung-grid {
+  display: grid;
+  gap: var(--space-32);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 900px) {
+  .anmeldung-grid {
+    grid-template-columns: 320px 1fr;
+    align-items: start;
+  }
+}
+
+/* ─── Sidebar mit Kursinfo ───────────────────────────────────────── */
+
+.course-summary {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-24);
+}
+
+/* Sticky NUR ab Desktop, sonst klebt die Box mobil oben fest. */
+@media (min-width: 900px) {
+  .course-summary {
+    position: sticky;
+    top: calc(72px + var(--space-16));
+    align-self: start;
+  }
+}
+
+.summary-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin-bottom: var(--space-12);
+}
+
+.summary-eyebrow::before {
+  content: '';
+  width: 16px;
+  height: 2px;
+  background: var(--color-primary);
+  border-radius: 2px;
+}
+
+.summary-title {
+  font-size: var(--text-h3);
+  font-weight: 700;
+  margin-bottom: var(--space-16);
+  line-height: var(--lh-heading);
+}
+
+.summary-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+}
+
+.summary-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-8);
+}
+
+.summary-list strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.summary-icon {
+  width: 16px;
+  flex-shrink: 0;
+  text-align: center;
+  opacity: .7;
+}
+
+.summary-details {
+  margin-top: var(--space-16);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-12);
+}
+
+.summary-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: var(--text-small);
+  color: var(--color-secondary-deep);
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.summary-details summary::-webkit-details-marker { display: none; }
+
+/* Inline-Links innerhalb von Checkbox-Labels (z.B. zu Datenschutz/Impressum)
+   sichtbar als Link kennzeichnen, damit klar ist dass man drauf klicken kann.
+   Globaler Reset macht <a> per Default farblos + ohne Unterstrich. */
+.checkbox-label a {
+  color: var(--color-secondary-deep);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color var(--transition-fast);
+}
+.checkbox-label a:hover {
+  color: var(--color-secondary);
+}
+
+.summary-description {
+  margin-top: var(--space-12);
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+/* ─── Formular ───────────────────────────────────────────────────── */
+
+.anmelde-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+
+.form-section {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-24);
+}
+
+@media (min-width: 600px) {
+  .form-section { padding: var(--space-32); }
+}
+
+.form-section-title {
+  font-size: var(--text-h3);
+  font-weight: 700;
+  margin: 0 0 var(--space-20);
+  color: var(--color-text);
+  line-height: var(--lh-heading);
+}
+
+/* WICHTIG: nur direkte Kinder, sonst greift's auch auf .field innerhalb
+   von .form-row und schiebt das zweite Feld der Reihe um 16px nach unten. */
+.form-section > .field + .field,
+.form-section > .field + .form-row,
+.form-section > .form-row + .field,
+.form-section > .form-row + .form-row,
+.form-section > .checkbox-label + .field,
+.form-section > .checkbox-label + .form-row,
+.form-section > .field + .checkbox-label,
+.form-section > .form-row + .checkbox-label {
+  margin-top: var(--space-16);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-16);
+  align-items: start;
+}
+
+.form-row-3-1 { grid-template-columns: 3fr 1fr; }
+.form-row-1-3 { grid-template-columns: 1fr 3fr; }
+
+@media (max-width: 600px) {
+  .form-row,
+  .form-row-3-1,
+  .form-row-1-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Sub-Block (SEPA, Partner-Bank) ─────────────────────────────── */
+
+.sub-block {
+  margin-top: var(--space-20);
+  padding: var(--space-20);
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-secondary);
+}
+
+.sub-block-info {
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-16);
+  line-height: 1.55;
+}
+
+.sub-block > .field + .field,
+.sub-block > .field + .form-row,
+.sub-block > .form-row + .field,
+.sub-block > .form-row + .form-row,
+.sub-block > .checkbox-label + .field,
+.sub-block > .checkbox-label + .form-row {
+  margin-top: var(--space-12);
+}
+
+/* ─── Server-Fehler ──────────────────────────────────────────────── */
+
+.form-server-error {
+  margin-top: var(--space-20);
+  padding: var(--space-16);
+  background: rgba(168, 69, 63, .06);
+  border-left: 3px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  font-size: var(--text-small);
+  color: var(--color-text);
+  line-height: 1.55;
+}
+
+.form-server-error strong { color: var(--color-danger); display: block; margin-bottom: var(--space-4); }
+.form-server-error p { margin: var(--space-8) 0; }
+
+/* ─── Submit Actions ─────────────────────────────────────────────── */
+
+.form-actions {
+  display: flex;
+  gap: var(--space-12);
+  flex-wrap: wrap;
+  margin-top: var(--space-20);
+}
+
+/* ─── Erfolg-Overlay ─────────────────────────────────────────────── */
+
+.success-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(42, 37, 32, .55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-16);
+  z-index: 100;
+  animation: fadeIn .25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.success-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-32);
+  max-width: 480px;
+  text-align: center;
+  box-shadow: var(--shadow-hover);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-16);
+}
+
+.success-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-success);
+  color: #fff;
+  font-size: 28px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-4);
+}
+
+.success-title {
+  font-size: var(--text-h2);
+  font-weight: 700;
+  line-height: var(--lh-heading);
+}
+
+.success-text {
+  font-size: var(--text-body);
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+
+/* ─── Empty / Loading-State ──────────────────────────────────────── */
+
+.state-box {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-64) var(--space-32);
+  text-align: center;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-16);
+}
+
+.state-icon {
+  font-size: 40px;
+  opacity: .5;
+}
+
+.state-title {
+  font-size: var(--text-h3);
+  font-weight: 700;
+}
+
+.state-sub {
+  font-size: var(--text-body);
+  color: var(--color-text-muted);
+  max-width: 380px;
+  line-height: 1.55;
+}

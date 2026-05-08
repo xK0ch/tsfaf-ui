@@ -1,0 +1,551 @@
+@if (state().loading) {
+  <section class="page-content">
+    <div class="container">
+      <div class="state-box">
+        <div class="state-icon" aria-hidden="true">⏳</div>
+        <h2 class="state-title">Kurs wird geladen</h2>
+        <p class="state-sub">Einen Moment bitte.</p>
+      </div>
+    </div>
+  </section>
+} @else if (state().error || !course()) {
+  <section class="page-content">
+    <div class="container">
+      <div class="state-box">
+        <div class="state-icon" aria-hidden="true">⚠</div>
+        <h2 class="state-title">Kurs nicht gefunden</h2>
+        <p class="state-sub">{{ state().error || 'Bitte zur Kursliste zurückkehren.' }}</p>
+        <a routerLink="/kurse" class="btn btn-primary btn-sm">Zur Kursliste</a>
+      </div>
+    </div>
+  </section>
+} @else if (course(); as c) {
+  <header class="page-hero">
+    <div class="page-hero-bg" aria-hidden="true">
+      <svg viewBox="0 0 1200 260" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id="anm-grad-1" cx="15%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="#DC8C50" stop-opacity="0.08" />
+            <stop offset="100%" stop-color="#DC8C50" stop-opacity="0" />
+          </radialGradient>
+          <radialGradient id="anm-grad-2" cx="90%" cy="40%" r="45%">
+            <stop offset="0%"   stop-color="#64B4C8" stop-opacity="0.07" />
+            <stop offset="100%" stop-color="#64B4C8" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <rect width="1200" height="260" fill="white" />
+        <rect width="1200" height="260" fill="url(#anm-grad-1)" />
+        <rect width="1200" height="260" fill="url(#anm-grad-2)" />
+        <path
+          d="M -30 190 C 80 70, 260 30, 400 100 C 450 124, 455 175, 415 200 C 345 238, 165 215, 55 228 C -10 236, -30 225, -30 190 Z"
+          fill="#DC8C50" opacity="0.07"
+        />
+        <path
+          d="M 1050 20 C 1140 55, 1220 140, 1195 210 C 1178 248, 1130 255, 1090 235 C 1040 210, 1025 158, 1045 100 C 1055 55, 1010 0, 1050 20 Z"
+          fill="#64B4C8" opacity="0.06"
+        />
+      </svg>
+    </div>
+    <div class="container page-hero-inner">
+      <a routerLink="/kurse" class="back-link" aria-label="Zurück zur Kursliste">
+        ← Zurück zur Kursliste
+      </a>
+      <p class="page-eyebrow">Anmeldung</p>
+      <h1 class="page-title">{{ c.kurs_bez }}</h1>
+      <p class="page-sub">{{ c.kategorie_bez }} · {{ c.zielgruppen_bez }}</p>
+    </div>
+  </header>
+
+  <section class="page-content">
+    <div class="container anmeldung-grid">
+      <!-- Kursinfo Sidebar -->
+      <aside class="course-summary">
+        <div class="summary-eyebrow">Dein Kurs</div>
+        <h2 class="summary-title">{{ c.kurs_bez }}</h2>
+        <ul class="summary-list">
+          <li>
+            <span class="summary-icon" aria-hidden="true">🕐</span>
+            <span><strong>{{ c.tag }}</strong>, {{ c.tmpl_start }} Uhr</span>
+          </li>
+          <li>
+            <span class="summary-icon" aria-hidden="true">📅</span>
+            <span>Beginn: <strong>{{ c.tmpl_kurs_beginn }}</strong></span>
+          </li>
+          @if (c.einheiten) {
+            <li>
+              <span class="summary-icon" aria-hidden="true">🔁</span>
+              <span>{{ c.einheiten }} Termine</span>
+            </li>
+          }
+          @if (c.kursleiter) {
+            <li>
+              <span class="summary-icon" aria-hidden="true">👤</span>
+              <span>{{ c.kursleiter }}</span>
+            </li>
+          }
+          @if (c.saal_bez) {
+            <li>
+              <span class="summary-icon" aria-hidden="true">📍</span>
+              <span>{{ c.saal_bez }}</span>
+            </li>
+          }
+        </ul>
+
+        @if (description()) {
+          <details class="summary-details">
+            <summary>Kursbeschreibung anzeigen</summary>
+            <p class="summary-description">{{ description() }}</p>
+          </details>
+        }
+      </aside>
+
+      <!-- Form -->
+      <form class="anmelde-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <!-- Tarif + Anmeldeart -->
+        <section class="form-section" aria-labelledby="sec-tarif">
+          <h2 id="sec-tarif" class="form-section-title">Tarif &amp; Anmeldeart</h2>
+
+          <div class="field">
+            <label for="vertrag_id" class="field-label">
+              Tarif <span class="required" aria-hidden="true">*</span>
+            </label>
+            <div class="select-wrap">
+              <select id="vertrag_id" class="input" formControlName="vertrag_id">
+                <option [ngValue]="0">Bitte auswählen</option>
+                @for (con of contracts(); track con.id) {
+                  <option [ngValue]="con.id">
+                    {{ con.bezeichnung }} : {{ priceFor(con) | number:'1.2-2' }} €
+                  </option>
+                }
+              </select>
+            </div>
+            @if (contracts().length === 0) {
+              <span class="field-hint">Für diesen Kurs sind keine Tarife hinterlegt.</span>
+            }
+            @if (form.controls.vertrag_id.touched && form.controls.vertrag_id.invalid) {
+              <span class="field-error">Bitte einen Tarif wählen.</span>
+            }
+          </div>
+
+          <div class="field">
+            <label for="partner" class="field-label">
+              Mit Partner <span class="required" aria-hidden="true">*</span>
+            </label>
+            <div class="select-wrap">
+              <select id="partner" class="input" formControlName="partner">
+                <option [ngValue]="0">Bitte auswählen</option>
+                <option [ngValue]="1">Mit Partner</option>
+                <option [ngValue]="2">Alleine</option>
+              </select>
+            </div>
+            @if (form.controls.partner.touched && form.controls.partner.invalid) {
+              <span class="field-error">Bitte auswählen.</span>
+            }
+          </div>
+        </section>
+
+        <!-- Eigene Daten -->
+        <section class="form-section" aria-labelledby="sec-daten">
+          <h2 id="sec-daten" class="form-section-title">Deine Daten</h2>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="anrede" class="field-label">
+                Anrede <span class="required" aria-hidden="true">*</span>
+              </label>
+              <div class="select-wrap">
+                <select id="anrede" class="input" formControlName="anrede">
+                  <option [ngValue]="0">Bitte auswählen</option>
+                  <option [ngValue]="1">Herr</option>
+                  <option [ngValue]="2">Frau</option>
+                </select>
+              </div>
+              @if (form.controls.anrede.touched && form.controls.anrede.invalid) {
+                <span class="field-error">Bitte Anrede wählen.</span>
+              }
+            </div>
+            <div class="field">
+              <label for="geburtstag" class="field-label">
+                Geburtstag <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input
+                id="geburtstag"
+                type="date"
+                class="input"
+                formControlName="geburtstag"
+                autocomplete="bday"
+              />
+              @if (form.controls.geburtstag.touched && form.controls.geburtstag.invalid) {
+                <span class="field-error">Bitte Geburtstag angeben.</span>
+              }
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="vorname" class="field-label">
+                Vorname <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="vorname" type="text" class="input" formControlName="vorname" autocomplete="given-name" placeholder="Maria" />
+              @if (form.controls.vorname.touched && form.controls.vorname.invalid) {
+                <span class="field-error">Bitte Vornamen angeben.</span>
+              }
+            </div>
+            <div class="field">
+              <label for="nachname" class="field-label">
+                Nachname <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="nachname" type="text" class="input" formControlName="nachname" autocomplete="family-name" placeholder="Musterfrau" />
+              @if (form.controls.nachname.touched && form.controls.nachname.invalid) {
+                <span class="field-error">Bitte Nachnamen angeben.</span>
+              }
+            </div>
+          </div>
+
+          <div class="form-row form-row-3-1">
+            <div class="field">
+              <label for="strasse" class="field-label">
+                Straße <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="strasse" type="text" class="input" formControlName="strasse" autocomplete="address-line1" />
+              @if (form.controls.strasse.touched && form.controls.strasse.invalid) {
+                <span class="field-error">Bitte Straße angeben.</span>
+              }
+            </div>
+            <div class="field">
+              <label for="hausnummer" class="field-label">
+                Hausnr. <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="hausnummer" type="text" class="input" formControlName="hausnummer" />
+              @if (form.controls.hausnummer.touched && form.controls.hausnummer.invalid) {
+                <span class="field-error">Pflicht.</span>
+              }
+            </div>
+          </div>
+
+          <div class="form-row form-row-1-3">
+            <div class="field">
+              <label for="plz" class="field-label">
+                PLZ <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="plz" type="text" class="input" formControlName="plz" inputmode="numeric" autocomplete="postal-code" />
+              @if (form.controls.plz.touched && form.controls.plz.invalid) {
+                <span class="field-error">Pflicht.</span>
+              }
+            </div>
+            <div class="field">
+              <label for="stadt" class="field-label">
+                Stadt <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="stadt" type="text" class="input" formControlName="stadt" autocomplete="address-level2" />
+              @if (form.controls.stadt.touched && form.controls.stadt.invalid) {
+                <span class="field-error">Bitte Stadt angeben.</span>
+              }
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="telefon" class="field-label">
+                Telefon <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="telefon" type="tel" class="input" formControlName="telefon" autocomplete="tel" placeholder="04321 1 49 00" />
+              @if (form.controls.telefon.touched && form.controls.telefon.invalid) {
+                <span class="field-error">Bitte Telefon angeben.</span>
+              }
+            </div>
+            <div class="field">
+              <label for="email" class="field-label">
+                E-Mail <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="email" type="email" class="input" formControlName="email" autocomplete="email" placeholder="deine@email.de" />
+              @if (form.controls.email.touched && form.controls.email.invalid) {
+                <span class="field-error">
+                  @if (form.controls.email.hasError('required')) {
+                    Bitte E-Mail-Adresse angeben.
+                  } @else {
+                    Bitte gültige E-Mail-Adresse angeben.
+                  }
+                </span>
+              }
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="bemerkung" class="field-label">
+              Bemerkung <span class="field-hint">(optional)</span>
+            </label>
+            <textarea id="bemerkung" class="input" rows="3" formControlName="bemerkung" placeholder="Anmerkungen oder Fragen an die Tanzschule"></textarea>
+          </div>
+        </section>
+
+        <!-- Lastschrift -->
+        <section class="form-section" aria-labelledby="sec-zahlung">
+          <h2 id="sec-zahlung" class="form-section-title">Zahlungsart</h2>
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="debit_charge" />
+            <span>Zahlung per SEPA-Lastschrift</span>
+          </label>
+
+          @if (debitOn()) {
+            <div class="sub-block">
+              <p class="sub-block-info">
+                Mit Aktivierung der Lastschrift erteilst du der Tanzschule Family &amp; Friends ein
+                SEPA-Lastschriftmandat für die Kursgebühr.
+              </p>
+              <div class="field">
+                <label for="inhaber" class="field-label">
+                  Kontoinhaber <span class="required" aria-hidden="true">*</span>
+                </label>
+                <input id="inhaber" type="text" class="input" formControlName="inhaber" autocomplete="cc-name" />
+                @if (form.controls.inhaber.touched && form.controls.inhaber.invalid) {
+                  <span class="field-error">Pflicht bei Lastschrift.</span>
+                }
+              </div>
+              <div class="form-row">
+                <div class="field">
+                  <label for="iban" class="field-label">
+                    IBAN <span class="required" aria-hidden="true">*</span>
+                  </label>
+                  <input id="iban" type="text" class="input" formControlName="iban" placeholder="DE..." />
+                  @if (form.controls.iban.touched && form.controls.iban.invalid) {
+                    <span class="field-error">Pflicht bei Lastschrift.</span>
+                  }
+                </div>
+                <div class="field">
+                  <label for="bic" class="field-label">
+                    BIC <span class="required" aria-hidden="true">*</span>
+                  </label>
+                  <input id="bic" type="text" class="input" formControlName="bic" />
+                  @if (form.controls.bic.touched && form.controls.bic.invalid) {
+                    <span class="field-error">Pflicht bei Lastschrift.</span>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </section>
+
+        <!-- Partner -->
+        @if (partnerOn()) {
+          <section class="form-section" aria-labelledby="sec-partner">
+            <h2 id="sec-partner" class="form-section-title">Daten deines Partners</h2>
+
+            <div class="form-row">
+              <div class="field">
+                <label for="p_anrede" class="field-label">
+                  Anrede <span class="required" aria-hidden="true">*</span>
+                </label>
+                <div class="select-wrap">
+                  <select id="p_anrede" class="input" formControlName="p_anrede">
+                    <option [ngValue]="0">Bitte auswählen</option>
+                    <option [ngValue]="1">Herr</option>
+                    <option [ngValue]="2">Frau</option>
+                  </select>
+                </div>
+                @if (form.controls.p_anrede.touched && form.controls.p_anrede.invalid) {
+                  <span class="field-error">Pflicht.</span>
+                }
+              </div>
+              <div class="field">
+                <label for="p_geburtstag" class="field-label">
+                  Geburtstag <span class="required" aria-hidden="true">*</span>
+                </label>
+                <input id="p_geburtstag" type="date" class="input" formControlName="p_geburtstag" />
+                @if (form.controls.p_geburtstag.touched && form.controls.p_geburtstag.invalid) {
+                  <span class="field-error">Pflicht.</span>
+                }
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="field">
+                <label for="p_vorname" class="field-label">
+                  Vorname <span class="required" aria-hidden="true">*</span>
+                </label>
+                <input id="p_vorname" type="text" class="input" formControlName="p_vorname" />
+                @if (form.controls.p_vorname.touched && form.controls.p_vorname.invalid) {
+                  <span class="field-error">Pflicht.</span>
+                }
+              </div>
+              <div class="field">
+                <label for="p_nachname" class="field-label">
+                  Nachname <span class="required" aria-hidden="true">*</span>
+                </label>
+                <input id="p_nachname" type="text" class="input" formControlName="p_nachname" />
+                @if (form.controls.p_nachname.touched && form.controls.p_nachname.invalid) {
+                  <span class="field-error">Pflicht.</span>
+                }
+              </div>
+            </div>
+
+            <div class="form-row form-row-3-1">
+              <div class="field">
+                <label for="p_strasse" class="field-label">
+                  Straße <span class="required" aria-hidden="true">*</span>
+                </label>
+                <input id="p_strasse" type="text" class="input" formControlName="p_strasse" />
+                @if (form.controls.p_strasse.touched && form.controls.p_strasse.invalid) {
+                  <span class="field-error">Pflicht.</span>
+                }
+              </div>
+              <div class="field">
+                <label for="p_hausnummer" class="field-label">
+                  Hausnr. <span class="required" aria-hidden="true">*</span>
+                </label>
+                <input id="p_hausnummer" type="text" class="input" formControlName="p_hausnummer" />
+                @if (form.controls.p_hausnummer.touched && form.controls.p_hausnummer.invalid) {
+                  <span class="field-error">Pflicht.</span>
+                }
+              </div>
+            </div>
+
+            <div class="form-row form-row-1-3">
+              <div class="field">
+                <label for="p_plz" class="field-label">
+                  PLZ <span class="required" aria-hidden="true">*</span>
+                </label>
+                <input id="p_plz" type="text" class="input" formControlName="p_plz" inputmode="numeric" />
+                @if (form.controls.p_plz.touched && form.controls.p_plz.invalid) {
+                  <span class="field-error">Pflicht.</span>
+                }
+              </div>
+              <div class="field">
+                <label for="p_stadt" class="field-label">
+                  Stadt <span class="required" aria-hidden="true">*</span>
+                </label>
+                <input id="p_stadt" type="text" class="input" formControlName="p_stadt" />
+                @if (form.controls.p_stadt.touched && form.controls.p_stadt.invalid) {
+                  <span class="field-error">Pflicht.</span>
+                }
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="field">
+                <label for="p_telefon" class="field-label">
+                  Telefon <span class="required" aria-hidden="true">*</span>
+                </label>
+                <input id="p_telefon" type="tel" class="input" formControlName="p_telefon" />
+                @if (form.controls.p_telefon.touched && form.controls.p_telefon.invalid) {
+                  <span class="field-error">Pflicht.</span>
+                }
+              </div>
+              <div class="field">
+                <label for="p_email" class="field-label">
+                  E-Mail <span class="required" aria-hidden="true">*</span>
+                </label>
+                <input id="p_email" type="email" class="input" formControlName="p_email" />
+                @if (form.controls.p_email.touched && form.controls.p_email.invalid) {
+                  <span class="field-error">Bitte gültige E-Mail-Adresse.</span>
+                }
+              </div>
+            </div>
+
+            @if (debitOn()) {
+              <div class="sub-block">
+                <label class="checkbox-label">
+                  <input type="checkbox" formControlName="same_bank" />
+                  <span>Selbe Bankverbindung wie oben</span>
+                </label>
+
+                @if (partnerBankSeparate()) {
+                  <div class="field">
+                    <label for="p_inhaber" class="field-label">
+                      Kontoinhaber Partner <span class="required" aria-hidden="true">*</span>
+                    </label>
+                    <input id="p_inhaber" type="text" class="input" formControlName="p_inhaber" />
+                    @if (form.controls.p_inhaber.touched && form.controls.p_inhaber.invalid) {
+                      <span class="field-error">Pflicht.</span>
+                    }
+                  </div>
+                  <div class="form-row">
+                    <div class="field">
+                      <label for="p_iban" class="field-label">
+                        IBAN Partner <span class="required" aria-hidden="true">*</span>
+                      </label>
+                      <input id="p_iban" type="text" class="input" formControlName="p_iban" />
+                      @if (form.controls.p_iban.touched && form.controls.p_iban.invalid) {
+                        <span class="field-error">Pflicht.</span>
+                      }
+                    </div>
+                    <div class="field">
+                      <label for="p_bic" class="field-label">
+                        BIC Partner <span class="required" aria-hidden="true">*</span>
+                      </label>
+                      <input id="p_bic" type="text" class="input" formControlName="p_bic" />
+                      @if (form.controls.p_bic.touched && form.controls.p_bic.invalid) {
+                        <span class="field-error">Pflicht.</span>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </section>
+        }
+
+        <!-- Datenschutz + Submit -->
+        <section class="form-section" aria-labelledby="sec-bestaetigung">
+          <h2 id="sec-bestaetigung" class="form-section-title">Bestätigung</h2>
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="checked" />
+            <span>
+              Ich habe die <a routerLink="/impressum" target="_blank" rel="noopener">Datenschutzerklärung</a>
+              gelesen und stimme der Verarbeitung meiner Daten zur Kursanmeldung zu.
+              <span class="required" aria-hidden="true">*</span>
+            </span>
+          </label>
+          @if (form.controls.checked.touched && form.controls.checked.invalid) {
+            <span class="field-error">Ohne Zustimmung können wir die Anmeldung nicht annehmen.</span>
+          }
+
+          @if (serverError(); as msg) {
+            <div class="form-server-error" role="alert">
+              <strong>Anmeldung nicht angenommen.</strong>
+              <p>{{ msg }}</p>
+              @if (invalidServerFields().length) {
+                <p>Felder: {{ invalidServerFields().join(', ') }}</p>
+              }
+              <button type="button" class="btn btn-outline-secondary btn-sm" (click)="resetServerError()">
+                Zurück zum Formular
+              </button>
+            </div>
+          }
+
+          <div class="form-actions">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="step() === 'submitting'"
+            >
+              @if (step() === 'submitting') { Sende... } @else { Anmeldung absenden }
+            </button>
+            <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
+              Abbrechen
+            </button>
+          </div>
+        </section>
+      </form>
+    </div>
+  </section>
+
+  <!-- Erfolgs-Overlay (ueber gesamtem Inhalt) -->
+  @if (step() === 'success') {
+    <div class="success-overlay" role="dialog" aria-modal="true" aria-labelledby="success-title">
+      <div class="success-card">
+        <div class="success-icon" aria-hidden="true">✓</div>
+        <h2 id="success-title" class="success-title">Fast geschafft!</h2>
+        <p class="success-text">
+          Wir haben deine Anmeldung für <strong>{{ c.kurs_bez }}</strong> erhalten.
+          Du bekommst gleich eine Bestätigungs-E-Mail mit einem Aktivierungs-Link.
+          Erst nach Klick auf diesen Link ist deine Anmeldung verbindlich.
+        </p>
+        <div class="form-actions">
+          <a routerLink="/kurse" class="btn btn-primary">Zur Kursliste</a>
+          <a routerLink="/" class="btn btn-outline-secondary">Zur Startseite</a>
+        </div>
+      </div>
+    </div>
+  }
+}

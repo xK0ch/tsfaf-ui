@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 import {
   CategoryWithClasses,
   ConfirmRegistrationResponse,
+  CotasContract,
   CotasDanceClass,
   CotasDanceClassesFilteredResponse,
   CotasDanceClassesResponse,
@@ -17,6 +18,9 @@ import {
   VoucherOrderResponse,
   VoucherResponse,
 } from '../models/cotas.models';
+// Re-export fuer convenience: Components koennen alle relevanten Typen
+// ueber den Service-Pfad importieren ohne den models-Pfad zu kennen.
+export type { CotasContract } from '../models/cotas.models';
 
 /**
  * HTTP-Client fuer die selbstgebaute cotas-api.

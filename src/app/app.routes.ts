@@ -17,6 +17,12 @@ export const routes: Routes = [
         title: 'Kurse — Tanzschule Family & Friends',
       },
       {
+        path: 'anmeldung/:id',
+        loadComponent: () =>
+          import('./pages/anmeldung/anmeldung').then(m => m.Anmeldung),
+        title: 'Kursanmeldung — Tanzschule Family & Friends',
+      },
+      {
         path: 'veranstaltungen',
         loadComponent: () => import('./pages/veranstaltungen/veranstaltungen').then(m => m.Veranstaltungen),
         title: 'Veranstaltungen — Tanzschule Family & Friends',

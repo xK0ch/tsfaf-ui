@@ -1,13 +1,13 @@
 import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 
 import { CotasApiService } from '../../core/services/cotas-api.service';
 import {
   CotasDanceClass,
   CotasTargetGroup,
 } from '../../core/models/cotas.models';
-import { AnmeldeModal } from './anmelde-modal/anmelde-modal';
 
 const ALL_CATEGORIES_ID = '__all__';
 
@@ -20,11 +20,6 @@ interface StatusInfo {
 const STATUS_OPEN: StatusInfo = { label: 'Plätze frei', cls: 'badge-open', accent: '#4A8A6E' };
 const STATUS_FULL: StatusInfo = { label: 'Ausgebucht',  cls: 'badge-full', accent: '#A8453F' };
 
-/**
- * Mapping vom Zielgruppen-Bez auf ein Icon. Stabil ueber bez (ist immer gleich
- * wie name in der API). Falls die Tanzschule eine neue Zielgruppe anlegt
- * faellt's auf ✨ zurueck.
- */
 const ICON_BY_TARGET_GROUP_BEZ: Readonly<Record<string, string>> = {
   Erwachsene:  '👫',
   Jugendliche: '🎤',
@@ -37,7 +32,7 @@ const ICON_BY_TARGET_GROUP_BEZ: Readonly<Record<string, string>> = {
 
 @Component({
   selector: 'app-kurse',
-  imports: [AnmeldeModal, DecimalPipe],
+  imports: [DecimalPipe, RouterLink],
   templateUrl: './kurse.html',
   styleUrl: './kurse.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,20 +42,15 @@ export class Kurse {
 
   protected readonly allCategoriesId = ALL_CATEGORIES_ID;
 
-  // Daten-Quelle: Catalog asynchron geladen
   protected readonly catalog = toSignal(this.api.loadCatalog(), { initialValue: null });
 
-  // Aktive Auswahl
   protected readonly activeGroupId = signal<string | null>(null);
   protected readonly activeCategoryId = signal<string>(ALL_CATEGORIES_ID);
-  protected readonly bookCourse = signal<CotasDanceClass | null>(null);
 
-  // Abgeleitet
   protected readonly targetGroups = computed<readonly CotasTargetGroup[]>(
     () => this.catalog()?.targetGroups ?? [],
   );
 
-  /** Faellt auf erste Zielgruppe zurueck wenn keine aktiv gesetzt. */
   protected readonly currentGroupId = computed<string | null>(() => {
     const explicit = this.activeGroupId();
     if (explicit) return explicit;
@@ -121,15 +111,6 @@ export class Kurse {
     this.activeCategoryId.set(ALL_CATEGORIES_ID);
   }
 
-  protected openBooking(course: CotasDanceClass): void {
-    if (this.isFull(course)) return;
-    this.bookCourse.set(course);
-  }
-
-  protected closeBooking(): void {
-    this.bookCourse.set(null);
-  }
-
   // ----- Display-Helpers -----
 
   protected iconFor(tg: CotasTargetGroup): string {
@@ -145,13 +126,11 @@ export class Kurse {
     return this.isFull(c) ? STATUS_FULL : STATUS_OPEN;
   }
 
-  /** "20:30" aus tmpl_start, sonst aus start abgeleitet. */
   protected startTime(c: CotasDanceClass): string {
     if (c.tmpl_start) return c.tmpl_start;
     return (c.start ?? '').slice(0, 5);
   }
 
-  /** Dauer in Minuten aus start/ende. 0 wenn nicht parsebar. */
   protected duration(c: CotasDanceClass): number {
     const parse = (s: string): number | null => {
       const [h, m] = (s ?? '').split(':').map(n => parseInt(n, 10));
@@ -175,10 +154,6 @@ export class Kurse {
     return '';
   }
 
-  /**
-   * Kurzbeschreibung aus info_text. info_text ist HTML, wir strippen die Tags
-   * und kuerzen auf ~200 Zeichen.
-   */
   protected description(c: CotasDanceClass): string {
     const raw = c.info_text ?? '';
     const text = raw.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();

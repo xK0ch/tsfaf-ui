@@ -180,14 +180,18 @@
                     <div class="course-price-label">{{ priceLabel(course) }}</div>
                   }
                 </div>
-                <button
-                  type="button"
-                  class="btn btn-primary btn-sm"
-                  [disabled]="isFull(course)"
-                  (click)="openBooking(course)"
-                >
-                  @if (isFull(course)) { Ausgebucht } @else { Anmelden }
-                </button>
+                @if (isFull(course)) {
+                  <button type="button" class="btn btn-primary btn-sm" disabled>
+                    Ausgebucht
+                  </button>
+                } @else {
+                  <a
+                    class="btn btn-primary btn-sm"
+                    [routerLink]="['/anmeldung', course.id]"
+                  >
+                    Anmelden
+                  </a>
+                }
               </div>
             </article>
           }
@@ -197,6 +201,3 @@
   </section>
 }
 
-@if (bookCourse(); as course) {
-  <app-anmelde-modal [course]="course" (closed)="closeBooking()" />
-}
