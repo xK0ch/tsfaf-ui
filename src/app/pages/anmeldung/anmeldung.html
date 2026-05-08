@@ -56,6 +56,27 @@
     </div>
   </header>
 
+  @if (onlineRegistrationBlocked()) {
+    <section class="page-content">
+      <div class="container">
+        <div class="state-box">
+          <div class="state-icon" aria-hidden="true">📞</div>
+          <h2 class="state-title">Online-Anmeldung nicht möglich</h2>
+          <p class="state-sub">
+            Für diesen Kurs können Sie sich nicht online anmelden. Bitte rufen Sie uns
+            an, damit wir Sie persönlich beraten und die passende Gruppe finden können.
+          </p>
+          <a class="btn btn-primary" [href]="phoneHref()">
+            📞 {{ phoneNumber() }}
+          </a>
+          <a class="btn btn-outline-secondary btn-sm" routerLink="/kurse">
+            Zurück zur Kursliste
+          </a>
+        </div>
+      </div>
+    </section>
+  } @else {
+
   <section class="page-content">
     <div class="container anmeldung-grid">
       <!-- Kursinfo Sidebar -->
@@ -548,4 +569,6 @@
       </div>
     </div>
   }
+
+  } <!-- @else (onlineRegistrationBlocked) -->
 }

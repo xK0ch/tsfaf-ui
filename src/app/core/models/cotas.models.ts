@@ -118,6 +118,27 @@ export interface CategoryWithClasses {
   classes: readonly CotasDanceClass[];
 }
 
+// ----- Site-Config (vom /config Endpoint) -----
+
+export interface CotasInfoText {
+  category_ids: readonly string[];
+  /** HTML-Body des Hinweistextes */
+  body: string;
+}
+
+export interface CotasSiteConfig {
+  /** Kategorie-UUIDs fuer die KEINE Online-Anmeldung moeglich ist. */
+  no_online_registration: readonly string[];
+  /** Hinweistexte (HTML), die fuer bestimmte Kategorien angezeigt werden. */
+  infotexts: readonly CotasInfoText[];
+  /** Kategorien in denen der Partner-Toggle ausgeblendet wird. */
+  enforce_no_partner_categories: readonly string[];
+  /** Zielgruppen die nur mit Partner buchbar sind. */
+  enforce_partner_target_groups: readonly string[];
+  /** Kontakt-Telefonnummer fuer Telefon-CTA. */
+  phone: string;
+}
+
 // ----- Registrierung -----
 
 export interface RegistrationPreviewResponse {

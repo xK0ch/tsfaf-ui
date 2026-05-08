@@ -1,11 +1,13 @@
 import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 
 import { CotasApiService } from '../../core/services/cotas-api.service';
 import {
   CotasDanceClass,
+  CotasSiteConfig,
   CotasTargetGroup,
 } from '../../core/models/cotas.models';
 
@@ -39,10 +41,12 @@ const ICON_BY_TARGET_GROUP_BEZ: Readonly<Record<string, string>> = {
 })
 export class Kurse {
   private readonly api = inject(CotasApiService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   protected readonly allCategoriesId = ALL_CATEGORIES_ID;
 
   protected readonly catalog = toSignal(this.api.loadCatalog(), { initialValue: null });
+  protected readonly config = toSignal(this.api.loadConfig(), { initialValue: null });
 
   protected readonly activeGroupId = signal<string | null>(null);
   protected readonly activeCategoryId = signal<string>(ALL_CATEGORIES_ID);
@@ -96,6 +100,31 @@ export class Kurse {
     return this.categories().find(c => c.id === id)?.bez ?? '';
   });
 
+  /**
+   * Infotext fuer die aktuell sichtbaren Kategorien. Wenn eine Kategorie aktiv
+   * ist und ein Infotext sich auf sie bezieht: zeigen. Wenn keine Kategorie
+   * aktiv (Tab "Alle"), zeigen wir Infotexte die mind. eine sichtbare
+   * Kategorie matchen, max. einen pro Tab.
+   */
+  protected readonly currentInfotextHtml = computed<SafeHtml | null>(() => {
+    const cfg = this.config();
+    if (!cfg || !cfg.infotexts.length) return null;
+
+    const visibleCategoryIds = new Set(
+      this.activeCategoryId() === ALL_CATEGORIES_ID
+        ? this.categories().map(c => c.id)
+        : [this.activeCategoryId()],
+    );
+
+    for (const it of cfg.infotexts) {
+      const matches = it.category_ids.some(id => visibleCategoryIds.has(id));
+      if (matches) {
+        return this.sanitizer.bypassSecurityTrustHtml(it.body);
+      }
+    }
+    return null;
+  });
+
   // ----- Aktionen -----
 
   protected selectGroup(id: string): void {
@@ -120,6 +149,25 @@ export class Kurse {
   protected isFull(c: CotasDanceClass): boolean {
     const f = c.full;
     return f === true || f === 1 || f === '1';
+  }
+
+  /**
+   * Kategorie ist auf "no_online_registration" geflaggt: User muss
+   * stattdessen anrufen.
+   */
+  protected isOnlineRegistrationBlocked(c: CotasDanceClass): boolean {
+    const cfg = this.config();
+    if (!cfg) return false;
+    return cfg.no_online_registration.includes(c.kategorie_id);
+  }
+
+  protected phoneNumber(): string {
+    return this.config()?.phone ?? '04321 1 49 00';
+  }
+
+  /** Telefon-Number ohne Leerzeichen fuer tel: links. */
+  protected phoneHref(): string {
+    return 'tel:+49' + this.phoneNumber().replace(/[^\d]/g, '').replace(/^0/, '');
   }
 
   protected status(c: CotasDanceClass): StatusInfo {
@@ -150,7 +198,7 @@ export class Kurse {
 
   protected priceLabel(c: CotasDanceClass): string {
     const u = parseInt(c.einheiten, 10);
-    if (Number.isFinite(u) && u > 0) return `${u} Termine`;
+    if (Number.isFinite(u) && u > 0) return `${u} Wochen`;
     return '';
   }
 

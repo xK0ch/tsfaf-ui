@@ -21,6 +21,7 @@ import { catchError, of, switchMap } from 'rxjs';
 import {
   CotasContract,
   CotasDanceClass,
+  CotasSiteConfig,
   RegistrationPreviewResponse,
   RegistrationSubmitPayload,
 } from '../../core/models/cotas.models';
@@ -89,6 +90,26 @@ export class Anmeldung {
 
   protected readonly contracts = computed<readonly CotasContract[]>(
     () => (this.state().data?.contracts ?? []) as CotasContract[],
+  );
+
+  // ----- Site-Config (no_online_registration etc) -----
+
+  protected readonly config = toSignal<CotasSiteConfig | null>(this.api.loadConfig(), {
+    initialValue: null,
+  });
+
+  /** True wenn diese Kategorie auf der no_online_registration-Liste steht. */
+  protected readonly onlineRegistrationBlocked = computed<boolean>(() => {
+    const c = this.course();
+    const cfg = this.config();
+    if (!c || !cfg) return false;
+    return cfg.no_online_registration.includes(c.kategorie_id);
+  });
+
+  protected readonly phoneNumber = computed(() => this.config()?.phone ?? '04321 1 49 00');
+
+  protected readonly phoneHref = computed(
+    () => 'tel:+49' + this.phoneNumber().replace(/[^\d]/g, '').replace(/^0/, ''),
   );
 
   // ----- UI-State -----

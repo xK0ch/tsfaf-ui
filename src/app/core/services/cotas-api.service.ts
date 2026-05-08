@@ -10,6 +10,7 @@ import {
   CotasDanceClass,
   CotasDanceClassesFilteredResponse,
   CotasDanceClassesResponse,
+  CotasSiteConfig,
   DanceClassCatalog,
   RegistrationPreviewResponse,
   RegistrationSubmitPayload,
@@ -20,7 +21,15 @@ import {
 } from '../models/cotas.models';
 // Re-export fuer convenience: Components koennen alle relevanten Typen
 // ueber den Service-Pfad importieren ohne den models-Pfad zu kennen.
-export type { CotasContract } from '../models/cotas.models';
+export type { CotasContract, CotasSiteConfig } from '../models/cotas.models';
+
+const EMPTY_CONFIG: CotasSiteConfig = {
+  no_online_registration: [],
+  infotexts: [],
+  enforce_no_partner_categories: [],
+  enforce_partner_target_groups: [],
+  phone: '04321 1 49 00',
+};
 
 /**
  * HTTP-Client fuer die selbstgebaute cotas-api.
@@ -40,6 +49,26 @@ export class CotasApiService {
 
   health(): Observable<{ status: string; time: string }> {
     return this.http.get<{ status: string; time: string }>(`${this.base}/health`);
+  }
+
+  // ---------- Site-Config ----------
+
+  /**
+   * Laedt no_online_registration / infotexts / Telefon usw. aus der
+   * Server-Config (cotas/config/<env>/config.json). Faellt im Fehlerfall
+   * auf einen leeren Default zurueck damit die UI nicht haengt.
+   */
+  loadConfig(): Observable<CotasSiteConfig> {
+    return this.http.get<CotasSiteConfig>(`${this.base}/config`).pipe(
+      map(cfg => ({
+        ...EMPTY_CONFIG,
+        ...cfg,
+        no_online_registration: cfg?.no_online_registration ?? [],
+        infotexts: cfg?.infotexts ?? [],
+        enforce_no_partner_categories: cfg?.enforce_no_partner_categories ?? [],
+        enforce_partner_target_groups: cfg?.enforce_partner_target_groups ?? [],
+      })),
+    );
   }
 
   // ---------- Kursliste ----------
@@ -133,7 +162,7 @@ function normalizeCatalog(resp: CotasDanceClassesResponse): DanceClassCatalog {
 
   for (const tg of targetGroups) {
     const raw = resp.dance_classes?.[tg.id];
-    const flat = flattenClasses(raw);
+    const flat = flattenClasses(raw).filter(c => !isFinishedNonClub(c));
 
     // Sortieren: erst kategorie_priority, dann kurs_bez
     flat.sort((a, b) => {
@@ -183,4 +212,24 @@ function flattenClasses(raw: CotasDanceClass[][] | CotasDanceClass[] | undefined
     }
   }
   return out;
+}
+
+/**
+ * Spiegelt das Filter-Verhalten der alten PHP-Seite:
+ *   if (!$dance_class->finished || $dance_class->kzclub) ... zeigen
+ * Sprich: abgelaufene Kurse rausschmeissen, ausser es ist ein laufender
+ * Club (kzclub == 1). Damit verschwinden vom Chef "abgelaufene"
+ * Termine genau wie auf der alten Webseite.
+ */
+function isFinishedNonClub(c: CotasDanceClass): boolean {
+  const finished =
+    c.finished === 1 ||
+    (typeof c.finished === 'string' && c.finished === '1') ||
+    (typeof c.finished === 'boolean' && c.finished);
+
+  const isClub =
+    c.kzclub === '1' ||
+    (typeof c.kzclub === 'number' && c.kzclub === 1);
+
+  return finished && !isClub;
 }

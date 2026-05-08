@@ -119,13 +119,17 @@
         </p>
       </div>
 
+      @if (currentInfotextHtml(); as html) {
+        <div class="infotext-banner" [innerHTML]="html"></div>
+      }
+
       @if (filteredCount() === 0) {
         <div class="state-box">
           <div class="state-icon" aria-hidden="true">🎭</div>
           <h2 class="state-title">Aktuell keine Kurse</h2>
           <p class="state-sub">
             In dieser Auswahl gibt es gerade keine Kurse. Schau bald wieder vorbei oder ruf uns an:
-            <strong>04321 - 1 49 00</strong>
+            <strong>{{ phoneNumber() }}</strong>
           </p>
           <button type="button" class="btn btn-outline-secondary btn-sm" (click)="resetCategory()">
             Alle Kategorien anzeigen
@@ -184,6 +188,14 @@
                   <button type="button" class="btn btn-primary btn-sm" disabled>
                     Ausgebucht
                   </button>
+                } @else if (isOnlineRegistrationBlocked(course)) {
+                  <a
+                    class="btn btn-outline-secondary btn-sm"
+                    [href]="phoneHref()"
+                    [attr.aria-label]="'Telefonisch anmelden: ' + phoneNumber()"
+                  >
+                    📞 {{ phoneNumber() }}
+                  </a>
                 } @else {
                   <a
                     class="btn btn-primary btn-sm"

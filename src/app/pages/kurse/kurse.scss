@@ -3,6 +3,24 @@
   padding-top: 72px;
 }
 
+/* ─── INFOTEXT BANNER ────────────────────────────────────────────── */
+/* Wird angezeigt wenn die aktive Kategorie / Tab einen konfigurierten
+   Hinweistext aus cotas/config/<env>/config.json -> infotexts hat. */
+.infotext-banner {
+  background: #FBF0E5;
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  padding: var(--space-16) var(--space-20);
+  margin-bottom: var(--space-24);
+  color: var(--color-text);
+  font-size: var(--text-small);
+  line-height: 1.55;
+}
+
+.infotext-banner p { margin: 0 0 var(--space-8); }
+.infotext-banner p:last-child { margin-bottom: 0; }
+.infotext-banner strong { color: var(--color-primary-deep); }
+
 /* ─── FILTER AREA ───────────────────────────────────────────────── */
 .filter-area {
   position: sticky;
