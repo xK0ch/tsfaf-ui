@@ -161,18 +161,16 @@
 }
 
 /* ─── COURSE GRID ───────────────────────────────────────────────── */
+/* Eine Karte pro KATEGORIE. Jede Karte enthaelt mehrere Termin-Zeilen.
+   Cards sind dadurch hoeher und brauchen breiteren Container. */
 .course-grid {
   display: grid;
   gap: var(--space-20);
   grid-template-columns: 1fr;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 800px) {
   .course-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (min-width: 1000px) {
-  .course-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 .course-card {
@@ -247,27 +245,94 @@
   opacity: .7;
 }
 
-.course-card-footer {
-  padding: 14px 20px;
+/* ─── PRO-KATEGORIE INFOTEXT ─────────────────────────────────────── */
+.course-infotext {
+  background: #FBF0E5;
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  padding: var(--space-12) var(--space-16);
+  font-size: var(--text-small);
+  color: var(--color-text);
+  line-height: 1.55;
+}
+.course-infotext p { margin: 0 0 var(--space-4); }
+.course-infotext p:last-child { margin-bottom: 0; }
+.course-infotext strong { color: var(--color-primary-deep); }
+
+/* ─── TERMINE-LISTE INNERHALB EINER KARTE ──────────────────────── */
+.termine-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
   border-top: 1px solid var(--color-border);
-  display: flex;
+}
+
+.termin-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-12);
-  flex-shrink: 0;
+  gap: var(--space-16);
+  padding: var(--space-12) 20px;
+  border-bottom: 1px solid var(--color-border);
 }
 
-.course-price {
+.termin-row:last-child { border-bottom: 0; }
+.termin-row:hover     { background: var(--color-bg); }
+
+.termin-when {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.termin-when strong {
+  font-size: var(--text-small);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.termin-time,
+.termin-instructor {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.termin-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.termin-price {
   font-weight: 700;
-  font-size: var(--text-body);
-  line-height: 1.2;
+  font-size: var(--text-small);
 }
 
-.course-price-label {
+.termin-weeks {
   font-size: 11px;
   color: var(--color-text-muted);
-  font-weight: 400;
-  margin-top: 2px;
+}
+
+.termin-action {
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .termin-row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'when meta'
+      'action action';
+    gap: var(--space-8);
+    padding: var(--space-12);
+  }
+  .termin-when   { grid-area: when; }
+  .termin-meta   { grid-area: meta; }
+  .termin-action { grid-area: action; justify-self: stretch; }
+  .termin-action > * { width: 100%; }
 }
 
 /* ─── AVAILABILITY BAR ──────────────────────────────────────────── */

@@ -6,8 +6,8 @@ import { RouterLink } from '@angular/router';
 
 import { CotasApiService } from '../../core/services/cotas-api.service';
 import {
+  CategoryWithClasses,
   CotasDanceClass,
-  CotasSiteConfig,
   CotasTargetGroup,
 } from '../../core/models/cotas.models';
 
@@ -61,6 +61,11 @@ export class Kurse {
     return this.targetGroups()[0]?.id ?? null;
   });
 
+  /**
+   * Anzahl der Termine pro Zielgruppe (fuer die Tabs-Counter). Termine,
+   * nicht Kategorien, weil die Tab-Counter dem User die Erwartung "Anzahl
+   * an Auswahlmoeglichkeiten" geben.
+   */
   protected readonly groupCounts = computed<Readonly<Record<string, number>>>(() => {
     const cat = this.catalog();
     const out: Record<string, number> = {};
@@ -71,28 +76,31 @@ export class Kurse {
     return out;
   });
 
-  protected readonly categories = computed(() => {
+  protected readonly categories = computed<readonly CategoryWithClasses[]>(() => {
     const cat = this.catalog();
     const gid = this.currentGroupId();
     if (!cat || !gid) return [];
     return cat.categoriesByGroup.get(gid) ?? [];
   });
 
-  protected readonly classesForGroup = computed<readonly CotasDanceClass[]>(() => {
-    const cat = this.catalog();
-    const gid = this.currentGroupId();
-    if (!cat || !gid) return [];
-    return cat.classesByGroup.get(gid) ?? [];
-  });
-
-  protected readonly filtered = computed<readonly CotasDanceClass[]>(() => {
-    const all = this.classesForGroup();
+  /**
+   * Sichtbare Kategorien-Karten. Bei "Alle" alle Kategorien, sonst nur die
+   * eine ausgewaehlte. Jede Karte rendert intern alle ihre Termine.
+   */
+  protected readonly filteredCategories = computed<readonly CategoryWithClasses[]>(() => {
+    const cats = this.categories();
     const catId = this.activeCategoryId();
-    if (catId === ALL_CATEGORIES_ID) return all;
-    return all.filter(c => c.kategorie_id === catId);
+    if (catId === ALL_CATEGORIES_ID) return cats;
+    return cats.filter(c => c.id === catId);
   });
 
-  protected readonly filteredCount = computed(() => this.filtered().length);
+  protected readonly filteredCategoryCount = computed(() => this.filteredCategories().length);
+
+  protected readonly filteredTermineCount = computed(() => {
+    let n = 0;
+    for (const c of this.filteredCategories()) n += c.classes.length;
+    return n;
+  });
 
   protected readonly activeCategoryLabel = computed<string>(() => {
     const id = this.activeCategoryId();
@@ -101,21 +109,18 @@ export class Kurse {
   });
 
   /**
-   * Infotext fuer die aktuell sichtbaren Kategorien. Wenn eine Kategorie aktiv
-   * ist und ein Infotext sich auf sie bezieht: zeigen. Wenn keine Kategorie
-   * aktiv (Tab "Alle"), zeigen wir Infotexte die mind. eine sichtbare
-   * Kategorie matchen, max. einen pro Tab.
+   * Globaler Infotext-Banner ueber den Cards: greift wenn die aktuelle
+   * Auswahl mind. eine Kategorie zeigt, fuer die ein Infotext konfiguriert
+   * ist. Bei "Alle"-Tab zeigen wir den ersten matchenden, weil sonst die
+   * Anzeige zu voll wird; spezifische Infotexte rendern wir ZUSAETZLICH
+   * pro Karte (siehe infotextForCategory).
    */
   protected readonly currentInfotextHtml = computed<SafeHtml | null>(() => {
     const cfg = this.config();
     if (!cfg || !cfg.infotexts.length) return null;
+    if (this.activeCategoryId() === ALL_CATEGORIES_ID) return null;
 
-    const visibleCategoryIds = new Set(
-      this.activeCategoryId() === ALL_CATEGORIES_ID
-        ? this.categories().map(c => c.id)
-        : [this.activeCategoryId()],
-    );
-
+    const visibleCategoryIds = new Set([this.activeCategoryId()]);
     for (const it of cfg.infotexts) {
       const matches = it.category_ids.some(id => visibleCategoryIds.has(id));
       if (matches) {
@@ -155,17 +160,32 @@ export class Kurse {
    * Kategorie ist auf "no_online_registration" geflaggt: User muss
    * stattdessen anrufen.
    */
-  protected isOnlineRegistrationBlocked(c: CotasDanceClass): boolean {
+  protected isOnlineRegistrationBlockedById(categoryId: string): boolean {
     const cfg = this.config();
     if (!cfg) return false;
-    return cfg.no_online_registration.includes(c.kategorie_id);
+    return cfg.no_online_registration.includes(categoryId);
+  }
+
+  protected isOnlineRegistrationBlocked(c: CotasDanceClass): boolean {
+    return this.isOnlineRegistrationBlockedById(c.kategorie_id);
+  }
+
+  /** Per-Kategorie Infotext (kommt zusaetzlich zum globalen Banner). */
+  protected infotextForCategory(categoryId: string): SafeHtml | null {
+    const cfg = this.config();
+    if (!cfg) return null;
+    for (const it of cfg.infotexts) {
+      if (it.category_ids.includes(categoryId)) {
+        return this.sanitizer.bypassSecurityTrustHtml(it.body);
+      }
+    }
+    return null;
   }
 
   protected phoneNumber(): string {
     return this.config()?.phone ?? '04321 1 49 00';
   }
 
-  /** Telefon-Number ohne Leerzeichen fuer tel: links. */
   protected phoneHref(): string {
     return 'tel:+49' + this.phoneNumber().replace(/[^\d]/g, '').replace(/^0/, '');
   }
@@ -177,6 +197,10 @@ export class Kurse {
   protected startTime(c: CotasDanceClass): string {
     if (c.tmpl_start) return c.tmpl_start;
     return (c.start ?? '').slice(0, 5);
+  }
+
+  protected endTime(c: CotasDanceClass): string {
+    return (c.ende ?? '').slice(0, 5);
   }
 
   protected duration(c: CotasDanceClass): number {
@@ -196,15 +220,28 @@ export class Kurse {
     return Number.isFinite(n) ? n : 0;
   }
 
-  protected priceLabel(c: CotasDanceClass): string {
+  protected weeksLabel(c: CotasDanceClass): string {
     const u = parseInt(c.einheiten, 10);
     if (Number.isFinite(u) && u > 0) return `${u} Wochen`;
     return '';
   }
 
-  protected description(c: CotasDanceClass): string {
-    const raw = c.info_text ?? '';
+  /**
+   * Kurzbeschreibung pro Kategorie. Nimmt info_text vom ersten Termin
+   * (innerhalb einer Kategorie ist das textuell identisch) und strippt das
+   * HTML auf ~200 Zeichen.
+   */
+  protected descriptionFor(cat: CategoryWithClasses): string {
+    const first = cat.classes[0];
+    if (!first) return '';
+    const raw = first.info_text ?? '';
     const text = raw.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
     return text.length > 200 ? text.slice(0, 197) + '...' : text;
+  }
+
+  /** Wenn alle Termine der Kategorie ausgebucht sind. */
+  protected categoryFull(cat: CategoryWithClasses): boolean {
+    if (cat.classes.length === 0) return false;
+    return cat.classes.every(t => this.isFull(t));
   }
 }

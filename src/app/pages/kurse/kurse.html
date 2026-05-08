@@ -53,7 +53,7 @@
         <h2 class="state-title">Aktuell keine Kurse</h2>
         <p class="state-sub">
           Wir konnten keine Kurse vom Server abrufen. Schau bald wieder vorbei oder ruf uns an:
-          <strong>04321 - 1 49 00</strong>
+          <strong>{{ phoneNumber() }}</strong>
         </p>
       </div>
     </div>
@@ -111,8 +111,11 @@
     <div class="container">
       <div class="results-meta">
         <p class="results-count">
-          <strong>{{ filteredCount() }}</strong>
-          @if (filteredCount() === 1) { Kurs } @else { Kurse } gefunden
+          <strong>{{ filteredCategoryCount() }}</strong>
+          @if (filteredCategoryCount() === 1) { Kurs } @else { Kurse }
+          mit
+          <strong>{{ filteredTermineCount() }}</strong>
+          @if (filteredTermineCount() === 1) { Termin } @else { Terminen }
           @if (activeCategoryLabel()) {
             in <em>{{ activeCategoryLabel() }}</em>
           }
@@ -123,7 +126,7 @@
         <div class="infotext-banner" [innerHTML]="html"></div>
       }
 
-      @if (filteredCount() === 0) {
+      @if (filteredCategoryCount() === 0) {
         <div class="state-box">
           <div class="state-icon" aria-hidden="true">🎭</div>
           <h2 class="state-title">Aktuell keine Kurse</h2>
@@ -137,74 +140,74 @@
         </div>
       } @else {
         <div class="course-grid">
-          @for (course of filtered(); track course.id) {
+          @for (cat of filteredCategories(); track cat.id) {
             <article class="course-card">
-              <div class="course-card-accent" [style.background]="status(course).accent"></div>
               <div class="course-card-body">
                 <div class="course-card-head">
-                  <h3 class="course-name">{{ course.kurs_bez }}</h3>
-                  <span class="badge" [class]="'badge ' + status(course).cls">
-                    <span class="badge-dot" aria-hidden="true"></span>
-                    {{ status(course).label }}
-                  </span>
+                  <h3 class="course-name">{{ cat.bez }}</h3>
+                  @if (categoryFull(cat)) {
+                    <span class="badge badge-full">
+                      <span class="badge-dot" aria-hidden="true"></span>
+                      Ausgebucht
+                    </span>
+                  }
                 </div>
-                @if (description(course)) {
-                  <p class="course-desc">{{ description(course) }}</p>
+
+                @if (descriptionFor(cat); as desc) {
+                  <p class="course-desc">{{ desc }}</p>
                 }
-                <div class="course-meta">
-                  <div class="course-meta-row">
-                    <span class="meta-icon" aria-hidden="true">🕐</span>
-                    {{ course.tag }}, {{ startTime(course) }} Uhr
-                    @if (duration(course) > 0) {
-                      · {{ duration(course) }} Min.
-                    }
-                  </div>
-                  <div class="course-meta-row">
-                    <span class="meta-icon" aria-hidden="true">📅</span>
-                    Start: {{ course.tmpl_kurs_beginn }}
-                  </div>
-                  @if (course.kursleiter) {
-                    <div class="course-meta-row">
-                      <span class="meta-icon" aria-hidden="true">👤</span>
-                      {{ course.kursleiter }}
+
+                @if (infotextForCategory(cat.id); as html) {
+                  <div class="course-infotext" [innerHTML]="html"></div>
+                }
+              </div>
+
+              <ul class="termine-list" aria-label="Termine">
+                @for (t of cat.classes; track t.id) {
+                  <li class="termin-row">
+                    <div class="termin-when">
+                      <strong>{{ t.tag }}, {{ t.tmpl_kurs_beginn }}</strong>
+                      <span class="termin-time">
+                        {{ startTime(t) }} – {{ endTime(t) }} Uhr
+                        @if (duration(t) > 0) { · {{ duration(t) }} Min. }
+                      </span>
+                      @if (t.kursleiter) {
+                        <span class="termin-instructor">{{ t.kursleiter }}</span>
+                      }
                     </div>
-                  }
-                </div>
-              </div>
-              <div class="course-card-footer">
-                <div>
-                  <div class="course-price">
-                    @if (priceNumber(course) > 0) {
-                      {{ priceNumber(course) | number:'1.2-2' }} €
-                    } @else {
-                      Auf Anfrage
-                    }
-                  </div>
-                  @if (priceLabel(course)) {
-                    <div class="course-price-label">{{ priceLabel(course) }}</div>
-                  }
-                </div>
-                @if (isFull(course)) {
-                  <button type="button" class="btn btn-primary btn-sm" disabled>
-                    Ausgebucht
-                  </button>
-                } @else if (isOnlineRegistrationBlocked(course)) {
-                  <a
-                    class="btn btn-outline-secondary btn-sm"
-                    [href]="phoneHref()"
-                    [attr.aria-label]="'Telefonisch anmelden: ' + phoneNumber()"
-                  >
-                    📞 {{ phoneNumber() }}
-                  </a>
-                } @else {
-                  <a
-                    class="btn btn-primary btn-sm"
-                    [routerLink]="['/anmeldung', course.id]"
-                  >
-                    Anmelden
-                  </a>
+                    <div class="termin-meta">
+                      @if (priceNumber(t) > 0) {
+                        <span class="termin-price">{{ priceNumber(t) | number:'1.2-2' }} €</span>
+                      }
+                      @if (weeksLabel(t)) {
+                        <span class="termin-weeks">{{ weeksLabel(t) }}</span>
+                      }
+                    </div>
+                    <div class="termin-action">
+                      @if (isFull(t)) {
+                        <button type="button" class="btn btn-primary btn-sm" disabled>
+                          Ausgebucht
+                        </button>
+                      } @else if (isOnlineRegistrationBlocked(t)) {
+                        <a
+                          class="btn btn-outline-secondary btn-sm"
+                          [href]="phoneHref()"
+                          [attr.aria-label]="'Telefonisch anmelden: ' + phoneNumber()"
+                        >
+                          📞 Anrufen
+                        </a>
+                      } @else {
+                        <a
+                          class="btn btn-primary btn-sm"
+                          [routerLink]="['/anmeldung', t.id]"
+                        >
+                          Anmelden
+                        </a>
+                      }
+                    </div>
+                  </li>
                 }
-              </div>
+              </ul>
             </article>
           }
         </div>
@@ -212,4 +215,3 @@
     </div>
   </section>
 }
-
