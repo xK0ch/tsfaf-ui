@@ -8,4 +8,6 @@ export const environment = {
   production: false,
   cotasApiBase: '/cotas-api',
   joomlaApiBase: '/joomla-api/api/index.php/v1',
+  /** Sieh environment.ts fuer die Bedeutung. */
+  showCourseSeats: true,
 };

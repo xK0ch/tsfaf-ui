@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 
+import { environment } from '../../../environments/environment';
 import { CotasApiService } from '../../core/services/cotas-api.service';
 import {
   CategoryWithClasses,
@@ -19,8 +20,12 @@ interface StatusInfo {
   readonly accent: string;
 }
 
-const STATUS_OPEN: StatusInfo = { label: 'Plätze frei', cls: 'badge-open', accent: '#4A8A6E' };
-const STATUS_FULL: StatusInfo = { label: 'Ausgebucht',  cls: 'badge-full', accent: '#A8453F' };
+const STATUS_OPEN: StatusInfo = { label: 'Plätze frei',   cls: 'badge-open', accent: '#4A8A6E' };
+const STATUS_FEW:  StatusInfo = { label: 'Wenige Plätze', cls: 'badge-few',  accent: '#C77B3F' };
+const STATUS_FULL: StatusInfo = { label: 'Ausgebucht',    cls: 'badge-full', accent: '#A8453F' };
+
+/** Schwellwert ab dem Status auf "Wenige Plaetze" wechselt. */
+const FEW_SEATS_THRESHOLD = 3;
 
 /**
  * Strippt HTML und dekodiert Entities (&ouml;, &amp; etc.) korrekt.
@@ -50,6 +55,13 @@ export class Kurse {
   private readonly sanitizer = inject(DomSanitizer);
 
   protected readonly allCategoriesId = ALL_CATEGORIES_ID;
+
+  /**
+   * Wenn false: "X Plaetze frei" wird pro Termin nicht angezeigt.
+   * "Ausgebucht" plus disabled-Anmelden-Button bleiben unabhaengig davon
+   * sichtbar/aktiv. Toggle in src/environments/environment.ts.
+   */
+  protected readonly showSeatsLeft = environment.showCourseSeats;
 
   protected readonly catalog = toSignal(this.api.loadCatalog(), { initialValue: null });
   protected readonly config = toSignal(this.api.loadConfig(), { initialValue: null });
@@ -159,6 +171,26 @@ export class Kurse {
   }
 
   /**
+   * Verbleibende Plaetze. null wenn Cotas-X nicht erreichbar war oder die
+   * Kurskennung dort nicht bekannt ist; in diesem Fall verbergen wir die
+   * Anzeige komplett statt eine 0 oder Pseudo-Zahl zu suggerieren.
+   */
+  protected seatsLeft(c: CotasDanceClass): number | null {
+    const r = c.rest;
+    if (r === null || r === undefined) return null;
+    if (typeof r === 'number') return r;
+    const n = parseInt(String(r), 10);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  protected status(c: CotasDanceClass): StatusInfo {
+    if (this.isFull(c)) return STATUS_FULL;
+    const seats = this.seatsLeft(c);
+    if (seats !== null && seats > 0 && seats <= FEW_SEATS_THRESHOLD) return STATUS_FEW;
+    return STATUS_OPEN;
+  }
+
+  /**
    * Kategorie ist auf "no_online_registration" geflaggt: User muss
    * stattdessen anrufen.
    */
@@ -190,10 +222,6 @@ export class Kurse {
 
   protected phoneHref(): string {
     return 'tel:+49' + this.phoneNumber().replace(/[^\d]/g, '').replace(/^0/, '');
-  }
-
-  protected status(c: CotasDanceClass): StatusInfo {
-    return this.isFull(c) ? STATUS_FULL : STATUS_OPEN;
   }
 
   protected startTime(c: CotasDanceClass): string {

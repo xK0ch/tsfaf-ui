@@ -65,6 +65,7 @@ export interface CotasDanceClass {
   headline: string;
 
   full: boolean | number | string | null;
+  rest: number | null;
   started: number;
   finished: number;
   show_next: number;

@@ -18,4 +18,11 @@ export const environment = {
    * vom Kunden-Termin bestaetigt sind.
    */
   joomlaApiBase: 'https://www.tanzschule-family-and-friends.de/api/index.php/v1',
+  /**
+   * Feature-Flag: "X Plaetze frei"-Anzeige pro Kursabend.
+   * Falls der Kunde das nicht haben moechte: auf false setzen, Build
+   * + Upload, dann verschwindet die Anzeige. Der disabled-Anmelden-Button
+   * bei ausgebuchten Kursen bleibt davon unberuehrt.
+   */
+  showCourseSeats: true,
 };

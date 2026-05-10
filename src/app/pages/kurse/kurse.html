@@ -181,6 +181,16 @@
                       @if (weeksLabel(t)) {
                         <span class="termin-weeks">{{ weeksLabel(t) }}</span>
                       }
+                      @if (isFull(t)) {
+                        <span class="termin-seats termin-seats-full">Ausgebucht</span>
+                      } @else if (showSeatsLeft && seatsLeft(t) !== null) {
+                        <span
+                          class="termin-seats"
+                          [class.termin-seats-few]="seatsLeft(t)! <= 3"
+                        >
+                          {{ seatsLeft(t) }} Plätze frei
+                        </span>
+                      }
                     </div>
                     <div class="termin-action">
                       @if (isFull(t)) {
