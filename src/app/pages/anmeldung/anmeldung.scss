@@ -148,14 +148,26 @@
 /* Inline-Links innerhalb von Checkbox-Labels (z.B. zu Datenschutz/Impressum)
    sichtbar als Link kennzeichnen, damit klar ist dass man drauf klicken kann.
    Globaler Reset macht <a> per Default farblos + ohne Unterstrich. */
-.checkbox-label a {
+.checkbox-label a,
+.checkbox-label .link-button {
   color: var(--color-secondary-deep);
   text-decoration: underline;
   text-underline-offset: 2px;
   transition: color var(--transition-fast);
 }
-.checkbox-label a:hover {
+.checkbox-label a:hover,
+.checkbox-label .link-button:hover {
   color: var(--color-secondary);
+}
+
+/* Inline-Button als Link gestylt (oeffnet AGB-Modal). */
+.link-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  display: inline;
 }
 
 .summary-description {
@@ -371,6 +383,86 @@
   font-size: var(--text-body);
   color: var(--color-text-muted);
   line-height: 1.55;
+}
+
+/* ─── AGB-Modal ──────────────────────────────────────────────────── */
+
+.agb-card {
+  position: relative;
+  max-width: 640px;
+  text-align: left;
+  align-items: stretch;
+  padding: var(--space-32);
+  max-height: 85vh;
+}
+
+.agb-title {
+  font-size: var(--text-h2);
+  font-weight: 700;
+  line-height: var(--lh-heading);
+  margin: 0 var(--space-32) var(--space-20) 0;
+  color: var(--color-text);
+}
+
+.agb-body {
+  flex: 1;
+  overflow-y: auto;
+  font-size: var(--text-small);
+  line-height: 1.55;
+  color: var(--color-text);
+  padding-right: var(--space-12);
+  margin-bottom: var(--space-20);
+}
+
+.agb-body h3 {
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: var(--space-16) 0 var(--space-4);
+  line-height: var(--lh-heading);
+}
+
+.agb-body h3:first-child {
+  margin-top: 0;
+}
+
+.agb-body p {
+  margin-bottom: var(--space-12);
+  text-align: justify;
+}
+
+.agb-body p:last-child {
+  margin-bottom: 0;
+}
+
+.agb-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.agb-close {
+  position: absolute;
+  top: var(--space-12);
+  right: var(--space-12);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: none;
+  border: 0;
+  font-size: 18px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.agb-close:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 /* ─── Empty / Loading-State ──────────────────────────────────────── */

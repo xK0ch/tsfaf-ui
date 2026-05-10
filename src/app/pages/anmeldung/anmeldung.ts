@@ -118,6 +118,7 @@ export class Anmeldung {
   protected readonly serverError = signal<string | null>(null);
   /** Liste der vom Backend zurueckgewiesenen Felder fuer Hinweis im UI. */
   protected readonly invalidServerFields = signal<readonly string[]>([]);
+  protected readonly agbModalOpen = signal(false);
 
   // ----- Form -----
 
@@ -223,6 +224,21 @@ export class Anmeldung {
     this.serverError.set(null);
     this.invalidServerFields.set([]);
     this.step.set('form');
+  }
+
+  protected openAgb(event: Event): void {
+    event.preventDefault();
+    this.agbModalOpen.set(true);
+  }
+
+  protected closeAgb(): void {
+    this.agbModalOpen.set(false);
+  }
+
+  protected onAgbBackdropClick(event: MouseEvent): void {
+    if (event.target === event.currentTarget) {
+      this.closeAgb();
+    }
   }
 
   protected submit(): void {

@@ -526,7 +526,10 @@
           <label class="checkbox-label">
             <input type="checkbox" formControlName="checked" />
             <span>
-              Ich habe die <a routerLink="/impressum" [queryParams]="{ tab: 'datenschutz' }" target="_blank" rel="noopener">Datenschutzerklärung</a>
+              Ich habe die
+              <button type="button" class="link-button" (click)="openAgb($event)">AGBs</button>
+              &amp;
+              <a routerLink="/impressum" [queryParams]="{ tab: 'datenschutz' }" target="_blank" rel="noopener">Datenschutzerklärung</a>
               gelesen und stimme der Verarbeitung meiner Daten zur Kursanmeldung zu.
               <span class="required" aria-hidden="true">*</span>
             </span>
@@ -564,6 +567,85 @@
       </form>
     </div>
   </section>
+
+  <!-- AGB-Modal -->
+  @if (agbModalOpen()) {
+    <div
+      class="success-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="agb-title"
+      (click)="onAgbBackdropClick($event)"
+    >
+      <div class="success-card agb-card">
+        <button
+          type="button"
+          class="agb-close"
+          (click)="closeAgb()"
+          aria-label="Schließen"
+        >✕</button>
+        <h2 id="agb-title" class="agb-title">Allgemeine Geschäftsbedingungen (AGB)</h2>
+        <div class="agb-body">
+          <h3>Kursanmeldung:</h3>
+          <p>
+            Die Direktanmeldung im Internet ist verbindlich. Nach der Angabe Ihrer persönlichen
+            Daten bekommen Sie eine Bestätigungs-Email, in der Sie über einen Link Ihre Anmeldung
+            bestätigen müssen. Durch Absenden dieser Email wird die Kursanmeldung bestätigt.
+          </p>
+
+          <h3>Anmeldung ohne Partner/in:</h3>
+          <p>
+            Einzelpersonen sind selbstverständlich auch willkommen. Bei Einzelanmeldungen werden
+            wir uns bemühen, dass im Kurs gleich viele Frauen wie Männer sind. Wir haben jedoch
+            keine 100% Tanzpartnergarantie. Bitte richten Sie sich bei Fragen zu diesem
+            telefonisch an uns.
+          </p>
+
+          <h3>Kursabmeldung:</h3>
+          <p>
+            Kursabmeldungen müssen bis 3 Tage vor Kursbeginn der Tanzschule mitgeteilt werden.
+            Bei einer nicht fristgerechten Abmeldung oder Nichterscheinen, wird die volle
+            Teilnahmegebühr erhoben.
+          </p>
+
+          <h3>Privatstunden:</h3>
+          <p>
+            Nach Absprache können auch Privatstunden für Paare oder Einzelpersonen besucht werden.
+          </p>
+
+          <h3>Preise und Zahlungsmodalitäten:</h3>
+          <p>
+            Mit der Anmeldung verpflichtet sich der Teilnehmer zur Zahlung des vollen Kursgeldes.
+            Die Kosten der einzelnen Kurse werden auf der Internetseite dargestellt und werden in
+            der Bestätigungsemail nochmals dargestellt.
+          </p>
+
+          <h3>Kursverschieben:</h3>
+          <p>
+            Unsere Tanzschule behält sich das Recht vor, Kurse zu verschieben oder abzusagen. Wir
+            teilen Ihnen eventuelle Änderungen jedoch telefonisch oder per Email frühzeitig mit.
+          </p>
+
+          <h3>Haftung:</h3>
+          <p>
+            Unsere Tanzschule übernimmt keine Haftung für Diebstahl oder Verlust persönlicher
+            Gegenstände in unseren Räumlichkeiten, sowie für alle anderen Schäden.<br>
+            Das Tanzen in unserem Räumen geschieht auf eigene Gefahr.
+          </p>
+
+          <p>
+            Mit der Anmeldung bestätigt der Teilnehmer, dass er/sie die allgemeinen
+            Geschäftsbedingungen zur Kenntnis genommen und akzeptiert hat.
+          </p>
+        </div>
+        <div class="agb-actions">
+          <button type="button" class="btn btn-primary btn-sm" (click)="closeAgb()">
+            Schließen
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 
   <!-- Erfolgs-Overlay (ueber gesamtem Inhalt) -->
   @if (step() === 'success') {
