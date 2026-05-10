@@ -268,11 +268,11 @@
           <div class="form-row">
             <div class="field">
               <label for="telefon" class="field-label">
-                Telefon <span class="required" aria-hidden="true">*</span>
+                Telefon <span class="field-hint">(optional)</span>
               </label>
               <input id="telefon" type="tel" class="input" formControlName="telefon" autocomplete="tel" placeholder="04321 1 49 00" />
               @if (form.controls.telefon.touched && form.controls.telefon.invalid) {
-                <span class="field-error">Bitte Telefon angeben.</span>
+                <span class="field-error">Bitte eine gültige Telefonnummer angeben.</span>
               }
             </div>
             <div class="field">

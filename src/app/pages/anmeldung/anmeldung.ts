@@ -136,7 +136,10 @@ export class Anmeldung {
     plz: ['', Validators.required],
     stadt: ['', Validators.required],
 
-    telefon: ['', Validators.required],
+    // Telefon ist optional. Wenn ausgefuellt: per loosem Pattern auf
+    // plausible Phone-Zeichen pruefen (Ziffern, Plus, Slash, Klammer,
+    // Bindestrich, Leerzeichen, mindestens 1 Ziffer).
+    telefon: ['', [Validators.pattern(/^(?=.*\d)[\d+\/\-\s()]{3,}$/)]],
     email: ['', [Validators.required, Validators.email]],
 
     bemerkung: [''],
@@ -277,7 +280,10 @@ export class Anmeldung {
       hausnummer: v.hausnummer.trim(),
       plz: v.plz.trim(),
       stadt: v.stadt.trim(),
-      telefon: v.telefon.trim(),
+      // Backend verlangt telefon als Pflichtfeld. Wenn leer, schicken wir
+      // ein Sentinel "-" damit die Server-Validierung durchgeht und die
+      // Tanzschule im Backoffice erkennt "keine Angabe".
+      telefon: v.telefon.trim() || '-',
       email: v.email.trim(),
       bemerkung: v.bemerkung?.trim() || '',
       partner: partnerCode,
