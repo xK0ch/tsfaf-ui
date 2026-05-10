@@ -223,6 +223,45 @@
   }
 }
 
+/* ─── SEPA-Info-Block (Rechtstext oberhalb der Bankdaten) ────────── */
+
+.sepa-info {
+  margin: var(--space-16) 0 var(--space-8);
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+
+.sepa-info p {
+  margin-bottom: var(--space-8);
+}
+
+.sepa-info p:last-child {
+  margin-bottom: 0;
+}
+
+.sepa-info-heading {
+  font-weight: 700;
+  color: var(--color-text);
+  margin-top: var(--space-16);
+  margin-bottom: var(--space-4);
+}
+
+.sepa-info-heading:first-child {
+  margin-top: 0;
+}
+
+.sepa-info strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.form-section > .sepa-info + .field,
+.form-section > .sepa-info + .form-row,
+.form-section > .checkbox-label + .sepa-info {
+  margin-top: var(--space-16);
+}
+
 /* ─── Sub-Block (SEPA, Partner-Bank) ─────────────────────────────── */
 
 .sub-block {

@@ -429,80 +429,94 @@
           </label>
 
           @if (debitOn()) {
-            <div class="sub-block">
-              <p class="sub-block-info">
-                Mit Aktivierung der Lastschrift erteilst du der Tanzschule Family &amp; Friends ein
-                SEPA-Lastschriftmandat für die Kursgebühr.
+            <div class="sepa-info">
+              <p class="sepa-info-heading">1. Einzugsermächtigung</p>
+              <p>
+                Ich ermächtige die Tanzschule Family &amp; Friends widerruflich, die von mir zu
+                entrichtenden Zahlungen bei Fälligkeit durch Lastschrift von meinem Konto einzuziehen.
               </p>
+              <p class="sepa-info-heading">2. SEPA-Lastschriftmandat</p>
+              <p>
+                Ich ermächtige die Tanzschule Family &amp; Friends, Zahlungen von meinem Konto
+                mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die
+                von der Tanzschule Family &amp; Friends auf mein Konto gezogenen Lastschriften
+                einzulösen.
+              </p>
+              <p>
+                <strong>Hinweis:</strong> Ich kann innerhalb von acht Wochen, beginnend mit dem
+                Belastungsdatum, die Erstattung des belasteten Betrages verlangen. Es gelten dabei
+                die mit meinem Kreditinstitut vereinbarten Bedingungen.
+              </p>
+            </div>
+
+            <div class="field">
+              <label for="inhaber" class="field-label">
+                Kontoinhaber <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="inhaber" type="text" class="input" formControlName="inhaber" autocomplete="cc-name" />
+              @if (form.controls.inhaber.touched && form.controls.inhaber.invalid) {
+                <span class="field-error">Pflicht bei Lastschrift.</span>
+              }
+            </div>
+            <div class="form-row">
               <div class="field">
-                <label for="inhaber" class="field-label">
-                  Kontoinhaber <span class="required" aria-hidden="true">*</span>
+                <label for="iban" class="field-label">
+                  IBAN <span class="required" aria-hidden="true">*</span>
                 </label>
-                <input id="inhaber" type="text" class="input" formControlName="inhaber" autocomplete="cc-name" />
-                @if (form.controls.inhaber.touched && form.controls.inhaber.invalid) {
+                <input id="iban" type="text" class="input" formControlName="iban" placeholder="DE..." />
+                @if (form.controls.iban.touched && form.controls.iban.invalid) {
                   <span class="field-error">Pflicht bei Lastschrift.</span>
                 }
               </div>
-              <div class="form-row">
-                <div class="field">
-                  <label for="iban" class="field-label">
-                    IBAN <span class="required" aria-hidden="true">*</span>
-                  </label>
-                  <input id="iban" type="text" class="input" formControlName="iban" placeholder="DE..." />
-                  @if (form.controls.iban.touched && form.controls.iban.invalid) {
-                    <span class="field-error">Pflicht bei Lastschrift.</span>
-                  }
-                </div>
-                <div class="field">
-                  <label for="bic" class="field-label">
-                    BIC <span class="required" aria-hidden="true">*</span>
-                  </label>
-                  <input id="bic" type="text" class="input" formControlName="bic" />
-                  @if (form.controls.bic.touched && form.controls.bic.invalid) {
-                    <span class="field-error">Pflicht bei Lastschrift.</span>
-                  }
-                </div>
-              </div>
-
-              @if (partnerOn()) {
-                <label class="checkbox-label">
-                  <input type="checkbox" formControlName="same_bank" />
-                  <span>Selbe Bankverbindung für den Partner verwenden</span>
+              <div class="field">
+                <label for="bic" class="field-label">
+                  BIC <span class="required" aria-hidden="true">*</span>
                 </label>
+                <input id="bic" type="text" class="input" formControlName="bic" />
+                @if (form.controls.bic.touched && form.controls.bic.invalid) {
+                  <span class="field-error">Pflicht bei Lastschrift.</span>
+                }
+              </div>
+            </div>
 
-                @if (partnerBankSeparate()) {
+            @if (partnerOn()) {
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="same_bank" />
+                <span>Selbe Bankverbindung für den Partner verwenden</span>
+              </label>
+
+              @if (partnerBankSeparate()) {
+                <div class="field">
+                  <label for="p_inhaber" class="field-label">
+                    Kontoinhaber Partner <span class="required" aria-hidden="true">*</span>
+                  </label>
+                  <input id="p_inhaber" type="text" class="input" formControlName="p_inhaber" />
+                  @if (form.controls.p_inhaber.touched && form.controls.p_inhaber.invalid) {
+                    <span class="field-error">Pflicht.</span>
+                  }
+                </div>
+                <div class="form-row">
                   <div class="field">
-                    <label for="p_inhaber" class="field-label">
-                      Kontoinhaber Partner <span class="required" aria-hidden="true">*</span>
+                    <label for="p_iban" class="field-label">
+                      IBAN Partner <span class="required" aria-hidden="true">*</span>
                     </label>
-                    <input id="p_inhaber" type="text" class="input" formControlName="p_inhaber" />
-                    @if (form.controls.p_inhaber.touched && form.controls.p_inhaber.invalid) {
+                    <input id="p_iban" type="text" class="input" formControlName="p_iban" />
+                    @if (form.controls.p_iban.touched && form.controls.p_iban.invalid) {
                       <span class="field-error">Pflicht.</span>
                     }
                   </div>
-                  <div class="form-row">
-                    <div class="field">
-                      <label for="p_iban" class="field-label">
-                        IBAN Partner <span class="required" aria-hidden="true">*</span>
-                      </label>
-                      <input id="p_iban" type="text" class="input" formControlName="p_iban" />
-                      @if (form.controls.p_iban.touched && form.controls.p_iban.invalid) {
-                        <span class="field-error">Pflicht.</span>
-                      }
-                    </div>
-                    <div class="field">
-                      <label for="p_bic" class="field-label">
-                        BIC Partner <span class="required" aria-hidden="true">*</span>
-                      </label>
-                      <input id="p_bic" type="text" class="input" formControlName="p_bic" />
-                      @if (form.controls.p_bic.touched && form.controls.p_bic.invalid) {
-                        <span class="field-error">Pflicht.</span>
-                      }
-                    </div>
+                  <div class="field">
+                    <label for="p_bic" class="field-label">
+                      BIC Partner <span class="required" aria-hidden="true">*</span>
+                    </label>
+                    <input id="p_bic" type="text" class="input" formControlName="p_bic" />
+                    @if (form.controls.p_bic.touched && form.controls.p_bic.invalid) {
+                      <span class="field-error">Pflicht.</span>
+                    }
                   </div>
-                }
+                </div>
               }
-            </div>
+            }
           }
         </section>
 
@@ -512,7 +526,7 @@
           <label class="checkbox-label">
             <input type="checkbox" formControlName="checked" />
             <span>
-              Ich habe die <a routerLink="/impressum" target="_blank" rel="noopener">Datenschutzerklärung</a>
+              Ich habe die <a routerLink="/impressum" [queryParams]="{ tab: 'datenschutz' }" target="_blank" rel="noopener">Datenschutzerklärung</a>
               gelesen und stimme der Verarbeitung meiner Daten zur Kursanmeldung zu.
               <span class="required" aria-hidden="true">*</span>
             </span>
@@ -538,7 +552,7 @@
             <button
               type="submit"
               class="btn btn-primary"
-              [disabled]="step() === 'submitting'"
+              [disabled]="form.invalid || step() === 'submitting'"
             >
               @if (step() === 'submitting') { Sende... } @else { Anmeldung absenden }
             </button>
