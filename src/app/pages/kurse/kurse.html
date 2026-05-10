@@ -73,7 +73,6 @@
               [attr.aria-selected]="currentGroupId() === g.id"
               (click)="selectGroup(g.id)"
             >
-              <span class="zg-tab-icon" aria-hidden="true">{{ iconFor(g) }}</span>
               {{ g.bez }}
               <span class="zg-tab-count">{{ groupCounts()[g.id] || 0 }}</span>
             </button>

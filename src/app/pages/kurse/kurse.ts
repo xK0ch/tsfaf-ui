@@ -22,15 +22,21 @@ interface StatusInfo {
 const STATUS_OPEN: StatusInfo = { label: 'Plätze frei', cls: 'badge-open', accent: '#4A8A6E' };
 const STATUS_FULL: StatusInfo = { label: 'Ausgebucht',  cls: 'badge-full', accent: '#A8453F' };
 
-const ICON_BY_TARGET_GROUP_BEZ: Readonly<Record<string, string>> = {
-  Erwachsene:  '👫',
-  Jugendliche: '🎤',
-  Kinder:      '⭐',
-  Senioren:    '🌿',
-  Discofox:    '🕺',
-  Kanga:       '👶',
-  ZUMBA:       '🌀',
-};
+/**
+ * Strippt HTML und dekodiert Entities (&ouml;, &amp; etc.) korrekt.
+ * Cotas X liefert info_text als HTML-Stueck mit Entities; ein simples
+ * Regex-Replace wuerde die nicht aufloesen.
+ */
+function htmlToText(html: string): string {
+  if (!html) return '';
+  if (typeof document === 'undefined') {
+    // Fallback ohne DOM: nur Tags strippen, Entities bleiben
+    return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  return (div.textContent ?? '').replace(/\s+/g, ' ').trim();
+}
 
 @Component({
   selector: 'app-kurse',
@@ -147,10 +153,6 @@ export class Kurse {
 
   // ----- Display-Helpers -----
 
-  protected iconFor(tg: CotasTargetGroup): string {
-    return ICON_BY_TARGET_GROUP_BEZ[tg.bez] ?? '✨';
-  }
-
   protected isFull(c: CotasDanceClass): boolean {
     const f = c.full;
     return f === true || f === 1 || f === '1';
@@ -234,8 +236,7 @@ export class Kurse {
   protected descriptionFor(cat: CategoryWithClasses): string {
     const first = cat.classes[0];
     if (!first) return '';
-    const raw = first.info_text ?? '';
-    const text = raw.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+    const text = htmlToText(first.info_text ?? '');
     return text.length > 200 ? text.slice(0, 197) + '...' : text;
   }
 

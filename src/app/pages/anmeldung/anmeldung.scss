@@ -245,7 +245,9 @@
 .sub-block > .form-row + .field,
 .sub-block > .form-row + .form-row,
 .sub-block > .checkbox-label + .field,
-.sub-block > .checkbox-label + .form-row {
+.sub-block > .checkbox-label + .form-row,
+.sub-block > .field + .checkbox-label,
+.sub-block > .form-row + .checkbox-label {
   margin-top: var(--space-12);
 }
 

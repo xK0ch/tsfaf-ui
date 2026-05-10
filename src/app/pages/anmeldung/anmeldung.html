@@ -300,53 +300,6 @@
           </div>
         </section>
 
-        <!-- Lastschrift -->
-        <section class="form-section" aria-labelledby="sec-zahlung">
-          <h2 id="sec-zahlung" class="form-section-title">Zahlungsart</h2>
-          <label class="checkbox-label">
-            <input type="checkbox" formControlName="debit_charge" />
-            <span>Zahlung per SEPA-Lastschrift</span>
-          </label>
-
-          @if (debitOn()) {
-            <div class="sub-block">
-              <p class="sub-block-info">
-                Mit Aktivierung der Lastschrift erteilst du der Tanzschule Family &amp; Friends ein
-                SEPA-Lastschriftmandat für die Kursgebühr.
-              </p>
-              <div class="field">
-                <label for="inhaber" class="field-label">
-                  Kontoinhaber <span class="required" aria-hidden="true">*</span>
-                </label>
-                <input id="inhaber" type="text" class="input" formControlName="inhaber" autocomplete="cc-name" />
-                @if (form.controls.inhaber.touched && form.controls.inhaber.invalid) {
-                  <span class="field-error">Pflicht bei Lastschrift.</span>
-                }
-              </div>
-              <div class="form-row">
-                <div class="field">
-                  <label for="iban" class="field-label">
-                    IBAN <span class="required" aria-hidden="true">*</span>
-                  </label>
-                  <input id="iban" type="text" class="input" formControlName="iban" placeholder="DE..." />
-                  @if (form.controls.iban.touched && form.controls.iban.invalid) {
-                    <span class="field-error">Pflicht bei Lastschrift.</span>
-                  }
-                </div>
-                <div class="field">
-                  <label for="bic" class="field-label">
-                    BIC <span class="required" aria-hidden="true">*</span>
-                  </label>
-                  <input id="bic" type="text" class="input" formControlName="bic" />
-                  @if (form.controls.bic.touched && form.controls.bic.invalid) {
-                    <span class="field-error">Pflicht bei Lastschrift.</span>
-                  }
-                </div>
-              </div>
-            </div>
-          }
-        </section>
-
         <!-- Partner -->
         @if (partnerOn()) {
           <section class="form-section" aria-labelledby="sec-partner">
@@ -463,11 +416,58 @@
               </div>
             </div>
 
-            @if (debitOn()) {
-              <div class="sub-block">
+          </section>
+        }
+
+        <!-- Zahlungsart: nach Partner-Block damit der same_bank-Toggle sich
+             auf die schon erfassten Partner-Daten beziehen kann -->
+        <section class="form-section" aria-labelledby="sec-zahlung">
+          <h2 id="sec-zahlung" class="form-section-title">Zahlungsart</h2>
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="debit_charge" />
+            <span>Zahlung per SEPA-Lastschrift</span>
+          </label>
+
+          @if (debitOn()) {
+            <div class="sub-block">
+              <p class="sub-block-info">
+                Mit Aktivierung der Lastschrift erteilst du der Tanzschule Family &amp; Friends ein
+                SEPA-Lastschriftmandat für die Kursgebühr.
+              </p>
+              <div class="field">
+                <label for="inhaber" class="field-label">
+                  Kontoinhaber <span class="required" aria-hidden="true">*</span>
+                </label>
+                <input id="inhaber" type="text" class="input" formControlName="inhaber" autocomplete="cc-name" />
+                @if (form.controls.inhaber.touched && form.controls.inhaber.invalid) {
+                  <span class="field-error">Pflicht bei Lastschrift.</span>
+                }
+              </div>
+              <div class="form-row">
+                <div class="field">
+                  <label for="iban" class="field-label">
+                    IBAN <span class="required" aria-hidden="true">*</span>
+                  </label>
+                  <input id="iban" type="text" class="input" formControlName="iban" placeholder="DE..." />
+                  @if (form.controls.iban.touched && form.controls.iban.invalid) {
+                    <span class="field-error">Pflicht bei Lastschrift.</span>
+                  }
+                </div>
+                <div class="field">
+                  <label for="bic" class="field-label">
+                    BIC <span class="required" aria-hidden="true">*</span>
+                  </label>
+                  <input id="bic" type="text" class="input" formControlName="bic" />
+                  @if (form.controls.bic.touched && form.controls.bic.invalid) {
+                    <span class="field-error">Pflicht bei Lastschrift.</span>
+                  }
+                </div>
+              </div>
+
+              @if (partnerOn()) {
                 <label class="checkbox-label">
                   <input type="checkbox" formControlName="same_bank" />
-                  <span>Selbe Bankverbindung wie oben</span>
+                  <span>Selbe Bankverbindung für den Partner verwenden</span>
                 </label>
 
                 @if (partnerBankSeparate()) {
@@ -501,10 +501,10 @@
                     </div>
                   </div>
                 }
-              </div>
-            }
-          </section>
-        }
+              }
+            </div>
+          }
+        </section>
 
         <!-- Datenschutz + Submit -->
         <section class="form-section" aria-labelledby="sec-bestaetigung">

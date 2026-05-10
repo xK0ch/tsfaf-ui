@@ -337,12 +337,7 @@ export class Anmeldung {
 
   protected description(): string {
     const raw = this.course()?.info_text ?? '';
-    const text = raw
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-    return text;
+    return htmlToText(raw);
   }
 
   protected isFieldServerInvalid(name: string): boolean {
@@ -388,6 +383,20 @@ export class Anmeldung {
 }
 
 // ----- Modul-globale Helper -----
+
+/**
+ * Strippt HTML-Tags und dekodiert Entities (&ouml; -> ö, &amp; -> &).
+ * Cotas X liefert info_text als HTML-Stueck mit Entities.
+ */
+function htmlToText(html: string): string {
+  if (!html) return '';
+  if (typeof document === 'undefined') {
+    return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  return (div.textContent ?? '').replace(/\s+/g, ' ').trim();
+}
 
 function minNonZero(): ValidatorFn {
   return (ctrl: AbstractControl) => {
