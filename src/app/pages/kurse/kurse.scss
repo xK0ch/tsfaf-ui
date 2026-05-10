@@ -23,11 +23,18 @@
 
 /* ─── FILTER AREA ───────────────────────────────────────────────── */
 .filter-area {
-  position: sticky;
-  top: 72px;
-  z-index: 50;
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
+}
+
+/* Sticky nur auf Desktop. Auf Mobile scrollt der Filter mit dem Content
+   weg, weil bei kleiner Hoehe sticky den ohnehin knappen Viewport halbiert. */
+@media (min-width: 900px) {
+  .filter-area {
+    position: sticky;
+    top: 72px;
+    z-index: 50;
+  }
 }
 
 .zg-tabs {
