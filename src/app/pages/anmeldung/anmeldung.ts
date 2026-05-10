@@ -306,7 +306,9 @@ export class Anmeldung {
       payload.p_hausnummer = v.p_hausnummer.trim();
       payload.p_plz = v.p_plz.trim();
       payload.p_stadt = v.p_stadt.trim();
-      payload.p_telefon = v.p_telefon.trim();
+      // Wie Haupt-Telefon: optional, Sentinel '-' wenn leer damit das
+      // Backend-Mandatory akzeptiert.
+      payload.p_telefon = v.p_telefon.trim() || '-';
       payload.p_email = v.p_email.trim();
 
       if (debitOn) {
@@ -378,12 +380,19 @@ export class Anmeldung {
       const ctrl = controls[name];
       if (!ctrl) continue;
       if (enabled) {
-        const validators: ValidatorFn[] = [Validators.required];
-        if (opts.numericMin1?.includes(name)) {
-          validators.push(minNonZero());
-        }
-        if (name === 'p_email') {
-          validators.push(Validators.email);
+        const validators: ValidatorFn[] = [];
+        // p_telefon ist optional, wie das Haupt-Telefon. Nur Pattern wenn
+        // ausgefuellt. Kein Required.
+        if (name === 'p_telefon') {
+          validators.push(Validators.pattern(/^(?=.*\d)[\d+\/\-\s()]{3,}$/));
+        } else {
+          validators.push(Validators.required);
+          if (opts.numericMin1?.includes(name)) {
+            validators.push(minNonZero());
+          }
+          if (name === 'p_email') {
+            validators.push(Validators.email);
+          }
         }
         ctrl.setValidators(validators);
       } else {

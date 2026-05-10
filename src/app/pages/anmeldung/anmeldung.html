@@ -207,7 +207,7 @@
               <label for="vorname" class="field-label">
                 Vorname <span class="required" aria-hidden="true">*</span>
               </label>
-              <input id="vorname" type="text" class="input" formControlName="vorname" autocomplete="given-name" placeholder="Maria" />
+              <input id="vorname" type="text" class="input" formControlName="vorname" autocomplete="given-name" />
               @if (form.controls.vorname.touched && form.controls.vorname.invalid) {
                 <span class="field-error">Bitte Vornamen angeben.</span>
               }
@@ -216,7 +216,7 @@
               <label for="nachname" class="field-label">
                 Nachname <span class="required" aria-hidden="true">*</span>
               </label>
-              <input id="nachname" type="text" class="input" formControlName="nachname" autocomplete="family-name" placeholder="Musterfrau" />
+              <input id="nachname" type="text" class="input" formControlName="nachname" autocomplete="family-name" />
               @if (form.controls.nachname.touched && form.controls.nachname.invalid) {
                 <span class="field-error">Bitte Nachnamen angeben.</span>
               }
@@ -270,7 +270,7 @@
               <label for="telefon" class="field-label">
                 Telefon <span class="field-hint">(optional)</span>
               </label>
-              <input id="telefon" type="tel" class="input" formControlName="telefon" autocomplete="tel" placeholder="04321 1 49 00" />
+              <input id="telefon" type="tel" class="input" formControlName="telefon" autocomplete="tel" />
               @if (form.controls.telefon.touched && form.controls.telefon.invalid) {
                 <span class="field-error">Bitte eine gültige Telefonnummer angeben.</span>
               }
@@ -279,7 +279,7 @@
               <label for="email" class="field-label">
                 E-Mail <span class="required" aria-hidden="true">*</span>
               </label>
-              <input id="email" type="email" class="input" formControlName="email" autocomplete="email" placeholder="deine@email.de" />
+              <input id="email" type="email" class="input" formControlName="email" autocomplete="email" />
               @if (form.controls.email.touched && form.controls.email.invalid) {
                 <span class="field-error">
                   @if (form.controls.email.hasError('required')) {
@@ -398,11 +398,11 @@
             <div class="form-row">
               <div class="field">
                 <label for="p_telefon" class="field-label">
-                  Telefon <span class="required" aria-hidden="true">*</span>
+                  Telefon <span class="field-hint">(optional)</span>
                 </label>
                 <input id="p_telefon" type="tel" class="input" formControlName="p_telefon" />
                 @if (form.controls.p_telefon.touched && form.controls.p_telefon.invalid) {
-                  <span class="field-error">Pflicht.</span>
+                  <span class="field-error">Bitte eine gültige Telefonnummer angeben.</span>
                 }
               </div>
               <div class="field">
@@ -463,7 +463,7 @@
                 <label for="iban" class="field-label">
                   IBAN <span class="required" aria-hidden="true">*</span>
                 </label>
-                <input id="iban" type="text" class="input" formControlName="iban" placeholder="DE..." />
+                <input id="iban" type="text" class="input" formControlName="iban" />
                 @if (form.controls.iban.touched && form.controls.iban.invalid) {
                   <span class="field-error">Pflicht bei Lastschrift.</span>
                 }
