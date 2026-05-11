@@ -342,10 +342,40 @@ export class Anmeldung {
         }
       },
       error: err => {
+        // Falls der Server ein 422 mit JSON-Body { errors: true, err_<feld>: 1 }
+        // zurueckliefert: konkrete Felder extrahieren und im UI markieren.
+        const body = err?.error;
+        if (body && typeof body === 'object' && !Array.isArray(body)) {
+          const fields = Object.keys(body)
+            .filter(k => k.startsWith('err_') && k !== 'err_mail')
+            .map(k => k.slice(4));
+          if (fields.length > 0) {
+            this.invalidServerFields.set(fields);
+            this.serverError.set(
+              body['err_mail']
+                ? 'E-Mail konnte nicht versendet werden. Bitte spaeter erneut versuchen.'
+                : `Server hat folgende Felder zurueckgewiesen: ${fields.join(', ')}.`,
+            );
+            this.markServerErrors(fields);
+            this.step.set('error');
+            return;
+          }
+          // JSON-Fehler-Antwort ohne err_*-Marker, z.B. { error: 'foo' }
+          if (typeof body['error'] === 'string') {
+            this.serverError.set(String(body['error']));
+            this.step.set('error');
+            return;
+          }
+        }
+
+        // Fallback: typische "Http failure during parsing"-Faelle entstehen
+        // wenn der Server kein gueltiges JSON liefert. Wir zeigen den
+        // rohen Response-Text damit der User sieht was wirklich kam.
+        const rawText = typeof body === 'string' ? body : null;
         this.serverError.set(
-          (err?.error?.error as string | undefined) ??
-            err?.message ??
-            'Netzwerkfehler bei der Anmeldung.',
+          rawText && rawText.trim().length > 0
+            ? `Server-Antwort: ${rawText.slice(0, 600)}`
+            : (err?.message ?? 'Netzwerkfehler bei der Anmeldung.'),
         );
         this.step.set('error');
       },
