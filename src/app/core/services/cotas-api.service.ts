@@ -11,17 +11,23 @@ import {
   CotasDanceClassesFilteredResponse,
   CotasDanceClassesResponse,
   CotasSiteConfig,
+  CotasVoucher,
+  CotasVoucherListResponse,
+  CotasVoucherShowResponse,
   DanceClassCatalog,
   RegistrationPreviewResponse,
   RegistrationSubmitPayload,
   RegistrationSubmitResponse,
   VoucherOrderPayload,
   VoucherOrderResponse,
-  VoucherResponse,
 } from '../models/cotas.models';
 // Re-export fuer convenience: Components koennen alle relevanten Typen
 // ueber den Service-Pfad importieren ohne den models-Pfad zu kennen.
-export type { CotasContract, CotasSiteConfig } from '../models/cotas.models';
+export type {
+  CotasContract,
+  CotasSiteConfig,
+  CotasVoucher,
+} from '../models/cotas.models';
 
 const EMPTY_CONFIG: CotasSiteConfig = {
   no_online_registration: [],
@@ -131,8 +137,16 @@ export class CotasApiService {
 
   // ---------- Gutscheine ----------
 
-  getVoucher(id: string): Observable<VoucherResponse> {
-    return this.http.get<VoucherResponse>(`${this.base}/vouchers/${encodeURIComponent(id)}`);
+  listVouchers(): Observable<readonly CotasVoucher[]> {
+    return this.http
+      .get<CotasVoucherListResponse>(`${this.base}/vouchers`)
+      .pipe(map(r => r?.vouchers ?? []));
+  }
+
+  getVoucher(id: string): Observable<CotasVoucher | null> {
+    return this.http
+      .get<CotasVoucherShowResponse>(`${this.base}/vouchers/${encodeURIComponent(id)}`)
+      .pipe(map(r => r?.voucher ?? null));
   }
 
   orderVoucher(payload: VoucherOrderPayload): Observable<VoucherOrderResponse> {
@@ -142,6 +156,15 @@ export class CotasApiService {
   confirmVoucherOrder(session: string): Observable<VoucherOrderResponse> {
     const params = new HttpParams().set('session', session);
     return this.http.get<VoucherOrderResponse>(`${this.base}/voucher-orders/confirm`, { params });
+  }
+
+  /**
+   * Absolute URL zum PDF-Druck eines bestaetigten Gutscheins. Frontend
+   * verlinkt diese URL (Browser oeffnet PDF), das Backend streamt das
+   * vom VoucherPrintService generierte TCPDF-Dokument.
+   */
+  voucherPrintUrl(session: string): string {
+    return `${this.base}/voucher-orders/print?session=${encodeURIComponent(session)}`;
   }
 }
 

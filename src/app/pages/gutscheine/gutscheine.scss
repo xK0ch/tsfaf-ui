@@ -3,344 +3,115 @@
   padding-top: 72px;
 }
 
-/* ─── HERO ──────────────────────────────────────────────────────── */
-.voucher-hero {
-  background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-  position: relative;
-  overflow: hidden;
+.page-content {
+  padding: var(--space-48) 0 var(--space-96);
 }
 
-.voucher-hero-bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-
-.voucher-hero-inner {
-  position: relative;
-  z-index: 1;
-  padding: 64px 24px;
-  max-width: 720px;
-}
-
-.voucher-hero-title {
-  font-size: var(--text-h1);
+.step-label {
+  font-size: var(--text-h3);
   font-weight: 700;
-  line-height: 1.15;
-  margin-bottom: var(--space-16);
+  color: var(--color-text);
+  margin: 0 0 var(--space-24);
+  line-height: var(--lh-heading);
 }
 
-.voucher-hero-sub {
-  font-size: var(--text-body-lg);
-  color: var(--color-text-muted);
-  line-height: 1.6;
-  margin-bottom: var(--space-32);
-  max-width: 560px;
-}
-
-/* ─── CONFIGURATOR ──────────────────────────────────────────────── */
-.voucher-section {
-  padding: 72px 0;
-  background: var(--color-bg);
-}
+/* ─── GRID ──────────────────────────────────────────────────────── */
 
 .voucher-grid {
   display: grid;
-  gap: var(--space-48);
-  grid-template-columns: 1fr;
-  align-items: start;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-20);
 }
 
-@media (min-width: 900px) {
+@media (max-width: 600px) {
   .voucher-grid {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-12);
   }
 }
 
-.voucher-config {
-  max-width: 680px;
-}
-
-.voucher-config-title {
-  font-size: var(--text-h2);
-  font-weight: 700;
-  margin-bottom: var(--space-8);
-}
-
-.voucher-config-sub {
-  font-size: var(--text-body);
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-32);
-}
-
-/* Amount picker */
-.amount-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: var(--space-24);
-}
-
-@media (min-width: 600px) {
-  .amount-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-.amount-card {
+.voucher-card {
+  position: relative;
+  display: block;
   background: var(--color-surface);
-  border: 2px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: 24px 20px;
-  cursor: pointer;
-  text-align: center;
-  transition: all var(--transition-fast);
+  overflow: hidden;
   box-shadow: var(--shadow-card);
+  text-decoration: none;
+  color: inherit;
+  aspect-ratio: 3 / 2;
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base);
 }
 
-.amount-card:hover {
-  border-color: var(--color-text-muted);
+.voucher-card:hover,
+.voucher-card:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
 }
 
-.amount-card:focus-visible {
+.voucher-card:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
-.amount-card.is-selected {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  box-shadow: 0 4px 20px rgba(220, 140, 80, 0.25);
-  transform: translateY(-2px);
-}
-
-.amount-icon {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--color-text-muted);
-  margin-bottom: 4px;
-}
-
-.amount-card.is-selected .amount-icon {
-  color: #fff;
-}
-
-.amount-value {
-  font-size: var(--text-h3);
-  font-weight: 700;
-  color: var(--color-text);
-  margin-bottom: 4px;
-}
-
-.amount-value-money {
-  font-size: clamp(28px, 4vw, 40px);
-  color: var(--color-primary);
-}
-
-.amount-card.is-selected .amount-value,
-.amount-card.is-selected .amount-value-money {
-  color: #fff;
-}
-
-.amount-label {
-  font-size: var(--text-small);
-  color: var(--color-text-muted);
-}
-
-.amount-card.is-selected .amount-label {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-/* Custom amount input */
-.custom-amount {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: var(--space-24);
-  background: var(--color-surface);
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 0 16px;
-  height: 52px;
-  max-width: 240px;
-}
-
-.custom-amount input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  font-family: inherit;
-  font-size: var(--text-body);
-  font-weight: 600;
-  color: var(--color-text);
-  outline: none;
+.voucher-thumb {
   width: 100%;
-}
-
-.custom-amount span {
-  color: var(--color-text-muted);
-  font-weight: 600;
-}
-
-/* Voucher preview */
-.voucher-preview {
-  margin-bottom: var(--space-32);
-}
-
-.voucher-preview-label {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-16);
-}
-
-.voucher-art {
-  width: 100%;
-  max-width: 420px;
-  filter: drop-shadow(0 8px 32px rgba(42, 37, 32, 0.14));
+  height: 100%;
+  object-fit: cover;
   display: block;
 }
 
-/* CTA */
-.voucher-cta {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 420px;
-}
-
-.voucher-buy-btn {
-  width: 100%;
-  justify-content: center;
-}
-
-.voucher-buy-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.voucher-cta-note {
+.voucher-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: var(--space-12) var(--space-16);
+  background: linear-gradient(0deg, rgba(42, 37, 32, .75) 0%, rgba(42, 37, 32, 0) 100%);
+  color: #fff;
   font-size: var(--text-small);
-  color: var(--color-text-muted);
-  text-align: center;
-  line-height: 1.5;
-}
-
-.voucher-cta-phone {
-  color: var(--color-secondary);
   font-weight: 600;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity var(--transition-base),
+    transform var(--transition-base);
 }
 
-/* Info panel */
-.voucher-info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-16);
+.voucher-card:hover .voucher-overlay,
+.voucher-card:focus-visible .voucher-overlay {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.info-card {
+/* ─── STATE BOX ─────────────────────────────────────────────────── */
+
+.state-box {
   background: var(--color-surface);
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: var(--space-64) var(--space-32);
+  text-align: center;
   box-shadow: var(--shadow-card);
   display: flex;
-  gap: var(--space-16);
-  align-items: flex-start;
-}
-
-.info-card-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  background: #FBF0E5;
-  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  flex-shrink: 0;
-}
-
-.info-card-title {
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-
-.info-card-text {
-  font-size: var(--text-small);
-  color: var(--color-text-muted);
-  line-height: 1.6;
-}
-
-/* ─── FAQ ───────────────────────────────────────────────────────── */
-.voucher-faq {
-  padding: 64px 0;
-  background: var(--color-surface);
-}
-
-.voucher-faq-inner {
-  max-width: 680px;
-}
-
-.voucher-faq-title {
-  font-size: var(--text-h2);
-  font-weight: 700;
-  margin-bottom: var(--space-32);
-}
-
-.faq-list {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-.faq-item {
-  border-bottom: 1px solid var(--color-border);
-}
-
-.faq-item:last-child {
-  border-bottom: 0;
-}
-
-.faq-question {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 18px 24px;
-  background: none;
-  border: 0;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: var(--text-body);
-  font-weight: 600;
-  color: var(--color-text);
-  text-align: left;
   gap: var(--space-16);
 }
 
-.faq-question:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: -2px;
+.state-icon {
+  font-size: 40px;
+  opacity: .5;
 }
 
-.faq-icon {
-  font-size: 20px;
-  color: var(--color-text-muted);
-  flex-shrink: 0;
-  transition: transform var(--transition-base);
+.state-title {
+  font-size: var(--text-h3);
+  font-weight: 700;
 }
 
-.faq-item.is-open .faq-icon {
-  transform: rotate(45deg);
-}
-
-.faq-answer {
-  padding: 0 24px 20px;
+.state-sub {
   font-size: var(--text-body);
   color: var(--color-text-muted);
-  line-height: 1.65;
+  max-width: 380px;
+  line-height: 1.55;
 }

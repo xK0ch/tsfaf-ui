@@ -1,182 +1,74 @@
-<!-- ─── HERO STRIP ────────────────────────────────────────────────── -->
-<header class="voucher-hero">
-  <div class="voucher-hero-bg" aria-hidden="true">
-    <svg viewBox="0 0 1200 320" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+<!-- ─── PAGE HERO ─────────────────────────────────────────────────── -->
+<header class="page-hero">
+  <div class="page-hero-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 260" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
       <defs>
-        <radialGradient id="vhg1" cx="15%" cy="50%" r="55%">
-          <stop offset="0%"   stop-color="#DC8C50" stop-opacity="0.10" />
+        <radialGradient id="gs-grad-1" cx="15%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#DC8C50" stop-opacity="0.08" />
           <stop offset="100%" stop-color="#DC8C50" stop-opacity="0" />
         </radialGradient>
-        <radialGradient id="vhg2" cx="85%" cy="45%" r="50%">
-          <stop offset="0%"   stop-color="#64B4C8" stop-opacity="0.08" />
+        <radialGradient id="gs-grad-2" cx="90%" cy="40%" r="45%">
+          <stop offset="0%"   stop-color="#64B4C8" stop-opacity="0.07" />
           <stop offset="100%" stop-color="#64B4C8" stop-opacity="0" />
         </radialGradient>
       </defs>
-      <rect width="1200" height="320" fill="white" />
-      <rect width="1200" height="320" fill="url(#vhg1)" />
-      <rect width="1200" height="320" fill="url(#vhg2)" />
-      <path d="M -40 240 C 80 100, 300 40, 480 130 C 555 168, 560 228, 510 258 C 420 300, 195 270, 70 284 C 0 292, -40 278, -40 240 Z" fill="#DC8C50" opacity="0.07" />
-      <path d="M 1060 20 C 1155 58, 1248 156, 1215 235 C 1194 274, 1138 283, 1093 260 C 1037 232, 1022 172, 1046 108 C 1060 56, 1016 -6, 1060 20 Z" fill="#64B4C8" opacity="0.06" />
+      <rect width="1200" height="260" fill="white" />
+      <rect width="1200" height="260" fill="url(#gs-grad-1)" />
+      <rect width="1200" height="260" fill="url(#gs-grad-2)" />
+      <path
+        d="M -30 190 C 80 70, 260 30, 400 100 C 450 124, 455 175, 415 200 C 345 238, 165 215, 55 228 C -10 236, -30 225, -30 190 Z"
+        fill="#DC8C50" opacity="0.07"
+      />
+      <path
+        d="M 1050 20 C 1140 55, 1220 140, 1195 210 C 1178 248, 1130 255, 1090 235 C 1040 210, 1025 158, 1045 100 C 1055 55, 1010 0, 1050 20 Z"
+        fill="#64B4C8" opacity="0.06"
+      />
     </svg>
   </div>
-  <div class="container voucher-hero-inner">
-    <p class="page-eyebrow">Geschenkidee</p>
-    <h1 class="voucher-hero-title">Tanzen verschenken.</h1>
-    <p class="voucher-hero-sub">
-      Ein Tanzgutschein ist das perfekte Geschenk: für Geburtstage, Jubiläen oder einfach so. Gültig für alle Kurse und Veranstaltungen.
+  <div class="container page-hero-inner">
+    <p class="page-eyebrow">Tanzkurs verschenken</p>
+    <h1 class="page-title">Gutscheine</h1>
+    <p class="page-sub">
+      Wähle eine Gutschein-Vorlage, leg den Betrag und einen persönlichen Gruß fest:
+      so einfach wird Tanzen zum Geschenk.
     </p>
-    <a href="#kaufen" class="btn btn-primary btn-lg">Jetzt Gutschein kaufen</a>
   </div>
 </header>
 
-<!-- ─── CONFIGURATOR ──────────────────────────────────────────────── -->
-<section id="kaufen" class="voucher-section">
+<!-- ─── CONTENT ───────────────────────────────────────────────────── -->
+<section class="page-content">
   <div class="container">
-    <div class="voucher-grid">
-      <div class="voucher-config">
-        <p class="page-eyebrow">Gutschein gestalten</p>
-        <h2 class="voucher-config-title">Wähle deinen Betrag</h2>
-        <p class="voucher-config-sub">
-          Alle Gutscheine sind 3 Jahre gültig und für alle Kurse einlösbar.
-        </p>
-
-        <div class="amount-grid">
-          @for (a of amounts; track a) {
-            <div
-              class="amount-card"
-              [class.is-selected]="selected() === a"
-              [class.is-custom]="a === 'custom'"
-              role="button"
-              tabindex="0"
-              (click)="selectAmount(a)"
-              (keydown)="onCardKey($event, a)"
-              [attr.aria-pressed]="selected() === a"
-              [attr.aria-label]="a === 'custom' ? 'Individueller Betrag' : a + ' Euro'"
-            >
-              @if (a === 'custom') {
-                <div class="amount-icon" aria-hidden="true">✏️</div>
-                <div class="amount-value">Individuell</div>
-                <div class="amount-label">Eigener Betrag</div>
-              } @else {
-                <div class="amount-value amount-value-money">{{ a }} €</div>
-                <div class="amount-label">Tanzgutschein</div>
-              }
-            </div>
-          }
-        </div>
-
-        @if (isCustomSelected()) {
-          <form class="custom-amount" [formGroup]="customForm">
-            <input
-              type="number"
-              min="10"
-              max="500"
-              placeholder="Betrag in €"
-              formControlName="custom"
-              (input)="onCustomInput($any($event.target).value)"
-              aria-label="Individueller Betrag in Euro"
-            />
-            <span aria-hidden="true">€</span>
-          </form>
-        }
-
-        <div class="voucher-preview">
-          <p class="voucher-preview-label">Vorschau</p>
-          <svg
-            class="voucher-art"
-            viewBox="0 0 420 240"
-            role="img"
-            [attr.aria-label]="displayAmount() !== null ? 'Tanzgutschein über ' + displayAmount() + ' Euro' : 'Tanzgutschein'"
+    @if (vouchers() === null) {
+      <div class="state-box">
+        <div class="state-icon" aria-hidden="true">⏳</div>
+        <h2 class="state-title">Gutscheine werden geladen</h2>
+        <p class="state-sub">Einen Moment bitte.</p>
+      </div>
+    } @else if (vouchers()!.length === 0) {
+      <div class="state-box">
+        <div class="state-icon" aria-hidden="true">🎁</div>
+        <h2 class="state-title">Aktuell keine Vorlagen</h2>
+        <p class="state-sub">Schau später wieder vorbei oder ruf uns an: <strong>04321 1 49 00</strong></p>
+      </div>
+    } @else {
+      <p class="step-label">Schritt 1: Gutschein-Vorlage wählen</p>
+      <div class="voucher-grid">
+        @for (v of vouchers(); track v.id) {
+          <a
+            class="voucher-card"
+            [routerLink]="['/gutscheine', v.id]"
+            [attr.aria-label]="'Gutschein-Vorlage auswählen'"
           >
-            <defs>
-              <linearGradient id="vbg" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%"   stop-color="#FFFFFF" />
-                <stop offset="100%" stop-color="#FBF9F5" />
-              </linearGradient>
-              <clipPath id="vclip"><rect width="420" height="240" rx="20" /></clipPath>
-            </defs>
-            <rect width="420" height="240" rx="20" fill="url(#vbg)" stroke="#E8E1D6" stroke-width="1" />
-            <g clip-path="url(#vclip)">
-              <path d="M -20 180 C 80 60, 240 20, 360 90 C 415 120, 430 175, 400 205 C 355 248, 220 225, 100 218 C 30 213, -20 220, -20 180 Z" fill="#DC8C50" opacity="0.09" />
-              <path d="M 240 -20 C 360 15, 460 100, 440 195 C 428 238, 365 250, 315 228 C 258 202, 246 148, 230 90 C 210 22, 148 -30, 240 -20 Z" fill="#64B4C8" opacity="0.07" />
-              <line x1="140" y1="0" x2="140" y2="240" stroke="#E8E1D6" stroke-width="1.5" stroke-dasharray="6 4" />
-            </g>
-            <g transform="translate(22, 22)">
-              <path d="M 4 44 C 2 22, 26 2, 46 10 C 52 13, 50 19, 45 18 C 29 10, 14 25, 15 43 C 16 48, 9 49, 4 44 Z" fill="#DC8C50" opacity="0.85" />
-              <path d="M 15 10 C 36 3, 55 24, 47 44 C 45 50, 38 50, 37 44 C 44 28, 31 13, 13 18 C 8 20, 7 13, 15 10 Z" fill="#64B4C8" opacity="0.80" />
-            </g>
-            <text x="24" y="90" font-family="Manrope,sans-serif" font-size="11" font-weight="700" fill="#6B6259" letter-spacing="0.1em">TANZGUTSCHEIN</text>
-            <text x="24" y="116" font-family="Manrope,sans-serif" font-size="13" font-weight="700" fill="#2A2520">Family &amp; Friends</text>
-            <text x="24" y="134" font-family="Manrope,sans-serif" font-size="11" fill="#6B6259">ADTV-Tanzschule Neumünster</text>
-            <text x="24" y="190" font-family="Manrope,sans-serif" font-size="11" fill="#6B6259">Gültig: 3 Jahre, einlösbar für alle Kurse</text>
-            @if (displayAmount() !== null) {
-              <text x="290" y="130" font-family="Manrope,sans-serif" font-size="52" font-weight="700" fill="#DC8C50" text-anchor="middle">{{ displayAmount() }}</text>
-              <text x="290" y="155" font-family="Manrope,sans-serif" font-size="18" font-weight="600" fill="#DC8C50" text-anchor="middle" opacity="0.7">Euro</text>
-            } @else {
-              <text x="290" y="130" font-family="Manrope,sans-serif" font-size="52" font-weight="700" fill="#DC8C50" text-anchor="middle">?</text>
-              <text x="290" y="155" font-family="Manrope,sans-serif" font-size="14" fill="#6B6259" text-anchor="middle">Eigener Betrag</text>
-            }
-          </svg>
-        </div>
-
-        <div class="voucher-cta">
-          <button
-            type="button"
-            class="btn btn-primary btn-lg voucher-buy-btn"
-            [disabled]="displayAmount() === null"
-          >{{ buyLabel() }}</button>
-          <p class="voucher-cta-note">
-            Kaufabwicklung über unser Buchungssystem (Cotas).<br />
-            Oder telefonisch: <a href="tel:+4943211490" class="voucher-cta-phone">04321 – 1 49 00</a>
-          </p>
-        </div>
-      </div>
-
-      <aside class="voucher-info" aria-label="Vorteile">
-        @for (item of infoCards; track item.title) {
-          <div class="info-card">
-            <div class="info-card-icon" aria-hidden="true">{{ item.icon }}</div>
-            <div>
-              <div class="info-card-title">{{ item.title }}</div>
-              <div class="info-card-text">{{ item.text }}</div>
-            </div>
-          </div>
-        }
-      </aside>
-    </div>
-  </div>
-</section>
-
-<!-- ─── FAQ ───────────────────────────────────────────────────────── -->
-<section class="voucher-faq">
-  <div class="container">
-    <div class="voucher-faq-inner">
-      <h2 class="voucher-faq-title">Häufige Fragen</h2>
-      <div class="faq-list">
-        @for (item of faqItems; track item.q; let i = $index) {
-          <div class="faq-item" [class.is-open]="openFaq() === i">
-            <button
-              type="button"
-              class="faq-question"
-              (click)="toggleFaq(i)"
-              [attr.aria-expanded]="openFaq() === i"
-              [attr.aria-controls]="'faq-panel-' + i"
-              [id]="'faq-trigger-' + i"
-            >
-              <span>{{ item.q }}</span>
-              <span class="faq-icon" aria-hidden="true">+</span>
-            </button>
-            @if (openFaq() === i) {
-              <div
-                class="faq-answer"
-                [id]="'faq-panel-' + i"
-                role="region"
-                [attr.aria-labelledby]="'faq-trigger-' + i"
-              >{{ item.a }}</div>
-            }
-          </div>
+            <img
+              class="voucher-thumb"
+              [src]="v.thumbnailUrl"
+              alt="Gutschein-Vorlage"
+              loading="lazy"
+            />
+            <span class="voucher-overlay">Diese Vorlage wählen →</span>
+          </a>
         }
       </div>
-    </div>
+    }
   </div>
 </section>

@@ -1,0 +1,434 @@
+@if (state().loading) {
+  <section class="page-content">
+    <div class="container">
+      <div class="state-box">
+        <div class="state-icon" aria-hidden="true">⏳</div>
+        <h2 class="state-title">Gutschein wird geladen</h2>
+        <p class="state-sub">Einen Moment bitte.</p>
+      </div>
+    </div>
+  </section>
+} @else if (state().error || !voucher()) {
+  <section class="page-content">
+    <div class="container">
+      <div class="state-box">
+        <div class="state-icon" aria-hidden="true">⚠</div>
+        <h2 class="state-title">Vorlage nicht gefunden</h2>
+        <p class="state-sub">{{ state().error || 'Bitte zurück zur Übersicht.' }}</p>
+        <a routerLink="/gutscheine" class="btn btn-primary btn-sm">Zur Übersicht</a>
+      </div>
+    </div>
+  </section>
+} @else if (voucher(); as v) {
+  <header class="page-hero">
+    <div class="page-hero-bg" aria-hidden="true">
+      <svg viewBox="0 0 1200 260" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id="gsb-grad-1" cx="15%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="#DC8C50" stop-opacity="0.08" />
+            <stop offset="100%" stop-color="#DC8C50" stop-opacity="0" />
+          </radialGradient>
+          <radialGradient id="gsb-grad-2" cx="90%" cy="40%" r="45%">
+            <stop offset="0%"   stop-color="#64B4C8" stop-opacity="0.07" />
+            <stop offset="100%" stop-color="#64B4C8" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <rect width="1200" height="260" fill="white" />
+        <rect width="1200" height="260" fill="url(#gsb-grad-1)" />
+        <rect width="1200" height="260" fill="url(#gsb-grad-2)" />
+        <path
+          d="M -30 190 C 80 70, 260 30, 400 100 C 450 124, 455 175, 415 200 C 345 238, 165 215, 55 228 C -10 236, -30 225, -30 190 Z"
+          fill="#DC8C50" opacity="0.07"
+        />
+        <path
+          d="M 1050 20 C 1140 55, 1220 140, 1195 210 C 1178 248, 1130 255, 1090 235 C 1040 210, 1025 158, 1045 100 C 1055 55, 1010 0, 1050 20 Z"
+          fill="#64B4C8" opacity="0.06"
+        />
+      </svg>
+    </div>
+    <div class="container page-hero-inner">
+      <a routerLink="/gutscheine" class="back-link" aria-label="Zurück zur Gutschein-Übersicht">
+        ← Zurück zur Übersicht
+      </a>
+      <p class="page-eyebrow">Bestellung</p>
+      <h1 class="page-title">Dein Tanzgutschein</h1>
+      <p class="page-sub">Schritt 2: Daten eintragen und Bestellung absenden.</p>
+    </div>
+  </header>
+
+  <section class="page-content">
+    <div class="container bestellung-grid">
+      <!-- Voucher-Bild Sidebar -->
+      <aside class="voucher-preview">
+        <div class="preview-eyebrow">Deine Vorlage</div>
+        <img class="preview-image" [src]="v.imageUrl" alt="Gutschein-Vorlage" />
+        @if (priceFor() > 0) {
+          <p class="preview-amount">
+            {{ priceFor() | number:'1.2-2' }} €
+          </p>
+        }
+      </aside>
+
+      <!-- Bestell-Formular -->
+      <form class="bestell-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <!-- Gutschein-Daten -->
+        <section class="form-section" aria-labelledby="sec-gutschein">
+          <h2 id="sec-gutschein" class="form-section-title">Dein Gutschein</h2>
+
+          <div class="field">
+            <label for="name" class="field-label">
+              Name auf dem Gutschein <span class="required" aria-hidden="true">*</span>
+            </label>
+            <input id="name" type="text" class="input" formControlName="name" />
+            <span class="field-hint">Wird als „für …“ auf den Gutschein gedruckt.</span>
+            @if (form.controls.name.touched && form.controls.name.invalid) {
+              <span class="field-error">Bitte Empfänger-Namen angeben.</span>
+            }
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="betrag" class="field-label">
+                Betrag (€) <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="betrag" type="text" class="input" formControlName="betrag" inputmode="decimal" />
+              @if (form.controls.betrag.touched && form.controls.betrag.invalid) {
+                <span class="field-error">
+                  @if (form.controls.betrag.hasError('required')) {
+                    Bitte einen Betrag angeben.
+                  } @else {
+                    Bitte einen gültigen Betrag eintragen.
+                  }
+                </span>
+              }
+            </div>
+            <div class="field">
+              <label for="selbstausdruck" class="field-label">
+                Bestellart <span class="required" aria-hidden="true">*</span>
+              </label>
+              <div class="select-wrap">
+                <select id="selbstausdruck" class="input" formControlName="selbstausdruck">
+                  <option [ngValue]="null">Bitte auswählen</option>
+                  <option [ngValue]="1">Selbstausdruck (PDF)</option>
+                  <option [ngValue]="0">Zusendung per Post</option>
+                </select>
+              </div>
+              @if (form.controls.selbstausdruck.touched && form.controls.selbstausdruck.invalid) {
+                <span class="field-error">Bitte eine Bestellart wählen.</span>
+              }
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="bemerkung" class="field-label">
+              Persönliche Bemerkung <span class="field-hint">(optional)</span>
+            </label>
+            <textarea
+              id="bemerkung"
+              class="input"
+              formControlName="bemerkung"
+              maxlength="160"
+              rows="3"
+              placeholder="z. B. Alles Gute zum Geburtstag!"
+            ></textarea>
+            <span class="field-hint">
+              Wird auf den Gutschein gedruckt. Max. 160 Zeichen.
+              ({{ (form.controls.bemerkung.value || '').length }}/160)
+            </span>
+          </div>
+        </section>
+
+        <!-- Buyer-Daten -->
+        <section class="form-section" aria-labelledby="sec-daten">
+          <h2 id="sec-daten" class="form-section-title">Deine Daten</h2>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="anrede" class="field-label">
+                Anrede <span class="required" aria-hidden="true">*</span>
+              </label>
+              <div class="select-wrap">
+                <select id="anrede" class="input" formControlName="anrede">
+                  <option [ngValue]="0">Bitte auswählen</option>
+                  <option [ngValue]="1">Herr</option>
+                  <option [ngValue]="2">Frau</option>
+                </select>
+              </div>
+              @if (form.controls.anrede.touched && form.controls.anrede.invalid) {
+                <span class="field-error">Bitte Anrede wählen.</span>
+              }
+            </div>
+            <div class="field">
+              <label for="email" class="field-label">
+                E-Mail <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="email" type="email" class="input" formControlName="email" autocomplete="email" />
+              @if (form.controls.email.touched && form.controls.email.invalid) {
+                <span class="field-error">
+                  @if (form.controls.email.hasError('required')) {
+                    Bitte E-Mail-Adresse angeben.
+                  } @else {
+                    Bitte gültige E-Mail-Adresse angeben.
+                  }
+                </span>
+              }
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="vorname" class="field-label">
+                Vorname <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="vorname" type="text" class="input" formControlName="vorname" autocomplete="given-name" />
+              @if (form.controls.vorname.touched && form.controls.vorname.invalid) {
+                <span class="field-error">Pflicht.</span>
+              }
+            </div>
+            <div class="field">
+              <label for="nachname" class="field-label">
+                Nachname <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="nachname" type="text" class="input" formControlName="nachname" autocomplete="family-name" />
+              @if (form.controls.nachname.touched && form.controls.nachname.invalid) {
+                <span class="field-error">Pflicht.</span>
+              }
+            </div>
+          </div>
+
+          <div class="form-row form-row-3-1">
+            <div class="field">
+              <label for="strasse" class="field-label">
+                Straße <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="strasse" type="text" class="input" formControlName="strasse" autocomplete="address-line1" />
+              @if (form.controls.strasse.touched && form.controls.strasse.invalid) {
+                <span class="field-error">Pflicht.</span>
+              }
+            </div>
+            <div class="field">
+              <label for="hausnummer" class="field-label">
+                Hausnr. <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="hausnummer" type="text" class="input" formControlName="hausnummer" />
+              @if (form.controls.hausnummer.touched && form.controls.hausnummer.invalid) {
+                <span class="field-error">Pflicht.</span>
+              }
+            </div>
+          </div>
+
+          <div class="form-row form-row-1-3">
+            <div class="field">
+              <label for="plz" class="field-label">
+                PLZ <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="plz" type="text" class="input" formControlName="plz" inputmode="numeric" autocomplete="postal-code" />
+              @if (form.controls.plz.touched && form.controls.plz.invalid) {
+                <span class="field-error">Pflicht.</span>
+              }
+            </div>
+            <div class="field">
+              <label for="stadt" class="field-label">
+                Stadt <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="stadt" type="text" class="input" formControlName="stadt" autocomplete="address-level2" />
+              @if (form.controls.stadt.touched && form.controls.stadt.invalid) {
+                <span class="field-error">Pflicht.</span>
+              }
+            </div>
+          </div>
+
+          <div class="form-row form-row-1-3">
+            <div class="field">
+              <label for="vorwahl" class="field-label">
+                Vorwahl <span class="field-hint">(optional)</span>
+              </label>
+              <input id="vorwahl" type="tel" class="input" formControlName="vorwahl" inputmode="numeric" />
+              @if (form.controls.vorwahl.touched && form.controls.vorwahl.invalid) {
+                <span class="field-error">Bitte Vorwahl angeben, wenn Telefon ausgefüllt ist.</span>
+              }
+            </div>
+            <div class="field">
+              <label for="telefon" class="field-label">
+                Telefon <span class="field-hint">(optional)</span>
+              </label>
+              <input id="telefon" type="tel" class="input" formControlName="telefon" autocomplete="tel-national" />
+              @if (form.controls.telefon.touched && form.controls.telefon.invalid) {
+                <span class="field-error">Bitte Telefon angeben, wenn Vorwahl ausgefüllt ist.</span>
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- SEPA-Lastschrift -->
+        <section class="form-section" aria-labelledby="sec-zahlung">
+          <h2 id="sec-zahlung" class="form-section-title">Zahlung per SEPA-Lastschrift</h2>
+
+          <div class="sepa-info">
+            <p class="sepa-info-heading">1. Einzugsermächtigung</p>
+            <p>
+              Ich ermächtige die Tanzschule Family &amp; Friends widerruflich, die von mir zu
+              entrichtenden Zahlungen bei Fälligkeit durch Lastschrift von meinem Konto einzuziehen.
+            </p>
+            <p class="sepa-info-heading">2. SEPA-Lastschriftmandat</p>
+            <p>
+              Ich ermächtige die Tanzschule Family &amp; Friends, Zahlungen von meinem Konto
+              mittels Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die
+              von der Tanzschule Family &amp; Friends auf mein Konto gezogenen Lastschriften
+              einzulösen.
+            </p>
+            <p>
+              <strong>Hinweis:</strong> Ich kann innerhalb von acht Wochen, beginnend mit dem
+              Belastungsdatum, die Erstattung des belasteten Betrages verlangen.
+            </p>
+          </div>
+
+          <div class="field">
+            <label for="inhaber" class="field-label">
+              Kontoinhaber <span class="required" aria-hidden="true">*</span>
+            </label>
+            <input id="inhaber" type="text" class="input" formControlName="inhaber" autocomplete="cc-name" />
+            @if (form.controls.inhaber.touched && form.controls.inhaber.invalid) {
+              <span class="field-error">Pflicht.</span>
+            }
+          </div>
+          <div class="form-row">
+            <div class="field">
+              <label for="iban" class="field-label">
+                IBAN <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="iban" type="text" class="input" formControlName="iban" />
+              @if (form.controls.iban.touched && form.controls.iban.invalid) {
+                <span class="field-error">Pflicht.</span>
+              }
+            </div>
+            <div class="field">
+              <label for="bic" class="field-label">
+                BIC <span class="required" aria-hidden="true">*</span>
+              </label>
+              <input id="bic" type="text" class="input" formControlName="bic" />
+              @if (form.controls.bic.touched && form.controls.bic.invalid) {
+                <span class="field-error">Pflicht.</span>
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- Bestaetigung + Submit -->
+        <section class="form-section" aria-labelledby="sec-bestaetigung">
+          <h2 id="sec-bestaetigung" class="form-section-title">Bestätigung</h2>
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="checked" />
+            <span>
+              Ich habe die
+              <button type="button" class="link-button" (click)="openAgb($event)">AGBs</button>
+              &amp;
+              <a routerLink="/impressum" [queryParams]="{ tab: 'datenschutz' }" target="_blank" rel="noopener">Datenschutzerklärung</a>
+              gelesen und stimme der Verarbeitung meiner Daten zur Gutschein-Bestellung zu.
+              <span class="required" aria-hidden="true">*</span>
+            </span>
+          </label>
+          @if (form.controls.checked.touched && form.controls.checked.invalid) {
+            <span class="field-error">Ohne Zustimmung können wir die Bestellung nicht annehmen.</span>
+          }
+
+          @if (serverError(); as msg) {
+            <div class="form-server-error" role="alert">
+              <strong>Bestellung nicht angenommen.</strong>
+              <p>{{ msg }}</p>
+              <button type="button" class="btn btn-outline-secondary btn-sm" (click)="resetServerError()">
+                Zurück zum Formular
+              </button>
+            </div>
+          }
+
+          <div class="form-actions">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="form.invalid || step() === 'submitting'"
+            >
+              @if (step() === 'submitting') { Sende... } @else { Bestellung absenden }
+            </button>
+            <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
+              Abbrechen
+            </button>
+          </div>
+        </section>
+      </form>
+    </div>
+  </section>
+
+  <!-- AGB-Modal -->
+  @if (agbModalOpen()) {
+    <div
+      class="success-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="agb-title"
+      (click)="onAgbBackdropClick($event)"
+    >
+      <div class="success-card agb-card">
+        <button type="button" class="agb-close" (click)="closeAgb()" aria-label="Schließen">✕</button>
+        <h2 id="agb-title" class="agb-title">Allgemeine Geschäftsbedingungen (AGB)</h2>
+        <div class="agb-body">
+          <h3>Gutschein-Bestellung:</h3>
+          <p>
+            Die Direktbestellung im Internet ist verbindlich. Nach der Angabe deiner persönlichen
+            Daten bekommst du eine Bestätigungs-Email, in der du über einen Link deine Bestellung
+            bestätigen musst.
+          </p>
+          <h3>Gültigkeit:</h3>
+          <p>
+            Tanzgutscheine sind innerhalb des gesetzlich vorgeschriebenen Zeitraums einlösbar.
+            Der Gutschein ist erst ab erfolgter Bezahlung gültig.
+          </p>
+          <h3>Versand:</h3>
+          <p>
+            Bei Auswahl „Zusendung per Post" wird der Gutschein nach Zahlungseingang an die
+            angegebene Adresse versandt. Bei „Selbstausdruck" kannst du den Gutschein direkt als
+            PDF herunterladen und ausdrucken.
+          </p>
+          <h3>Zahlung:</h3>
+          <p>
+            Die Bezahlung erfolgt per SEPA-Lastschrift. Mit der Bestellung erteilst du der
+            Tanzschule Family &amp; Friends ein Lastschriftmandat über den gewählten Betrag.
+          </p>
+          <h3>Haftung:</h3>
+          <p>
+            Die Tanzschule übernimmt keine Haftung für verlorene oder gestohlene Gutscheine.
+            Bitte bewahre den Gutschein bzw. die Druckdatei sicher auf.
+          </p>
+          <p>
+            Mit der Bestellung bestätigt der Besteller, dass er/sie die allgemeinen
+            Geschäftsbedingungen zur Kenntnis genommen und akzeptiert hat.
+          </p>
+        </div>
+        <div class="agb-actions">
+          <button type="button" class="btn btn-primary btn-sm" (click)="closeAgb()">
+            Schließen
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Erfolgs-Overlay -->
+  @if (step() === 'success') {
+    <div class="success-overlay" role="dialog" aria-modal="true" aria-labelledby="success-title">
+      <div class="success-card">
+        <div class="success-icon" aria-hidden="true">✓</div>
+        <h2 id="success-title" class="success-title">Fast geschafft!</h2>
+        <p class="success-text">
+          Wir haben deine Gutschein-Bestellung erhalten. Du bekommst gleich eine
+          Bestätigungs-E-Mail mit einem Aktivierungs-Link. Erst nach Klick auf diesen Link ist
+          deine Bestellung verbindlich.
+        </p>
+        <div class="form-actions">
+          <a routerLink="/gutscheine" class="btn btn-primary">Zur Gutschein-Übersicht</a>
+          <a routerLink="/" class="btn btn-outline-secondary">Zur Startseite</a>
+        </div>
+      </div>
+    </div>
+  }
+}

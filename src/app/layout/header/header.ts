@@ -38,6 +38,7 @@ export class Header {
     { label: 'Kurse',           path: '/kurse' },
     { label: 'Veranstaltungen', path: '/veranstaltungen' },
     { label: 'Galerie',         path: '/galerie' },
+    { label: 'Gutscheine',      path: '/gutscheine' },
     { label: 'Über uns',        path: '/ueber-uns' },
     { label: 'FAQ',             path: '/faq' },
     { label: 'Kontakt',         path: '/kontakt' },

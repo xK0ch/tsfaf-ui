@@ -65,6 +65,12 @@ export const routes: Routes = [
         title: 'Gutscheine — Tanzschule Family & Friends',
       },
       {
+        path: 'gutscheine/:id',
+        loadComponent: () =>
+          import('./pages/gutscheine/bestellung/bestellung').then(m => m.Bestellung),
+        title: 'Gutschein bestellen — Tanzschule Family & Friends',
+      },
+      {
         path: 'faq',
         loadComponent: () => import('./pages/faq/faq').then(m => m.Faq),
         title: 'FAQ — Tanzschule Family & Friends',

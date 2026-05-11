@@ -211,20 +211,64 @@ export interface ConfirmRegistrationResponse {
 
 // ----- Vouchers -----
 
-export interface VoucherResponse {
-  voucher_id?: string;
-  voucher?: Record<string, unknown>;
-  [key: string]: unknown;
+/**
+ * Voucher-Vorlage (dc_gutscheine). Eine Auswahlmoeglichkeit fuer den User.
+ */
+export interface CotasVoucher {
+  id: string;
+  /** Dateiname im uploaded/gutscheine/ Ordner */
+  path: string;
+  /** Absoluter URL zum Thumbnail (small_*.jpg) */
+  thumbnailUrl: string;
+  /** Absoluter URL zum Vollbild */
+  imageUrl: string;
 }
 
+export interface CotasVoucherListResponse {
+  vouchers: CotasVoucher[];
+}
+
+export interface CotasVoucherShowResponse {
+  voucher: CotasVoucher;
+}
+
+/**
+ * POST-Body fuer /voucher-orders. Pflichtfelder gemaess
+ * VoucherOrderSendService::get_mandatory_fields().
+ */
 export interface VoucherOrderPayload {
+  session?: string;
   voucher_id: string;
+
+  /** 1 = User druckt selbst (PDF), 0 = Zusendung per Post */
+  selbstausdruck: 0 | 1;
+  /** Empfaengername fuer den Gutschein ("fuer X") */
+  name: string;
+  /** Betrag in Euro, Komma oder Punkt, z.B. "50,00" */
   betrag: string;
+  /** Optionale Glueckwunsch-Bemerkung auf dem Gutschein */
+  bemerkung?: string;
+
+  /** AGB akzeptiert */
+  checked: 0 | 1;
+
+  // Buyer-Daten
+  anrede: number;
   vorname: string;
   nachname: string;
+  strasse: string;
+  hausnummer: string;
+  plz: string;
+  stadt: string;
   email: string;
-  session?: string;
-  [key: string]: unknown;
+  vorwahl: string;
+  telefon: string;
+
+  // SEPA (immer Pflicht)
+  inhaber: string;
+  iban: string;
+  bic: string;
+  lastschrift?: 0 | 1;
 }
 
 export interface VoucherOrderResponse {
