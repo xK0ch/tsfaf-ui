@@ -24,8 +24,8 @@ import {
   CotasSiteConfig,
   RegistrationPreviewResponse,
   RegistrationSubmitPayload,
-} from '../../core/models/cotas.models';
-import { CotasApiService } from '../../core/services/cotas-api.service';
+} from '../../../core/models/cotas.models';
+import { CotasApiService } from '../../../core/services/cotas-api.service';
 
 type Step = 'form' | 'submitting' | 'success' | 'error';
 
