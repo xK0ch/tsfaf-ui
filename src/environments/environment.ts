@@ -19,6 +19,20 @@ export const environment = {
    */
   joomlaApiBase: 'https://www.tanzschule-family-and-friends.de/api/index.php/v1',
   /**
+   * Joomla API Token (read-only Reader-User). Wert ist hier ein Platzhalter
+   * und MUSS vor dem Production-Build lokal durch den echten Wert aus dem
+   * Passwort-Manager ersetzt werden. Wird per X-Joomla-Token Header an die
+   * Joomla-API mitgesendet. Token ist auf core.admin in com_content +
+   * com_fields beschraenkt (Read-Only), bei Leak kein Schreibrisiko, aber
+   * dennoch NICHT committen — sonst landet er fuer immer in der Git-History.
+   *
+   * Joomla-Kategorie-IDs (manuell gepflegt, falls sich was am Joomla-
+   * Backend aendert hier auch updaten):
+   *   FAQ = 9
+   */
+  joomlaToken: 'REPLACE_LOCALLY',
+  joomlaCategoryFaq: 9,
+  /**
    * Feature-Flag: "X Plaetze frei"-Anzeige pro Kursabend.
    * Falls der Kunde das nicht haben moechte: auf false setzen, Build
    * + Upload, dann verschwindet die Anzeige. Der disabled-Anmelden-Button

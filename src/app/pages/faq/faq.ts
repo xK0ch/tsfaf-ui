@@ -2,19 +2,31 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DOCUMENT,
-  effect,
   inject,
   signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import {
-  ALL_CATEGORY,
-  FAQ_GROUPS,
-  FaqGroup,
-  FaqItem,
-  TOTAL_ITEM_COUNT,
-} from './faq-data';
+import { forkJoin, map, of, switchMap } from 'rxjs';
+
+import { environment } from '../../../environments/environment';
+import { JoomlaApiService } from '../../core/services/joomla-api.service';
+import type { JoomlaArticle } from '../../core/models/joomla.models';
+
+// ----- Lokale Typen / Konstanten -----
+
+const ALL_CATEGORY = 'Alle';
+
+interface FaqItem {
+  readonly id: string;
+  readonly q: string;
+  readonly a: string;
+}
+
+interface FaqGroup {
+  readonly category: string;
+  readonly items: readonly FaqItem[];
+}
 
 interface CategoryEntry {
   readonly name: string;
@@ -31,6 +43,8 @@ interface RenderedFaqGroup {
   readonly items: readonly RenderedFaqItem[];
 }
 
+// ----- Highlight Helpers -----
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
@@ -46,26 +60,17 @@ function escapeRegex(value: string): string {
 
 function highlightText(text: string, query: string): string {
   const escaped = escapeHtml(text);
-  if (!query.trim()) {
-    return escaped;
-  }
+  if (!query.trim()) return escaped;
   const re = new RegExp(`(${escapeRegex(escapeHtml(query))})`, 'gi');
   return escaped.replace(re, '<mark>$1</mark>');
 }
 
 function highlightHtml(html: string, query: string): string {
-  if (!query.trim()) {
-    return html;
-  }
+  if (!query.trim()) return html;
   const re = new RegExp(`(${escapeRegex(query)})`, 'gi');
-  // Only highlight inside text nodes between tags by splitting on tags.
   return html.replace(/(<[^>]+>)|([^<]+)/g, (_, tag: string | undefined, text: string | undefined) => {
-    if (tag) {
-      return tag;
-    }
-    if (!text) {
-      return '';
-    }
+    if (tag) return tag;
+    if (!text) return '';
     return text.replace(re, '<mark>$1</mark>');
   });
 }
@@ -78,7 +83,48 @@ function highlightHtml(html: string, query: string): string {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Faq {
-  private readonly document = inject(DOCUMENT);
+  private readonly api = inject(JoomlaApiService);
+
+  // ----- Daten laden -----
+
+  /**
+   * FAQ-Baum: pro Sub-Kategorie ein FaqGroup. Wenn keine Sub-Kategorien
+   * existieren, faellt's auf eine einzelne Gruppe "Allgemein" mit allen
+   * Articles direkt in der Parent-Kategorie zurueck.
+   *
+   * Reihenfolge der Aufrufe:
+   *   1. listSubcategories(FAQ_PARENT)
+   *   2a. wenn nicht leer: pro Sub-Kategorie listArticles, in eine Gruppe
+   *   2b. wenn leer: listArticles(FAQ_PARENT) als einzelne Gruppe "Allgemein"
+   */
+  protected readonly faqGroups = toSignal<readonly FaqGroup[] | null>(
+    this.api.listSubcategories(environment.joomlaCategoryFaq).pipe(
+      switchMap(subCats => {
+        if (subCats.length === 0) {
+          return this.api
+            .listArticles({ categoryId: environment.joomlaCategoryFaq, limit: 200 })
+            .pipe(map(items => articlesToGroups('Allgemein', items)));
+        }
+        const calls = subCats.map(c =>
+          this.api
+            .listArticles({ categoryId: c.id, limit: 200 })
+            .pipe(map(items => articlesToGroup(c.title, items))),
+        );
+        return forkJoin(calls).pipe(
+          map(groups => groups.filter(g => g.items.length > 0)),
+        );
+      }),
+    ),
+    { initialValue: null },
+  );
+
+  protected readonly loading = computed(() => this.faqGroups() === null);
+
+  protected readonly totalItemCount = computed<number>(() =>
+    (this.faqGroups() ?? []).reduce((s, g) => s + g.items.length, 0),
+  );
+
+  // ----- UI-State -----
 
   protected readonly query = signal('');
   protected readonly activeCategory = signal<string>(ALL_CATEGORY);
@@ -88,8 +134,8 @@ export class Faq {
 
   protected readonly categories = computed<readonly CategoryEntry[]>(() => {
     return [
-      { name: ALL_CATEGORY, count: TOTAL_ITEM_COUNT },
-      ...FAQ_GROUPS.map(g => ({ name: g.category, count: g.items.length })),
+      { name: ALL_CATEGORY, count: this.totalItemCount() },
+      ...(this.faqGroups() ?? []).map(g => ({ name: g.category, count: g.items.length })),
     ];
   });
 
@@ -97,15 +143,11 @@ export class Faq {
     const q = this.query().toLowerCase().trim();
     const cat = this.activeCategory();
     const result: RenderedFaqGroup[] = [];
-    for (const group of FAQ_GROUPS) {
-      if (cat !== ALL_CATEGORY && group.category !== cat) {
-        continue;
-      }
+    for (const group of this.faqGroups() ?? []) {
+      if (cat !== ALL_CATEGORY && group.category !== cat) continue;
       const items: RenderedFaqItem[] = [];
       for (const item of group.items) {
-        if (q && !item.q.toLowerCase().includes(q) && !item.a.toLowerCase().includes(q)) {
-          continue;
-        }
+        if (q && !item.q.toLowerCase().includes(q) && !item.a.toLowerCase().includes(q)) continue;
         items.push({
           ...item,
           questionHtml: highlightText(item.q, this.query()),
@@ -129,27 +171,6 @@ export class Faq {
     () => this.activeCategory() === ALL_CATEGORY || this.query().length > 0,
   );
 
-  constructor() {
-    const win = this.document.defaultView;
-    const initialHash = win?.location.hash.slice(1) ?? '';
-    if (initialHash) {
-      this.openId.set(initialHash);
-    }
-
-    effect(() => {
-      const id = this.openId();
-      const w = this.document.defaultView;
-      if (!w?.history) {
-        return;
-      }
-      if (id) {
-        w.history.replaceState(null, '', `#${id}`);
-      } else if (w.location.hash) {
-        w.history.replaceState(null, '', w.location.pathname + w.location.search);
-      }
-    });
-  }
-
   protected onQueryInput(value: string): void {
     this.query.set(value);
     if (value) {
@@ -165,4 +186,22 @@ export class Faq {
   protected toggleItem(id: string): void {
     this.openId.update(current => (current === id ? null : id));
   }
+}
+
+// ----- Article -> FaqGroup Mapping -----
+
+function articlesToGroup(categoryName: string, articles: readonly JoomlaArticle[]): FaqGroup {
+  return {
+    category: categoryName,
+    items: articles.map(a => ({
+      id: a.alias || `faq-${a.id}`,
+      q: a.title,
+      a: a.text,
+    })),
+  };
+}
+
+function articlesToGroups(categoryName: string, articles: readonly JoomlaArticle[]): FaqGroup[] {
+  if (articles.length === 0) return [];
+  return [articlesToGroup(categoryName, articles)];
 }

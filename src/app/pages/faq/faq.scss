@@ -242,6 +242,64 @@
   padding: 0 2px;
 }
 
+/*
+ * Joomla-Antworten kommen als HTML via [innerHTML] und koennen Links
+ * enthalten. Das globale styles.scss strippt mit
+ * `a { color: inherit; text-decoration: none; }` jegliche Link-Optik,
+ * also stellen wir die hier scoped wieder her, damit Nutzer Klickbares
+ * erkennen. ::ng-deep weil [innerHTML] die Angular View Encapsulation
+ * umgeht (gleicher Grund wie bei den mark-Highlights oben).
+ */
+::ng-deep .accordion-content a {
+  color: var(--color-secondary-deep);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color var(--transition-fast);
+}
+
+::ng-deep .accordion-content a:hover,
+::ng-deep .accordion-content a:focus-visible {
+  color: var(--color-secondary);
+}
+
+/*
+ * Listen aus Joomla-Antworten wiederherstellen. Das globale Reset in
+ * styles.scss nullt padding/margin auf *allen* Elementen, also auch
+ * die default-Einrueckung von ul/ol (browser default ca. 40px
+ * padding-inline-start). Hier scoped fuer den Antwort-Body restoren,
+ * damit Bullet-Lists wie im Joomla-Editor aussehen.
+ */
+::ng-deep .accordion-content :is(ul, ol) {
+  padding-inline-start: 24px;
+  margin-bottom: 10px;
+}
+
+::ng-deep .accordion-content :is(ul, ol):last-child {
+  margin-bottom: 0;
+}
+
+::ng-deep .accordion-content ul {
+  list-style: disc;
+}
+
+::ng-deep .accordion-content ol {
+  list-style: decimal;
+}
+
+::ng-deep .accordion-content li {
+  margin-bottom: 4px;
+}
+
+::ng-deep .accordion-content li:last-child {
+  margin-bottom: 0;
+}
+
+/* Verschachtelte Listen leicht zurueckhaengen. */
+::ng-deep .accordion-content :is(ul, ol) :is(ul, ol) {
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
 /* ─── EMPTY STATE ───────────────────────────────────────────────── */
 .empty-state {
   text-align: center;
