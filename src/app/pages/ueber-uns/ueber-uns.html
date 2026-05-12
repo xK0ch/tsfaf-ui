@@ -101,26 +101,27 @@
   </div>
 </section>
 
-<!-- ─── VALUES ────────────────────────────────────────────────────── -->
-<section class="section" id="werte">
+<!-- ─── TEAM ──────────────────────────────────────────────────────── -->
+<section class="section" id="team">
   <div class="container">
-    <div class="section-header values-header">
-      <p class="section-eyebrow">Was uns ausmacht</p>
-      <h2 class="section-title">Unsere Werte</h2>
+    <div class="team-header">
+      <p class="section-eyebrow">Das Team</p>
+      <h2 class="section-title">Wer dich bei uns begrüßt</h2>
+      <p class="section-body">
+        Tanzlehrerinnen, Tanzlehrer und Service-Team — alle mit Herz, Erfahrung und ganz viel Energie.
+      </p>
     </div>
-    <div class="values-grid">
-      @for (v of values; track v.label) {
-        <article class="value-card">
-          <div
-            class="value-icon-wrap"
-            [style.background]="v.orange ? '#FBF0E5' : '#E8F4F8'"
-            aria-hidden="true"
-          >{{ v.icon }}</div>
-          <h3 class="value-title">{{ v.label }}</h3>
-          <p class="value-desc">{{ v.desc }}</p>
-        </article>
-      }
-    </div>
+    @if (teamLoading()) {
+      <p class="team-status" role="status">Team wird geladen…</p>
+    } @else if (teamEmpty()) {
+      <p class="team-status">Aktuell sind keine Team-Mitglieder hinterlegt.</p>
+    } @else {
+      <div class="team-grid">
+        @for (member of team(); track member.id) {
+          <app-team-card [member]="member" />
+        }
+      </div>
+    }
   </div>
 </section>
 
@@ -217,19 +218,24 @@
   </div>
 </section>
 
-<!-- ─── TEAM ──────────────────────────────────────────────────────── -->
-<section class="section" id="team">
+<!-- ─── VALUES ────────────────────────────────────────────────────── -->
+<section class="section" id="werte">
   <div class="container">
-    <div class="team-header">
-      <p class="section-eyebrow">Das Team</p>
-      <h2 class="section-title">Deine Tanzlehrer</h2>
-      <p class="section-body">
-        Fünf qualifizierte Tanzlehrerinnen und Tanzlehrer mit Herz, Erfahrung und ganz viel Energie.
-      </p>
+    <div class="section-header values-header">
+      <p class="section-eyebrow">Was uns ausmacht</p>
+      <h2 class="section-title">Unsere Werte</h2>
     </div>
-    <div class="team-grid">
-      @for (member of team; track member.id) {
-        <app-team-card [member]="member" />
+    <div class="values-grid">
+      @for (v of values; track v.label) {
+        <article class="value-card">
+          <div
+            class="value-icon-wrap"
+            [style.background]="v.orange ? '#FBF0E5' : '#E8F4F8'"
+            aria-hidden="true"
+          >{{ v.icon }}</div>
+          <h3 class="value-title">{{ v.label }}</h3>
+          <p class="value-desc">{{ v.desc }}</p>
+        </article>
       }
     </div>
   </div>

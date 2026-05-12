@@ -1,17 +1,10 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
 import { TeamCard } from './team-card/team-card';
+import { TeamStore, type TeamMember } from './ueber-uns-data';
 
 export type ColorVariant = 'orange' | 'teal';
-
-export interface TeamMember {
-  readonly id: string;
-  readonly name: string;
-  readonly role: string;
-  readonly qualifications: readonly string[];
-  readonly bio: string;
-  readonly variant: ColorVariant;
-}
 
 interface HeroStat {
   readonly value: string;
@@ -47,6 +40,20 @@ interface Room {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UeberUns {
+  private readonly teamStore = inject(TeamStore);
+
+  /**
+   * Team-Mitglieder aus Joomla (Kategorie "Team", id 13). Sortiert per
+   * Joomla-Ordering. Im Loading wird ein kleiner Hinweis gezeigt.
+   */
+  protected readonly team = computed<readonly TeamMember[]>(
+    () => this.teamStore.members() ?? [],
+  );
+  protected readonly teamLoading = this.teamStore.loading;
+  protected readonly teamEmpty = computed(
+    () => !this.teamLoading() && this.team().length === 0,
+  );
+
   protected readonly heroStats: readonly HeroStat[] = [
     { value: '20+',    label: 'Jahre Erfahrung' },
     { value: '950 m²', label: 'Tanzfläche' },
@@ -78,46 +85,4 @@ export class UeberUns {
     { id: 'r-garderobe', name: 'Garderobe', detail: 'Umkleiden und Schließfächer',     icon: '👗', orange: true  },
   ];
 
-  protected readonly team: readonly TeamMember[] = [
-    {
-      id: 't-1',
-      name: 'Uwe Höftmann',
-      role: 'Inhaber und ADTV-Tanzlehrer',
-      qualifications: ['ADTV-Tanzlehrer', 'Step-Instructor', 'Dance-4-Fans-Instructor', 'ZUMBA-Instructor', 'Agilando-Instructor'],
-      bio: 'Uwe leitet die Tanzschule seit der Gründung und unterrichtet mit Leidenschaft alle Altersgruppen. Sein Schwerpunkt liegt im Standardtanz und Discofox.',
-      variant: 'orange',
-    },
-    {
-      id: 't-2',
-      name: 'Tabea Höftmann',
-      role: 'ADTV-Tanzlehrerin',
-      qualifications: ['ADTV-Kindertanzlehrerin', 'Dance-4-Fans-Instructor', 'Agilando-Instructor', 'staatl. gepr. Gymnastiklehrerin', 'Kanga-Trainerin'],
-      bio: 'Tabea ist spezialisiert auf Kindertanz und Kanga. Sie bringt Bewegung und Freude zusammen, von den Minis bis zur Kanga-Gruppe.',
-      variant: 'teal',
-    },
-    {
-      id: 't-3',
-      name: 'Alena Jeschke',
-      role: 'ADTV-Tanzlehrerin',
-      qualifications: ['ADTV-Kindertanzlehrerin', 'ZUMBA-Instructor', 'Bokwa-Instructor', 'Dance-4-Fans-Instructor', 'HipHop-Instructor'],
-      bio: 'Alena bringt frische Energie in jede Stunde, ob HipHop, Zumba oder Kindertanz. Mit ihr wird jeder Kurs zum Erlebnis.',
-      variant: 'orange',
-    },
-    {
-      id: 't-4',
-      name: 'Annika Behm',
-      role: 'ADTV-Tanzlehrerin',
-      qualifications: ['Kindertanzlehrerin', 'Dance-4-Fans-Instructor', 'ZUMBA-Instructor', 'Contemporary-Instructor', 'Salsa-Instructor'],
-      bio: 'Annika unterrichtet Contemporary, Salsa und Kindertanz. Ihre Stunden verbinden Technik mit viel Herzlichkeit.',
-      variant: 'teal',
-    },
-    {
-      id: 't-5',
-      name: 'Finja Prien',
-      role: 'ADTV-Tanzlehrerin in der Ausbildung',
-      qualifications: ['ADTV-Kindertanzlehrerin'],
-      bio: 'Finja ist die jüngste im Team und begeistert die Minis mit Geduld und frischen Ideen.',
-      variant: 'orange',
-    },
-  ];
 }

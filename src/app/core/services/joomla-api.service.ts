@@ -38,12 +38,20 @@ export class JoomlaApiService {
   /**
    * Liste der Articles, optional gefiltert nach Kategorie + Status.
    * Default: nur veroeffentlichte (state=1).
+   *
+   * `orderBy` + `orderDirection` triggern serverseitiges Sortieren via
+   * Joomla's ListModel (`list[ordering]=<col>&list[direction]=asc|desc`).
+   * Erlaubte Werte fuer orderBy sind alles was in der ArticlesModel
+   * `filter_fields` whitelist steht, am haeufigsten genutzt: `ordering`,
+   * `created`, `publish_up`, `title`, `id`.
    */
   listArticles(opts: {
     categoryId?: string | number;
     state?: number;
     /** Limit pro Seite, Joomla-Default 20 */
     limit?: number;
+    orderBy?: string;
+    orderDirection?: 'asc' | 'desc';
   } = {}): Observable<readonly JoomlaArticle[]> {
     let params = new HttpParams();
     if (opts.categoryId !== undefined) {
@@ -52,6 +60,10 @@ export class JoomlaApiService {
     params = params.set('filter[state]', String(opts.state ?? 1));
     if (opts.limit) {
       params = params.set('page[limit]', String(opts.limit));
+    }
+    if (opts.orderBy) {
+      params = params.set('list[ordering]', opts.orderBy);
+      params = params.set('list[direction]', opts.orderDirection ?? 'asc');
     }
 
     return this.http

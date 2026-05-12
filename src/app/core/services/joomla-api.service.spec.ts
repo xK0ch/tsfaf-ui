@@ -124,6 +124,34 @@ describe('JoomlaApiService', () => {
     req.flush({ data: [] });
   });
 
+  it('listArticles: ohne orderBy werden keine list[*]-Params gesetzt', () => {
+    service.listArticles({ categoryId: 9 }).subscribe();
+    const req = http.expectOne(r => r.url === `${BASE}/content/articles`);
+    expect(req.request.params.get('list[ordering]')).toBeNull();
+    expect(req.request.params.get('list[direction]')).toBeNull();
+    req.flush({ data: [] });
+  });
+
+  it('listArticles: orderBy triggert list[ordering] + list[direction] (default asc)', () => {
+    service
+      .listArticles({ categoryId: 13, orderBy: 'ordering' })
+      .subscribe();
+    const req = http.expectOne(r => r.url === `${BASE}/content/articles`);
+    expect(req.request.params.get('list[ordering]')).toBe('ordering');
+    expect(req.request.params.get('list[direction]')).toBe('asc');
+    req.flush({ data: [] });
+  });
+
+  it('listArticles: orderDirection desc wird mitgesendet', () => {
+    service
+      .listArticles({ orderBy: 'created', orderDirection: 'desc' })
+      .subscribe();
+    const req = http.expectOne(r => r.url === `${BASE}/content/articles`);
+    expect(req.request.params.get('list[ordering]')).toBe('created');
+    expect(req.request.params.get('list[direction]')).toBe('desc');
+    req.flush({ data: [] });
+  });
+
   it('listArticles: leeres data array -> leere Liste', () => {
     let received: readonly JoomlaArticle[] | undefined;
     service.listArticles().subscribe(r => (received = r));

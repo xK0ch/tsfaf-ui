@@ -2,15 +2,14 @@
   display: block;
 }
 
+/* ─── Card ────────────────────────────────────────────────────── */
 .team-card {
   background: var(--color-surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
-  padding: 28px var(--space-24);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
   height: 100%;
   transition:
     box-shadow var(--transition-base),
@@ -22,58 +21,134 @@
   transform: translateY(-2px);
 }
 
-.team-avatar {
+/* ─── Photo / Avatar (oberer Bereich) ─────────────────────────── */
+/*
+ * Portrait-Aspect 4:5. Bild deckt den ganzen Bereich ab; Cover-Fit
+ * sorgt dafuer dass der Kopf nicht abgeschnitten wird, solange das
+ * Original einigermassen mittig ist. Wer's exakt will, kann per
+ * Lightbox-Klick aufs Originalformat zoomen.
+ */
+.team-photo {
   position: relative;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26px;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: var(--space-16);
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  background: var(--color-bg);
+  overflow: hidden;
   flex-shrink: 0;
 }
 
-.team-avatar-ring {
+.team-photo-img {
   position: absolute;
-  inset: -3px;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Klickbares Photo (also wenn ein echtes Bild da ist) */
+.team-photo-clickable {
+  appearance: none;
+  border: none;
+  padding: 0;
+  cursor: zoom-in;
+  font-family: inherit;
+  display: block;
+}
+
+.team-photo-clickable:hover .team-photo-img,
+.team-photo-clickable:focus-visible .team-photo-img {
+  transform: scale(1.03);
+}
+
+.team-photo-img {
+  transition: transform var(--transition-base);
+}
+
+.team-photo-clickable:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+/* Zoom-Hint Icon: nur bei Hover/Focus sichtbar */
+.team-photo-zoom {
+  position: absolute;
+  bottom: var(--space-12);
+  right: var(--space-12);
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  border: 2px solid transparent;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)) border-box;
-  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: destination-out;
-  mask-composite: exclude;
+  background: rgba(0, 0, 0, .65);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
   pointer-events: none;
+}
+
+.team-photo-clickable:hover .team-photo-zoom,
+.team-photo-clickable:focus-visible .team-photo-zoom {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Initials-Fallback (wenn kein Foto gepflegt ist) */
+.team-photo-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.team-initials {
+  font-size: 72px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+/* ─── Info-Bereich (unter dem Photo) ──────────────────────────── */
+.team-info {
+  padding: var(--space-20) var(--space-24) var(--space-24);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
 }
 
 .team-name {
   font-size: var(--text-h3);
   font-weight: 700;
-  margin-bottom: var(--space-4);
+  color: var(--color-text);
+  line-height: 1.2;
 }
 
 .team-role {
   font-size: var(--text-small);
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-16);
+  font-weight: 600;
+  color: var(--color-secondary);
   line-height: 1.4;
 }
 
 .team-quals {
   list-style: none;
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
+  gap: 5px;
+  margin-top: 2px;
 }
 
 .qual-tag {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
+  padding: 3px 9px;
   border-radius: var(--radius-xl);
   font-size: 11px;
   font-weight: 500;
@@ -82,32 +157,97 @@
   border: 1px solid var(--color-border);
 }
 
-.team-bio-toggle {
-  margin-top: 14px;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-text-muted);
-  background: none;
+/* ─── Lightbox ────────────────────────────────────────────────── */
+/*
+ * Native <dialog> reset (Browser-Default-Style entfernen) und eigenes
+ * Layout setzen. ::backdrop ist der Pseudo-Element-Overlay.
+ */
+.team-lightbox {
   border: none;
+  padding: 0;
+  background: transparent;
+  max-width: 100vw;
+  max-height: 100vh;
+  width: 100%;
+  height: 100%;
+  /*
+   * Wir nutzen das <dialog>-Element selbst als Klickflaeche fuer
+   * Backdrop-Close: alles ausserhalb von .team-lightbox-inner schliesst
+   * die Lightbox.
+   */
+  cursor: zoom-out;
+}
+
+.team-lightbox::backdrop {
+  background: rgba(0, 0, 0, .85);
+}
+
+.team-lightbox[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.team-lightbox-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-16);
+  max-width: min(90vw, 900px);
+  max-height: 90vh;
+  cursor: default;
+}
+
+.team-lightbox-img {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, .4);
+  display: block;
+}
+
+.team-lightbox-caption {
+  color: #fff;
+  font-size: var(--text-body);
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
+}
+
+.team-lightbox-close {
+  position: absolute;
+  top: -48px;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, .12);
+  color: #fff;
+  font-size: 26px;
+  line-height: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 4px;
-  transition: color var(--transition-fast);
+  justify-content: center;
+  transition: background var(--transition-fast);
 }
 
-.team-bio-toggle:hover {
-  color: var(--color-secondary);
+.team-lightbox-close:hover,
+.team-lightbox-close:focus-visible {
+  background: rgba(255, 255, 255, .25);
+  outline: none;
 }
 
-.team-bio {
-  margin-top: var(--space-12);
-  padding-top: var(--space-12);
-  border-top: 1px solid var(--color-border);
-  font-size: var(--text-small);
-  color: var(--color-text-muted);
-  line-height: 1.6;
-  text-align: left;
-  width: 100%;
+@media (max-width: 600px) {
+  .team-lightbox-inner {
+    max-width: 95vw;
+  }
+  .team-lightbox-close {
+    top: -44px;
+    width: 36px;
+    height: 36px;
+    font-size: 22px;
+  }
 }

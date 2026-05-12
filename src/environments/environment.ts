@@ -30,10 +30,12 @@ export const environment = {
    * Backend aendert hier auch updaten):
    *   FAQ          = 9
    *   Neuigkeiten  = 8
+   *   Team         = 13
    */
   joomlaToken: 'REPLACE_LOCALLY',
   joomlaCategoryFaq: 9,
   joomlaCategoryNews: 8,
+  joomlaCategoryTeam: 13,
   /**
    * Site-Root der Joomla-Installation (ohne Slash am Ende). Wird genutzt
    * um relative Bild-Pfade aus den Article-Attributes (z.B.
