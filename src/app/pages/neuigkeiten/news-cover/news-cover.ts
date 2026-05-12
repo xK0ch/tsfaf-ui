@@ -85,12 +85,18 @@ function pseudoRandom(seed: number, i: number): number {
 })
 export class NewsCover {
   readonly id = input.required<string>();
-  readonly orange = input<boolean>(true);
+  /**
+   * Optional explizit ueberschreibbar; default leitet sich deterministisch
+   * aus dem Hash der ID ab, damit verschiedene Artikel verschieden
+   * eingefaerbte Platzhalter bekommen.
+   */
+  readonly orange = input<boolean | undefined>(undefined);
 
   protected readonly geometry = computed<CoverGeometry>(() => {
     const seed = hashSeed(this.id());
     const r = (n: number): number => pseudoRandom(seed, n);
-    const orange = this.orange();
+    const orangeInput = this.orange();
+    const orange = orangeInput ?? (seed % 2 === 0);
     const c1 = orange ? '#DC8C50' : '#64B4C8';
     const c2 = orange ? '#64B4C8' : '#DC8C50';
     const bg = orange ? '#2A2520' : '#1A2A30';

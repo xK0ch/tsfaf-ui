@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { NEWS_ARTICLES } from '../neuigkeiten-data';
+
+import { NewsStore, type NewsArticle } from '../neuigkeiten-data';
 
 @Component({
   selector: 'app-news-sidebar',
@@ -11,5 +12,10 @@ import { NEWS_ARTICLES } from '../neuigkeiten-data';
 })
 export class NewsSidebar {
   readonly currentSlug = input<string | null>(null);
-  protected readonly articles = NEWS_ARTICLES;
+
+  private readonly store = inject(NewsStore);
+  protected readonly articles = computed<readonly NewsArticle[]>(
+    () => this.store.articles() ?? [],
+  );
+  protected readonly loading = this.store.loading;
 }

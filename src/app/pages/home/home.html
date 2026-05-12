@@ -65,6 +65,39 @@
   </div>
 </section>
 
+<!-- ─── NEWS ──────────────────────────────────────────────────────── -->
+<section class="section section-news">
+  <div class="container">
+    <div class="section-header section-header-split">
+      <div>
+        <p class="section-eyebrow">Aktuelles</p>
+        <h2 class="section-title">Neuigkeiten</h2>
+      </div>
+      <a routerLink="/neuigkeiten" class="section-link">
+        Alle Beiträge <span aria-hidden="true">→</span>
+      </a>
+    </div>
+    @if (newsLoading()) {
+      <p class="news-status" role="status">Wird geladen…</p>
+    } @else if (newsEmpty()) {
+      <p class="news-status">Aktuell sind keine Beiträge online.</p>
+    } @else {
+      <div class="news-grid">
+        @for (item of newsTeaser(); track item.id) {
+          <a [routerLink]="['/neuigkeiten', item.slug]" class="news-card">
+            <div class="news-date">{{ item.dateLong }}</div>
+            <h3 class="news-title">{{ item.title }}</h3>
+            <p class="news-excerpt">{{ item.excerpt }}</p>
+            <span class="news-link">
+              Weiterlesen <span aria-hidden="true">→</span>
+            </span>
+          </a>
+        }
+      </div>
+    }
+  </div>
+</section>
+
 <!-- ─── ZIELGRUPPEN ───────────────────────────────────────────────── -->
 <section class="section section-zielgruppen">
   <div class="container">
@@ -190,33 +223,6 @@
   </div>
 </section>
 
-<!-- ─── NEWS ──────────────────────────────────────────────────────── -->
-<section class="section section-news">
-  <div class="container">
-    <div class="section-header section-header-split">
-      <div>
-        <p class="section-eyebrow">Aktuelles</p>
-        <h2 class="section-title">Neuigkeiten</h2>
-      </div>
-      <a routerLink="/neuigkeiten" class="section-link">
-        Alle Beiträge <span aria-hidden="true">→</span>
-      </a>
-    </div>
-    <div class="news-grid">
-      @for (item of news; track item.id) {
-        <article class="news-card">
-          <div class="news-date">{{ item.dateLabel }}</div>
-          <h3 class="news-title">{{ item.title }}</h3>
-          <p class="news-excerpt">{{ item.excerpt }}</p>
-          <a routerLink="/neuigkeiten" class="news-link">
-            Weiterlesen <span aria-hidden="true">→</span>
-          </a>
-        </article>
-      }
-    </div>
-  </div>
-</section>
-
 <!-- ─── KONTAKT-STRIP ─────────────────────────────────────────────── -->
 <section class="section-sm section-kontakt-strip">
   <div class="container">
@@ -251,49 +257,6 @@
           <a href="https://www.instagram.com/tsfaf.neumuenster" target="_blank" rel="noopener">&#64;tsfaf.neumuenster</a>
         </address>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── GUTSCHEIN BAND ────────────────────────────────────────────── -->
-<section class="section-gutschein">
-  <div class="gutschein-wash" aria-hidden="true"></div>
-  <div class="container">
-    <div class="gutschein-inner">
-      <div class="gutschein-card-art" aria-hidden="true">
-        <svg width="320" height="180" viewBox="0 0 320 180">
-          <defs>
-            <linearGradient id="gut-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%"   stop-color="#FFFFFF" />
-              <stop offset="100%" stop-color="#FBF9F5" />
-            </linearGradient>
-            <clipPath id="gut-clip">
-              <rect width="320" height="180" rx="16" />
-            </clipPath>
-          </defs>
-          <rect width="320" height="180" rx="16" fill="url(#gut-bg)" stroke="#E8E1D6" stroke-width="1" />
-          <g clip-path="url(#gut-clip)">
-            <path
-              d="M -20 130 C 60 40, 180 10, 280 70 C 320 92, 330 130, 310 155 C 275 195, 180 175, 80 165 C 20 158, -20 165, -20 130 Z"
-              fill="#DC8C50" opacity="0.10"
-            />
-            <path
-              d="M 180 -20 C 280 10, 360 80, 340 150 C 328 188, 270 195, 230 175 C 180 152, 165 100, 150 55 C 130 0, 100 -30, 180 -20 Z"
-              fill="#64B4C8" opacity="0.08"
-            />
-          </g>
-          <text x="24" y="100" font-family="Manrope, sans-serif" font-size="13" font-weight="700" fill="#2A2520" opacity="0.7">Family &amp; Friends</text>
-          <text x="24" y="120" font-family="Manrope, sans-serif" font-size="11" fill="#6B6259">ADTV-Tanzschule Neumünster</text>
-          <text x="230" y="154" font-family="Manrope, sans-serif" font-size="28" font-weight="700" fill="#DC8C50" text-anchor="middle">Geschenk</text>
-          <text x="230" y="170" font-family="Manrope, sans-serif" font-size="11" fill="#6B6259" text-anchor="middle">Tanzstunden</text>
-        </svg>
-      </div>
-      <h2 class="gutschein-title">Tanzen verschenken.</h2>
-      <p class="gutschein-sub">
-        Mach jemandem eine Freude, die bewegt: Tanzgutscheine für jeden Anlass, ab 25 Euro.
-      </p>
-      <a routerLink="/gutscheine" class="btn btn-primary btn-lg">Jetzt Gutschein kaufen</a>
-      <p class="gutschein-fineprint">Auch als Bildungsgutschein einlösbar</p>
     </div>
   </div>
 </section>

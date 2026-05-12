@@ -30,6 +30,12 @@
   gap: 2px;
 }
 
+.sidebar-empty {
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+  padding: var(--space-8) 10px;
+}
+
 .sidebar-link {
   display: flex;
   align-items: center;

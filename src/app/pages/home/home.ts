@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
+import { NewsStore, type NewsArticle } from '../neuigkeiten/neuigkeiten-data';
 
 interface Zielgruppe {
   readonly id: string;
@@ -29,18 +31,13 @@ interface EventItem {
   readonly excerpt: string;
 }
 
-interface NewsItem {
-  readonly id: string;
-  readonly title: string;
-  readonly dateLabel: string;
-  readonly excerpt: string;
-}
-
 interface OpeningRow {
   readonly day: string;
   readonly hours: string;
   readonly closed: boolean;
 }
+
+const HOME_NEWS_COUNT = 3;
 
 @Component({
   selector: 'app-home',
@@ -50,6 +47,23 @@ interface OpeningRow {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Home {
+  private readonly newsStore = inject(NewsStore);
+
+  /**
+   * News-Teaser auf der Home: die drei neuesten Artikel aus Joomla.
+   * Loading-Phase liefert leeres Array (Section ist dann leer aber stoert
+   * nicht das Layout).
+   */
+  protected readonly newsTeaser = computed<readonly NewsArticle[]>(
+    () => (this.newsStore.articles() ?? []).slice(0, HOME_NEWS_COUNT),
+  );
+
+  protected readonly newsLoading = this.newsStore.loading;
+
+  protected readonly newsEmpty = computed(
+    () => !this.newsLoading() && this.newsTeaser().length === 0,
+  );
+
   protected readonly zielgruppen: readonly Zielgruppe[] = [
     { id: 'zg-kinder',      title: 'Kinder',      desc: 'Ab 3 Jahren spielerisch tanzen', orange: true  },
     { id: 'zg-jugendliche', title: 'Jugendliche', desc: 'Hip Hop, Videoclip & mehr',      orange: false },
@@ -95,27 +109,6 @@ export class Home {
       day: 30, monthShort: 'Apr', time: '21:00 Uhr',
       price: 10, priceCard: 5, requiresRegistration: true,
       excerpt: 'Vier Stunden Musik und gute Laune.',
-    },
-  ];
-
-  protected readonly news: readonly NewsItem[] = [
-    {
-      id: '171',
-      title: 'Gruppenrabatte',
-      dateLabel: '10. September 2024',
-      excerpt: 'Nach den Herbstferien starten die neuen Kurse, und neu sind unsere Gruppenrabatte für Neukunden.',
-    },
-    {
-      id: '170',
-      title: 'Sommerpause vom 15. Juli bis 12. August',
-      dateLabel: '01. Juli 2024',
-      excerpt: 'Wir machen eine kleine Pause, danach geht es mit frischer Energie weiter.',
-    },
-    {
-      id: '169',
-      title: 'Neue HipHop-Kurse für Erwachsene',
-      dateLabel: '15. Juni 2024',
-      excerpt: 'Endlich auch für Erwachsene: HipHop Level 1 startet im September.',
     },
   ];
 

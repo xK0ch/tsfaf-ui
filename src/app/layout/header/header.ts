@@ -35,6 +35,7 @@ export class Header {
   protected readonly drawerOpen = signal(false);
 
   protected readonly navItems: readonly NavItem[] = [
+    { label: 'Neuigkeiten',     path: '/neuigkeiten' },
     { label: 'Kurse',           path: '/kurse' },
     { label: 'Veranstaltungen', path: '/veranstaltungen' },
     { label: 'Galerie',         path: '/galerie' },

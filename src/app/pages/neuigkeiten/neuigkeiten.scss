@@ -63,23 +63,45 @@
   outline-offset: 2px;
 }
 
+/*
+ * Mobile- und Tablet-Default: jede Card ist gleich gross und prominent,
+ * mit grossem Bild oben und kraeftigem Titel. Das Featured-Differenzieren
+ * greift erst ab Desktop-Breite — siehe `@media (min-width: 1000px)`
+ * weiter unten.
+ */
 .news-card-cover {
   position: relative;
-  padding-top: 50%;
+  min-height: 240px;
   overflow: hidden;
   flex-shrink: 0;
 }
 
-.news-card-cover app-news-cover {
+.news-card-cover app-news-cover,
+.news-card-cover .news-card-image {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.news-card-image {
+  object-fit: cover;
+  display: block;
+}
+
+/* Loading- / Empty-State unter dem Hero (vor dem Grid). */
+.news-status {
+  padding: var(--space-32) 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--text-body);
 }
 
 .news-card-body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: var(--space-24);
+  padding: var(--space-32);
   flex: 1;
 }
 
@@ -89,7 +111,7 @@
 }
 
 .news-card-title {
-  font-size: var(--text-h3);
+  font-size: var(--text-h2);
   font-weight: 700;
   line-height: 1.25;
   color: var(--color-text);
@@ -117,31 +139,48 @@
   gap: 9px;
 }
 
-/* Featured card variant: full-width, two-column on wider screens */
-.news-card-featured {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: 1fr;
-}
+/*
+ * Ab Desktop:
+ *  - Non-Featured Cards werden kompakter (Aspect-Ratio-Bild, kleinerer
+ *    Titel, weniger Padding) — sonst wuerden mehrere Standard-Cards in
+ *    1-col-Liste mit Seitenleiste daneben jeweils riesig wirken.
+ *  - Die erste Card (.news-card-featured) bekommt zusaetzlich den
+ *    horizontalen Split (Bild links, Body rechts) und behaelt den
+ *    prominenten Look.
+ */
+@media (min-width: 1000px) {
+  .news-card-cover {
+    padding-top: 50%;
+    min-height: 0;
+  }
 
-@media (min-width: 700px) {
+  .news-card-body {
+    padding: var(--space-24);
+  }
+
+  .news-card-title {
+    font-size: var(--text-h3);
+  }
+
   .news-card-featured {
+    grid-column: 1 / -1;
+    display: grid;
     grid-template-columns: 1.2fr 1fr;
   }
-}
 
-.news-card-featured .news-card-cover {
-  padding-top: 0;
-  min-height: 280px;
-}
+  .news-card-featured .news-card-cover {
+    padding-top: 0;
+    min-height: 280px;
+  }
 
-.news-card-featured .news-card-body {
-  padding: var(--space-32);
-  justify-content: center;
-}
+  .news-card-featured .news-card-body {
+    padding: var(--space-32);
+    justify-content: center;
+  }
 
-.news-card-featured .news-card-title {
-  font-size: var(--text-h2);
+  .news-card-featured .news-card-title {
+    font-size: var(--text-h2);
+  }
 }
 
 /* ─── PAGINATION ────────────────────────────────────────────────── */

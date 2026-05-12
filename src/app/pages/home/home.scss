@@ -400,6 +400,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-12);
+  color: inherit;
   transition:
     box-shadow var(--transition-base),
     transform var(--transition-base),
@@ -410,6 +411,11 @@
   background: var(--color-surface);
   box-shadow: var(--shadow-hover);
   transform: translateY(-2px);
+}
+
+.news-card:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .news-date {
@@ -443,6 +449,13 @@
 
 .news-link:hover {
   gap: var(--space-8);
+}
+
+.news-status {
+  padding: var(--space-32) 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--text-body);
 }
 
 /* ─── KONTAKT-STRIP ────────────────────────────────────────────── */
@@ -567,61 +580,3 @@
   color: var(--color-primary);
 }
 
-/* ─── GUTSCHEIN BAND ───────────────────────────────────────────── */
-.section-gutschein {
-  position: relative;
-  overflow: hidden;
-  background: var(--color-surface);
-}
-
-.gutschein-wash {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(220, 140, 80, .07) 0%,
-    rgba(100, 180, 200, .06) 50%,
-    rgba(220, 120, 60, .05) 100%
-  );
-}
-
-.section-gutschein .container {
-  position: relative;
-  z-index: 1;
-}
-
-.gutschein-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: var(--space-96) var(--space-24);
-  gap: var(--space-24);
-}
-
-.gutschein-card-art {
-  display: flex;
-  justify-content: center;
-  margin-bottom: var(--space-8);
-  filter: drop-shadow(0 8px 24px rgba(42, 37, 32, .12));
-}
-
-.gutschein-title {
-  font-size: clamp(32px, 4vw, 52px);
-  font-weight: 700;
-  color: var(--color-text);
-  line-height: 1.1;
-}
-
-.gutschein-sub {
-  font-size: var(--text-body-lg);
-  color: var(--color-text-muted);
-  max-width: 480px;
-  line-height: 1.55;
-}
-
-.gutschein-fineprint {
-  font-size: var(--text-small);
-  color: var(--color-text-muted);
-}

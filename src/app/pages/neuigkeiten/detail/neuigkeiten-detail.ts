@@ -11,7 +11,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
-import { findArticleBySlug } from '../neuigkeiten-data';
+
+import { NewsStore } from '../neuigkeiten-data';
 import { NewsCover } from '../news-cover/news-cover';
 import { NewsSidebar } from '../news-sidebar/news-sidebar';
 
@@ -27,13 +28,20 @@ export class NeuigkeitenDetail {
   private readonly router = inject(Router);
   private readonly title = inject(Title);
   private readonly document = inject(DOCUMENT);
+  private readonly store = inject(NewsStore);
 
   protected readonly slug = toSignal(
     this.route.paramMap.pipe(map(p => p.get('slug') ?? '')),
     { initialValue: '' },
   );
 
-  protected readonly article = computed(() => findArticleBySlug(this.slug()) ?? null);
+  protected readonly loading = this.store.loading;
+  protected readonly article = computed(() => this.store.bySlug(this.slug()));
+
+  /** True wenn fertig geladen aber kein passender Artikel gefunden wurde. */
+  protected readonly notFound = computed(
+    () => !this.loading() && this.slug() !== '' && this.article() === null,
+  );
 
   protected readonly copied = signal(false);
   private copyTimer: ReturnType<typeof setTimeout> | null = null;
@@ -50,10 +58,13 @@ export class NeuigkeitenDetail {
   constructor() {
     effect(() => {
       const a = this.article();
-      const slug = this.slug();
       if (a) {
         this.title.setTitle(`${a.title} - Tanzschule Family & Friends`);
-      } else if (slug !== '') {
+        return;
+      }
+      // Wenn die Daten schon da sind und kein Artikel zum Slug existiert,
+      // zurueck zur Uebersicht.
+      if (this.notFound()) {
         this.router.navigate(['/neuigkeiten'], { replaceUrl: true });
       }
     });

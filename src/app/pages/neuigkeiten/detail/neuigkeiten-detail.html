@@ -1,4 +1,10 @@
-@if (article(); as a) {
+@if (loading()) {
+  <section class="detail-section">
+    <div class="container">
+      <p class="news-status" role="status">Beitrag wird geladen…</p>
+    </div>
+  </section>
+} @else if (article(); as a) {
   <!-- ─── PAGE HERO ───────────────────────────────────────────────── -->
   <header class="page-hero">
     <div class="page-hero-bg" aria-hidden="true">
@@ -40,12 +46,28 @@
           <p class="detail-date">{{ a.dateLong }}</p>
           <h1 class="detail-title">{{ a.title }}</h1>
 
-          <div class="detail-cover">
-            <div class="detail-cover-inner">
-              <app-news-cover [id]="a.id" [orange]="a.orange" />
+          @if (a.imageUrl) {
+            <figure class="detail-cover">
+              <div class="detail-cover-inner">
+                <img
+                  [src]="a.imageUrl"
+                  [alt]="a.imageAlt"
+                  loading="eager"
+                  decoding="async"
+                  class="detail-cover-image"
+                />
+              </div>
+              @if (a.imageCaption) {
+                <figcaption class="detail-cover-caption">{{ a.imageCaption }}</figcaption>
+              }
+            </figure>
+          } @else {
+            <div class="detail-cover">
+              <div class="detail-cover-inner">
+                <app-news-cover [id]="a.id" />
+              </div>
             </div>
-            <p class="detail-cover-hint">Hier kommt bald ein Foto hin.</p>
-          </div>
+          }
 
           <div class="detail-body" [innerHTML]="a.bodyHtml"></div>
 

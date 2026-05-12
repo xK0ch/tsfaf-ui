@@ -28,10 +28,20 @@ export const environment = {
    *
    * Joomla-Kategorie-IDs (manuell gepflegt, falls sich was am Joomla-
    * Backend aendert hier auch updaten):
-   *   FAQ = 9
+   *   FAQ          = 9
+   *   Neuigkeiten  = 8
    */
   joomlaToken: 'REPLACE_LOCALLY',
   joomlaCategoryFaq: 9,
+  joomlaCategoryNews: 8,
+  /**
+   * Site-Root der Joomla-Installation (ohne Slash am Ende). Wird genutzt
+   * um relative Bild-Pfade aus den Article-Attributes (z.B.
+   * "images/blog_bilder/foo.jpg") in absolute URLs aufzuloesen. Bilder
+   * laufen NICHT ueber die API, sondern direkt als <img src=...>, also
+   * brauchen wir die volle Host-URL. CORS gilt fuer img-Tags nicht.
+   */
+  joomlaImageBase: 'https://www.tanzschule-family-and-friends.de',
   /**
    * Feature-Flag: "X Plaetze frei"-Anzeige pro Kursabend.
    * Falls der Kunde das nicht haben moechte: auf false setzen, Build
