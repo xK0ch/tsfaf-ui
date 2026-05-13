@@ -187,39 +187,52 @@
         Alle Veranstaltungen <span aria-hidden="true">→</span>
       </a>
     </div>
-    <div class="events-list">
-      @for (ev of events; track ev.id) {
-        <article class="event-card">
-          <div class="date-pill" [attr.aria-label]="ev.day + '. ' + ev.monthShort">
-            <span class="date-pill-day">{{ ev.day }}</span>
-            <span class="date-pill-month">{{ ev.monthShort }}</span>
-          </div>
-          <div class="event-body">
-            <h3 class="event-title">{{ ev.title }}</h3>
-            <div class="event-meta">
-              <span class="event-meta-time">{{ ev.time }}</span>
-              <span class="tag tag-secondary">{{ ev.typeLabel }}</span>
-              @if (ev.requiresRegistration) {
-                <span class="tag">Voranmeldung</span>
-              }
+    @if (eventsLoading()) {
+      <p class="events-status" role="status">Veranstaltungen werden geladen…</p>
+    } @else if (eventsEmpty()) {
+      <p class="events-status">Aktuell keine kommenden Veranstaltungen.</p>
+    } @else {
+      <div class="events-list">
+        @for (ev of eventsTeaser(); track ev.id) {
+          <article class="event-card">
+            <div class="date-pill" [attr.aria-label]="ev.day + '. ' + ev.monthShort">
+              <span class="date-pill-day">{{ ev.day }}</span>
+              <span class="date-pill-month">{{ ev.monthShort }}</span>
             </div>
-            <p class="event-excerpt">{{ ev.excerpt }}</p>
-            <div class="event-footer">
-              <div class="event-price">
-                {{ ev.price }} €
-                <span class="event-price-card">
-                  mit Kundenkarte:
-                  @if (ev.priceCard === 'frei') { frei } @else { {{ ev.priceCard }} € }
-                </span>
+            <div class="event-body">
+              <h3 class="event-title">{{ ev.title }}</h3>
+              <div class="event-meta">
+                @if (ev.timeSummary) {
+                  <span class="event-meta-time">{{ ev.timeSummary }}</span>
+                }
+                <span class="tag tag-secondary">{{ ev.typeLabel }}</span>
+                @if (ev.requiresRegistration) {
+                  <span class="tag">Voranmeldung</span>
+                }
               </div>
-              <a routerLink="/veranstaltungen" class="btn btn-ghost btn-sm">
-                Details ansehen <span aria-hidden="true">→</span>
-              </a>
+              <p class="event-excerpt">{{ ev.excerpt }}</p>
+              <div class="event-footer">
+                <div class="event-price">
+                  @if (ev.price) { {{ ev.price }} }
+                  @if (ev.priceCard) {
+                    <span class="event-price-card">
+                      mit Kundenkarte: {{ ev.priceCard }}
+                    </span>
+                  }
+                </div>
+                <a
+                  routerLink="/veranstaltungen"
+                  [queryParams]="{ event: ev.slug }"
+                  class="btn btn-ghost btn-sm"
+                >
+                  Details ansehen <span aria-hidden="true">→</span>
+                </a>
+              </div>
             </div>
-          </div>
-        </article>
-      }
-    </div>
+          </article>
+        }
+      </div>
+    }
   </div>
 </section>
 

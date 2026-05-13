@@ -28,14 +28,16 @@ export const environment = {
    *
    * Joomla-Kategorie-IDs (manuell gepflegt, falls sich was am Joomla-
    * Backend aendert hier auch updaten):
-   *   FAQ          = 9
-   *   Neuigkeiten  = 8
-   *   Team         = 13
+   *   FAQ             = 9
+   *   Neuigkeiten     = 8
+   *   Team            = 13
+   *   Veranstaltungen = 14
    */
   joomlaToken: 'REPLACE_LOCALLY',
   joomlaCategoryFaq: 9,
   joomlaCategoryNews: 8,
   joomlaCategoryTeam: 13,
+  joomlaCategoryVeranstaltungen: 14,
   /**
    * Site-Root der Joomla-Installation (ohne Slash am Ende). Wird genutzt
    * um relative Bild-Pfade aus den Article-Attributes (z.B.

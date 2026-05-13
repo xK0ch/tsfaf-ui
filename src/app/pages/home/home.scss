@@ -310,6 +310,13 @@
 /* ─── EVENTS ───────────────────────────────────────────────────── */
 .section-events { background: var(--color-bg); }
 
+.events-status {
+  padding: var(--space-32) 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--text-body);
+}
+
 .events-list {
   display: flex;
   flex-direction: column;

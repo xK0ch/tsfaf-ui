@@ -23,6 +23,7 @@ export const environment = {
   joomlaCategoryFaq: 9,
   joomlaCategoryNews: 8,
   joomlaCategoryTeam: 13,
+  joomlaCategoryVeranstaltungen: 14,
   /**
    * Auch im Dev volle URL — Bilder gehen direkt an Joomla, nicht durch den
    * Dev-Proxy. CORS gilt fuer img-Tags nicht, daher kein Bedarf fuer einen

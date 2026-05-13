@@ -71,34 +71,44 @@
           <p class="detail-meta-val">{{ event().dateLabel }}</p>
         </div>
       </div>
-      <div class="detail-meta-item">
-        <span class="detail-meta-icon" aria-hidden="true">🕐</span>
-        <div>
-          <p class="detail-meta-label">Uhrzeit</p>
-          <p class="detail-meta-val">{{ event().timeLabel }} bis {{ event().endTimeLabel }}</p>
+      @if (event().timeRanges.length > 0) {
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon" aria-hidden="true">🕐</span>
+          <div>
+            <p class="detail-meta-label">
+              @if (event().timeRanges.length === 1) { Uhrzeit }
+              @else { Blöcke }
+            </p>
+            @for (slot of event().timeRanges; track $index) {
+              <p class="detail-meta-val">
+                {{ slot.startLabel }} bis {{ slot.endLabel }} Uhr
+              </p>
+            }
+          </div>
         </div>
-      </div>
-      <div class="detail-meta-item">
-        <span class="detail-meta-icon" aria-hidden="true">🎟</span>
-        <div>
-          <p class="detail-meta-label">Eintritt</p>
-          <p class="detail-meta-val">
-            {{ event().price }} €
-            <span class="detail-meta-sub">
-              mit Kundenkarte:
-              @if (event().priceCard === 'frei') { frei } @else { {{ event().priceCard }} € }
-            </span>
-          </p>
+      }
+      @if (event().price || event().priceCard) {
+        <div class="detail-meta-item">
+          <span class="detail-meta-icon" aria-hidden="true">🎟</span>
+          <div>
+            <p class="detail-meta-label">Eintritt</p>
+            <p class="detail-meta-val">
+              @if (event().price) { {{ event().price }} }
+              @if (event().priceCard) {
+                <span class="detail-meta-sub">
+                  mit Kundenkarte: {{ event().priceCard }}
+                </span>
+              }
+            </p>
+          </div>
         </div>
-      </div>
-    </div>
-
-    <h3 class="detail-section-title">Über diese Veranstaltung</h3>
-    <div class="detail-description">
-      @for (paragraph of event().description; track $index) {
-        <p>{{ paragraph }}</p>
       }
     </div>
+
+    @if (event().bodyHtml) {
+      <h3 class="detail-section-title">Über diese Veranstaltung</h3>
+      <div class="detail-description" [innerHTML]="event().bodyHtml"></div>
+    }
 
     <div class="detail-reg-box" [class.required]="event().requiresRegistration">
       <p class="detail-reg-title">
@@ -132,7 +142,7 @@
             <span aria-hidden="true">🔗</span> Link kopieren
           }
         </button>
-        <a [href]="whatsappUrl()" target="_blank" rel="noopener" class="share-btn">
+        <a [href]="buildWhatsappUrl()" target="_blank" rel="noopener" class="share-btn">
           <span aria-hidden="true">💬</span> WhatsApp
         </a>
       </div>

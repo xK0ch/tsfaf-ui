@@ -46,14 +46,21 @@ export class NeuigkeitenDetail {
   protected readonly copied = signal(false);
   private copyTimer: ReturnType<typeof setTimeout> | null = null;
 
-  protected readonly whatsappUrl = computed(() => {
+  /**
+   * Baut den WhatsApp-Share-Link. Ruft `location.href` zur Aufrufzeit
+   * ab, damit immer die aktuelle URL der Detail-Page mitgeteilt wird
+   * (Empfaenger kann direkt zum Artikel springen).
+   */
+  protected buildWhatsappUrl(): string {
     const a = this.article();
     if (!a) {
       return '';
     }
-    const text = `${a.title} – Tanzschule Family und Friends`;
+    const win = this.document.defaultView;
+    const url = win?.location.href ?? '';
+    const text = `${a.title} – Tanzschule Family und Friends: ${url}`;
     return `https://wa.me/?text=${encodeURIComponent(text)}`;
-  });
+  }
 
   constructor() {
     effect(() => {

@@ -4,6 +4,10 @@ import { provideRouter } from '@angular/router';
 
 import { Home } from './home';
 import { NewsStore, type NewsArticle } from '../neuigkeiten/neuigkeiten-data';
+import {
+  VeranstaltungenStore,
+  type VeranstaltungItem,
+} from '../veranstaltungen/veranstaltungen-data';
 
 function mkArticle(over: Partial<NewsArticle> = {}): NewsArticle {
   return {
@@ -22,7 +26,34 @@ function mkArticle(over: Partial<NewsArticle> = {}): NewsArticle {
   };
 }
 
-function makeStoreMock(initial: readonly NewsArticle[] | null) {
+function mkEvent(over: Partial<VeranstaltungItem> = {}): VeranstaltungItem {
+  return {
+    id: 'e-1',
+    slug: 'discofox-workshop',
+    title: 'Discofox-Workshop',
+    type: 'workshop',
+    typeLabel: 'Workshop',
+    tagClass: 'tag-primary',
+    date: new Date('2026-06-06T00:00:00'),
+    day: 6,
+    monthShort: 'Jun',
+    dateLabel: 'Samstag, 6. Juni 2026',
+    monthKey: 'Juni 2026',
+    past: false,
+    timeRanges: [],
+    timeSummary: '19:00 - 21:00 Uhr',
+    start: new Date('2026-06-06T19:00:00'),
+    end: new Date('2026-06-06T21:00:00'),
+    price: '15 €',
+    priceCard: '10 €',
+    requiresRegistration: true,
+    bodyHtml: '<p>Body</p>',
+    excerpt: 'Excerpt',
+    ...over,
+  };
+}
+
+function makeNewsStoreMock(initial: readonly NewsArticle[] | null) {
   const articles = signal<readonly NewsArticle[] | null>(initial);
   return {
     articles,
@@ -31,68 +62,149 @@ function makeStoreMock(initial: readonly NewsArticle[] | null) {
   };
 }
 
+function makeEventsStoreMock(initial: readonly VeranstaltungItem[] | null) {
+  const events = signal<readonly VeranstaltungItem[] | null>(initial);
+  return {
+    events,
+    loading: computed(() => events() === null),
+    availableTypes: computed(() => []),
+  };
+}
+
 describe('Home', () => {
-  function setup(articles: readonly NewsArticle[] | null) {
+  function setup(opts: {
+    articles?: readonly NewsArticle[] | null;
+    events?: readonly VeranstaltungItem[] | null;
+  } = {}) {
+    // 'in opts' damit explicit `null` (=Loading) nicht durch `??` zu `[]` wird.
+    const articles = 'articles' in opts ? opts.articles ?? null : [];
+    const events = 'events' in opts ? opts.events ?? null : [];
     TestBed.configureTestingModule({
       imports: [Home],
       providers: [
         provideRouter([]),
-        { provide: NewsStore, useValue: makeStoreMock(articles) },
+        { provide: NewsStore, useValue: makeNewsStoreMock(articles) },
+        { provide: VeranstaltungenStore, useValue: makeEventsStoreMock(events) },
       ],
     });
     return TestBed.createComponent(Home);
   }
 
-  it('zeigt Loading-Hinweis solange NewsStore laedt', () => {
-    const fixture = setup(null);
+  // ─── News-Section ───────────────────────────────────────────────
+
+  it('zeigt News-Loading wenn NewsStore noch null', () => {
+    const fixture = setup({ articles: null });
     fixture.detectChanges();
     const news = (fixture.nativeElement as HTMLElement).querySelector('.section-news');
     expect(news?.textContent).toContain('Wird geladen');
   });
 
-  it('zeigt Empty-State wenn keine Artikel da sind', () => {
-    const fixture = setup([]);
+  it('zeigt News-Empty wenn keine Artikel da', () => {
+    const fixture = setup({ articles: [] });
     fixture.detectChanges();
     const news = (fixture.nativeElement as HTMLElement).querySelector('.section-news');
     expect(news?.textContent).toContain('keine Beiträge online');
   });
 
-  it('zeigt maximal 3 News-Cards auf der Home', () => {
-    const fixture = setup(
-      Array.from({ length: 8 }, (_, i) =>
+  it('zeigt maximal 3 News-Cards', () => {
+    const fixture = setup({
+      articles: Array.from({ length: 8 }, (_, i) =>
         mkArticle({ id: String(i + 1), slug: `n-${i + 1}`, title: `News ${i + 1}` }),
       ),
-    );
+    });
     fixture.detectChanges();
     const cards = (fixture.nativeElement as HTMLElement).querySelectorAll('.section-news .news-card');
     expect(cards.length).toBe(3);
   });
 
-  it('verlinkt jede Home-News-Card direkt auf die Detail-Page (slug)', () => {
-    const fixture = setup([
-      mkArticle({ id: '1', slug: 'parken', title: 'Parken' }),
-    ]);
+  it('verlinkt jede News-Card direkt auf die Detail-Page', () => {
+    const fixture = setup({
+      articles: [mkArticle({ id: '1', slug: 'parken', title: 'Parken' })],
+    });
     fixture.detectChanges();
     const link = (fixture.nativeElement as HTMLElement).querySelector(
       '.section-news .news-card',
     ) as HTMLAnchorElement | null;
-    expect(link).not.toBeNull();
-    expect(link!.getAttribute('href')).toContain('/neuigkeiten/parken');
+    expect(link?.getAttribute('href')).toContain('/neuigkeiten/parken');
   });
 
+  // ─── Events-Section ─────────────────────────────────────────────
+
+  it('zeigt Events-Loading wenn EventsStore noch null', () => {
+    const fixture = setup({ events: null });
+    fixture.detectChanges();
+    const evSec = (fixture.nativeElement as HTMLElement).querySelector('.section-events');
+    expect(evSec?.textContent).toContain('Veranstaltungen werden geladen');
+  });
+
+  it('zeigt Events-Empty wenn keine kommenden Veranstaltungen', () => {
+    const fixture = setup({ events: [] });
+    fixture.detectChanges();
+    const evSec = (fixture.nativeElement as HTMLElement).querySelector('.section-events');
+    expect(evSec?.textContent).toContain('keine kommenden Veranstaltungen');
+  });
+
+  it('filtert vergangene Events aus dem Teaser raus', () => {
+    const fixture = setup({
+      events: [
+        mkEvent({ id: '1', slug: 'past', past: true }),
+        mkEvent({ id: '2', slug: 'future', past: false }),
+      ],
+    });
+    fixture.detectChanges();
+    const cards = (fixture.nativeElement as HTMLElement).querySelectorAll('.section-events .event-card');
+    expect(cards.length).toBe(1);
+    const link = (fixture.nativeElement as HTMLElement).querySelector(
+      '.section-events .event-card a[href]',
+    ) as HTMLAnchorElement | null;
+    expect(link?.getAttribute('href')).toContain('future');
+  });
+
+  it('zeigt maximal 3 Event-Cards, sortiert nach Startdatum aufsteigend', () => {
+    const fixture = setup({
+      events: [
+        mkEvent({ id: '1', slug: 'c', start: new Date('2026-08-01T19:00:00') }),
+        mkEvent({ id: '2', slug: 'a', start: new Date('2026-05-01T19:00:00') }),
+        mkEvent({ id: '3', slug: 'd', start: new Date('2026-09-01T19:00:00') }),
+        mkEvent({ id: '4', slug: 'b', start: new Date('2026-06-01T19:00:00') }),
+        mkEvent({ id: '5', slug: 'e', start: new Date('2026-10-01T19:00:00') }),
+      ],
+    });
+    fixture.detectChanges();
+    const links = (fixture.nativeElement as HTMLElement).querySelectorAll(
+      '.section-events .event-card a[href]',
+    );
+    expect(links.length).toBe(3);
+    expect(links[0].getAttribute('href')).toContain('a');
+    expect(links[1].getAttribute('href')).toContain('b');
+    expect(links[2].getAttribute('href')).toContain('c');
+  });
+
+  it('Event-Card verlinkt mit queryParam event=<slug>', () => {
+    const fixture = setup({
+      events: [mkEvent({ id: '1', slug: 'tanz-in-den-mai' })],
+    });
+    fixture.detectChanges();
+    const link = (fixture.nativeElement as HTMLElement).querySelector(
+      '.section-events .event-card a[href]',
+    ) as HTMLAnchorElement | null;
+    expect(link?.getAttribute('href')).toContain('/veranstaltungen');
+    expect(link?.getAttribute('href')).toContain('event=tanz-in-den-mai');
+  });
+
+  // ─── Sonstiges ──────────────────────────────────────────────────
+
   it('Gutschein-Band-Section wurde komplett entfernt', () => {
-    const fixture = setup([]);
+    const fixture = setup();
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('.section-gutschein')).toBeNull();
-    expect(el.querySelector('.gutschein-inner')).toBeNull();
   });
 
-  it('News-Section steht im DOM direkt nach Hero (vor Zielgruppen)', () => {
-    const fixture = setup([mkArticle()]);
+  it('News-Section steht direkt nach Hero (vor Zielgruppen)', () => {
+    const fixture = setup({ articles: [mkArticle()] });
     fixture.detectChanges();
     const sections = (fixture.nativeElement as HTMLElement).querySelectorAll('section');
-    // [0] Hero, [1] News, [2] Zielgruppen
     expect(sections[1]?.classList.contains('section-news')).toBe(true);
     expect(sections[2]?.classList.contains('section-zielgruppen')).toBe(true);
   });

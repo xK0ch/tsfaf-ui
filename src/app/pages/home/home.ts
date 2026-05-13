@@ -2,6 +2,10 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { RouterLink } from '@angular/router';
 
 import { NewsStore, type NewsArticle } from '../neuigkeiten/neuigkeiten-data';
+import {
+  VeranstaltungenStore,
+  type VeranstaltungItem,
+} from '../veranstaltungen/veranstaltungen-data';
 
 interface Zielgruppe {
   readonly id: string;
@@ -17,20 +21,6 @@ interface Tanzstil {
   readonly orange: boolean;
 }
 
-interface EventItem {
-  readonly id: string;
-  readonly title: string;
-  readonly type: string;
-  readonly typeLabel: string;
-  readonly day: number;
-  readonly monthShort: string;
-  readonly time: string;
-  readonly price: number;
-  readonly priceCard: number | 'frei';
-  readonly requiresRegistration: boolean;
-  readonly excerpt: string;
-}
-
 interface OpeningRow {
   readonly day: string;
   readonly hours: string;
@@ -38,6 +28,7 @@ interface OpeningRow {
 }
 
 const HOME_NEWS_COUNT = 3;
+const HOME_EVENTS_COUNT = 3;
 
 @Component({
   selector: 'app-home',
@@ -48,6 +39,25 @@ const HOME_NEWS_COUNT = 3;
 })
 export class Home {
   private readonly newsStore = inject(NewsStore);
+  private readonly eventsStore = inject(VeranstaltungenStore);
+
+  /**
+   * Events-Teaser auf der Home: die naechsten max. 3 kommenden
+   * Veranstaltungen aus Joomla. Vergangene werden ausgefiltert,
+   * dann nach Start aufsteigend sortiert.
+   */
+  protected readonly eventsTeaser = computed<readonly VeranstaltungItem[]>(() => {
+    const all = this.eventsStore.events() ?? [];
+    return [...all]
+      .filter(ev => !ev.past)
+      .sort((a, b) => a.start.getTime() - b.start.getTime())
+      .slice(0, HOME_EVENTS_COUNT);
+  });
+
+  protected readonly eventsLoading = this.eventsStore.loading;
+  protected readonly eventsEmpty = computed(
+    () => !this.eventsLoading() && this.eventsTeaser().length === 0,
+  );
 
   /**
    * News-Teaser auf der Home: die drei neuesten Artikel aus Joomla.
@@ -80,36 +90,6 @@ export class Home {
     { name: 'Handicap',  sub: 'Für alle',        icon: '♿', orange: false },
     { name: 'Parkinson', sub: 'Tanzgruppe',      icon: '💚', orange: true  },
     { name: 'Kinder',    sub: 'Minis ab 3 J.',   icon: '⭐', orange: false },
-  ];
-
-  protected readonly events: readonly EventItem[] = [
-    {
-      id: 'ev-001',
-      title: 'Just Dance',
-      type: 'JustDance',
-      typeLabel: 'Just Dance',
-      day: 12, monthShort: 'Apr', time: '17:00 Uhr',
-      price: 5, priceCard: 'frei', requiresRegistration: false,
-      excerpt: 'Für alle aktiven und ehemaligen Tanzschüler.',
-    },
-    {
-      id: 'ev-002',
-      title: 'Discofox-Häppchen inkl. Tanzparty',
-      type: 'Workshop',
-      typeLabel: 'Workshop',
-      day: 18, monthShort: 'Apr', time: '19:00 Uhr',
-      price: 15, priceCard: 10, requiresRegistration: true,
-      excerpt: 'Discofox-Workshop mit anschließender Tanzparty.',
-    },
-    {
-      id: 'ev-003',
-      title: 'Tanz in den Mai',
-      type: 'Tanzparty',
-      typeLabel: 'Tanzparty',
-      day: 30, monthShort: 'Apr', time: '21:00 Uhr',
-      price: 10, priceCard: 5, requiresRegistration: true,
-      excerpt: 'Vier Stunden Musik und gute Laune.',
-    },
   ];
 
   protected readonly openingHours: readonly OpeningRow[] = [

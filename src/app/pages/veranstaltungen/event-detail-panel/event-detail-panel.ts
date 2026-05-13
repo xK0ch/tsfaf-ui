@@ -2,7 +2,6 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  computed,
   DOCUMENT,
   ElementRef,
   inject,
@@ -38,10 +37,17 @@ export class EventDetailPanel implements AfterViewInit, OnDestroy {
   private readonly previousOverflow: string;
   private copyTimer: ReturnType<typeof setTimeout> | null = null;
 
-  protected readonly whatsappUrl = computed(() => {
-    const text = `${this.event().title} bei der Tanzschule Family und Friends`;
+  /**
+   * Baut den WhatsApp-Share-Link. Ruft `location.href` zur Aufrufzeit ab
+   * damit immer die aktuelle URL geteilt wird (inkl. `?event=<slug>`,
+   * was direkt auf das offene Detail-Panel verlinkt).
+   */
+  protected buildWhatsappUrl(): string {
+    const win = this.document.defaultView;
+    const url = win?.location.href ?? '';
+    const text = `${this.event().title} bei der Tanzschule Family und Friends: ${url}`;
     return `https://wa.me/?text=${encodeURIComponent(text)}`;
-  });
+  }
 
   constructor() {
     this.previousOverflow = this.document.body.style.overflow;
@@ -74,12 +80,14 @@ export class EventDetailPanel implements AfterViewInit, OnDestroy {
   }
 
   protected async copyLink(): Promise<void> {
-    const ev = this.event();
     const win = this.document.defaultView;
     if (!win) {
       return;
     }
-    const url = `${win.location.origin}${win.location.pathname}?event=${ev.slug}`;
+    // location.href enthaelt mit Hash-Routing den Pfad inkl.
+    // `?event=<slug>`-QueryParam — das oeffnet das Panel beim
+    // Aufruf direkt wieder.
+    const url = win.location.href;
     try {
       await win.navigator.clipboard.writeText(url);
       this.copied.set(true);
@@ -94,7 +102,13 @@ export class EventDetailPanel implements AfterViewInit, OnDestroy {
 
   protected downloadIcs(): void {
     const ev = this.event();
-    const dt = (d: Date): string => d.toISOString().replace(/[-:]|\.\d+/g, '');
+    // Floating local-time format (kein Z-Suffix) — Veranstaltungen sind
+    // immer in lokaler Zeit der Tanzschule, nicht in UTC. ICS-Konsumenten
+    // zeigen das dann in der Zeitzone des Geraets an, was hier korrekt
+    // ist.
+    const pad = (n: number): string => (n < 10 ? `0${n}` : String(n));
+    const dt = (d: Date): string =>
+      `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
     const lines = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
