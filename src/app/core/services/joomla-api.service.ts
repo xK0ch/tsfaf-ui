@@ -94,25 +94,6 @@ export class JoomlaApiService {
       .pipe(map(r => (r?.data ?? []).map(mapCategory)));
   }
 
-  /**
-   * Liefert alle Sub-Kategorien einer Parent-Kategorie.
-   * Hinweis: Joomla 5's serverseitiger filter[parent_id] greift in unserem
-   * Setup nicht (liefert ALLE Kategorien zurueck). Deshalb fetchen wir
-   * alle Kategorien und filtern client-seitig per relationships.parent.id.
-   */
-  listSubcategories(parentId: string | number): Observable<readonly JoomlaCategory[]> {
-    const parentStr = String(parentId);
-    return this.listCategories().pipe(
-      map(cats =>
-        cats.filter(
-          c =>
-            c.parent_id === parentStr &&
-            (c.published === 1 || (c.published as unknown) === '1'),
-        ),
-      ),
-    );
-  }
-
   getCategory(id: string | number): Observable<JoomlaCategory | null> {
     return this.http
       .get<JoomlaResponse<JoomlaResource<JoomlaCategoryAttributes>>>(

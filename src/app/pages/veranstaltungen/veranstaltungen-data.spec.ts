@@ -117,7 +117,7 @@ describe('mapVeranstaltung', () => {
 
   it('Typ aus List-Field-Objekt (Joomla-Format: {key: display})', () => {
     const a = mapVeranstaltung(
-      attrs({ 'typ': { 'Workshop': 'Workshop' } }),
+      attrs({ 'typ-veranstaltung': { 'Workshop': 'Workshop' } }),
     );
     expect(a.type).toBe('Workshop');
     expect(a.typeLabel).toBe('Workshop');
@@ -279,10 +279,10 @@ describe('VeranstaltungenStore', () => {
     const req = http.expectOne(r => r.url === `${BASE}/content/articles`);
     req.flush({
       data: [
-        mkResource('1', { 'typ': { 'Workshop': 'Workshop' } }),
-        mkResource('2', { 'typ': { 'Just Dance': 'Just Dance' } }),
-        mkResource('3', { 'typ': { 'Workshop': 'Workshop' } }),
-        mkResource('4', { 'typ': { 'Tanzparty': 'Tanzparty' } }),
+        mkResource('1', { 'typ-veranstaltung': { 'Workshop': 'Workshop' } }),
+        mkResource('2', { 'typ-veranstaltung': { 'Just Dance': 'Just Dance' } }),
+        mkResource('3', { 'typ-veranstaltung': { 'Workshop': 'Workshop' } }),
+        mkResource('4', { 'typ-veranstaltung': { 'Tanzparty': 'Tanzparty' } }),
       ],
     });
     expect(store.availableTypes().map(t => t.label)).toEqual([

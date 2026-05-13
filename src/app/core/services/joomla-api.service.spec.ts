@@ -252,43 +252,6 @@ describe('JoomlaApiService', () => {
     expect(received![0].parent_id).toBe('42');
   });
 
-  it('listSubcategories: filtert client-seitig nach parent_id und published', () => {
-    let received: readonly JoomlaCategory[] | undefined;
-    service.listSubcategories(9).subscribe(r => (received = r));
-    http.expectOne(`${BASE}/content/categories`).flush({
-      data: [
-        mkCategoryResource('9', { title: 'FAQ', parent_id: 1 }),
-        mkCategoryResource('11', { title: 'Anmeldung', parent_id: 9, published: 1 }),
-        mkCategoryResource('12', { title: 'Praktisches', parent_id: 9, published: 1 }),
-        mkCategoryResource('13', { title: 'Unpublished', parent_id: 9, published: 0 }),
-        mkCategoryResource('14', { title: 'Andere', parent_id: 5, published: 1 }),
-      ],
-    });
-    expect(received!.map(c => c.id)).toEqual(['11', '12']);
-  });
-
-  it('listSubcategories: leere Liste wenn keine Sub-Kategorien existieren', () => {
-    let received: readonly JoomlaCategory[] | undefined;
-    service.listSubcategories(9).subscribe(r => (received = r));
-    http.expectOne(`${BASE}/content/categories`).flush({
-      data: [mkCategoryResource('9', { parent_id: 1 })],
-    });
-    expect(received).toEqual([]);
-  });
-
-  it('listSubcategories: akzeptiert published als String "1"', () => {
-    let received: readonly JoomlaCategory[] | undefined;
-    service.listSubcategories(9).subscribe(r => (received = r));
-    http.expectOne(`${BASE}/content/categories`).flush({
-      data: [
-        // Manche Joomla-Installationen liefern published als String. Wir testen
-        // dass der Service das gleich behandelt wie die Zahl 1.
-        mkCategoryResource('11', { parent_id: 9, published: '1' as unknown as number }),
-      ],
-    });
-    expect(received!.map(c => c.id)).toEqual(['11']);
-  });
-
   it('getCategory: GET /content/categories/:id mapped', () => {
     let received: JoomlaCategory | null | undefined;
     service.getCategory(9).subscribe(r => (received = r));

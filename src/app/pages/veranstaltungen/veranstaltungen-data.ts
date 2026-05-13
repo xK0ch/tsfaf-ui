@@ -202,7 +202,7 @@ const DATE_LABEL: Intl.DateTimeFormatOptions = {
 export function mapVeranstaltung(j: JoomlaArticle): VeranstaltungItem {
   const attrs = j as Record<string, unknown>;
 
-  const typField = readListField(attrs['typ']);
+  const typField = readListField(attrs['typ-veranstaltung']);
   const type = typField?.key ?? 'Sonstige';
   const typeLabel = typField?.display ?? type;
 

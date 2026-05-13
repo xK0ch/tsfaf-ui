@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { forkJoin, map, of, switchMap } from 'rxjs';
+import { map } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { JoomlaApiService } from '../../core/services/joomla-api.service';
@@ -16,6 +16,8 @@ import type { JoomlaArticle } from '../../core/models/joomla.models';
 // ----- Lokale Typen / Konstanten -----
 
 const ALL_CATEGORY = 'Alle';
+/** Fallback wenn ein FAQ-Artikel kein typ-faq-Feld gesetzt hat. */
+const FALLBACK_CATEGORY = 'Allgemein';
 
 interface FaqItem {
   readonly id: string;
@@ -75,6 +77,44 @@ function highlightHtml(html: string, query: string): string {
   });
 }
 
+// ----- Custom-Field Reader + Grouping -----
+
+/**
+ * Joomla liefert List-Fields als `{key: displayText}`. Wir nehmen den
+ * Key als kanonischen Wert; bei String/leer/Sonstigem nutzen wir den
+ * Fallback. Same Idee wie bei Veranstaltungen.
+ */
+function readTypFaq(value: unknown): string {
+  if (!value) return FALLBACK_CATEGORY;
+  if (typeof value === 'string') return value || FALLBACK_CATEGORY;
+  if (typeof value === 'object') {
+    const keys = Object.keys(value as Record<string, unknown>);
+    return keys[0] ? String(keys[0]) : FALLBACK_CATEGORY;
+  }
+  return FALLBACK_CATEGORY;
+}
+
+/**
+ * Gruppiert FAQs nach typ-faq-Custom-Field-Wert. Gruppen alphabetisch
+ * sortiert. Innerhalb einer Gruppe bleibt die API-Reihenfolge erhalten.
+ */
+export function buildFaqGroups(articles: readonly JoomlaArticle[]): readonly FaqGroup[] {
+  const byCat = new Map<string, FaqItem[]>();
+  for (const a of articles) {
+    const cat = readTypFaq((a as Record<string, unknown>)['typ-faq']);
+    const list = byCat.get(cat) ?? [];
+    list.push({
+      id: a.alias || `faq-${a.id}`,
+      q: a.title,
+      a: a.text,
+    });
+    byCat.set(cat, list);
+  }
+  return Array.from(byCat.entries())
+    .map(([category, items]) => ({ category, items }))
+    .sort((a, b) => a.category.localeCompare(b.category));
+}
+
 @Component({
   selector: 'app-faq',
   imports: [RouterLink],
@@ -88,33 +128,15 @@ export class Faq {
   // ----- Daten laden -----
 
   /**
-   * FAQ-Baum: pro Sub-Kategorie ein FaqGroup. Wenn keine Sub-Kategorien
-   * existieren, faellt's auf eine einzelne Gruppe "Allgemein" mit allen
-   * Articles direkt in der Parent-Kategorie zurueck.
-   *
-   * Reihenfolge der Aufrufe:
-   *   1. listSubcategories(FAQ_PARENT)
-   *   2a. wenn nicht leer: pro Sub-Kategorie listArticles, in eine Gruppe
-   *   2b. wenn leer: listArticles(FAQ_PARENT) als einzelne Gruppe "Allgemein"
+   * Alle FAQs aus Kategorie 9 mit einem Call holen, anhand des
+   * typ-faq-Custom-Fields client-seitig in Gruppen aufteilen. Pflege
+   * im Joomla erfolgt nur noch ueber das List-Field — keine Sub-
+   * Kategorien mehr.
    */
   protected readonly faqGroups = toSignal<readonly FaqGroup[] | null>(
-    this.api.listSubcategories(environment.joomlaCategoryFaq).pipe(
-      switchMap(subCats => {
-        if (subCats.length === 0) {
-          return this.api
-            .listArticles({ categoryId: environment.joomlaCategoryFaq, limit: 200 })
-            .pipe(map(items => articlesToGroups('Allgemein', items)));
-        }
-        const calls = subCats.map(c =>
-          this.api
-            .listArticles({ categoryId: c.id, limit: 200 })
-            .pipe(map(items => articlesToGroup(c.title, items))),
-        );
-        return forkJoin(calls).pipe(
-          map(groups => groups.filter(g => g.items.length > 0)),
-        );
-      }),
-    ),
+    this.api
+      .listArticles({ categoryId: environment.joomlaCategoryFaq, limit: 200 })
+      .pipe(map(items => buildFaqGroups(items))),
     { initialValue: null },
   );
 
@@ -186,22 +208,4 @@ export class Faq {
   protected toggleItem(id: string): void {
     this.openId.update(current => (current === id ? null : id));
   }
-}
-
-// ----- Article -> FaqGroup Mapping -----
-
-function articlesToGroup(categoryName: string, articles: readonly JoomlaArticle[]): FaqGroup {
-  return {
-    category: categoryName,
-    items: articles.map(a => ({
-      id: a.alias || `faq-${a.id}`,
-      q: a.title,
-      a: a.text,
-    })),
-  };
-}
-
-function articlesToGroups(categoryName: string, articles: readonly JoomlaArticle[]): FaqGroup[] {
-  if (articles.length === 0) return [];
-  return [articlesToGroup(categoryName, articles)];
 }
