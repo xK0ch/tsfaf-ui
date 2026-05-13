@@ -14,6 +14,13 @@ export const environment = {
    */
   cotasApiBase: 'https://anmeldung.tanzschule-family-and-friends.de/api/index.php',
   /**
+   * gallery-api.php: stand-alone JSON-Endpoint im Joomla-Webroot, liest
+   * die JoomGallery-DB direkt. Token-Auth via X-Gallery-Token. CORS
+   * erlaubt nur neu.tanzschule-family-and-friends.de.
+   */
+  galleryApiBase: 'https://www.tanzschule-family-and-friends.de/gallery-api.php',
+  galleryToken: 'REPLACE_LOCALLY',
+  /**
    * Joomla Web Services API Base. Wird gesetzt sobald Token + Endpunkt
    * vom Kunden-Termin bestaetigt sind.
    */

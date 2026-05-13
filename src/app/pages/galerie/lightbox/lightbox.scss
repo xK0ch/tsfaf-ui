@@ -36,13 +36,16 @@
 }
 
 .lightbox-img-wrap {
-  max-width: min(900px, 90vw);
-  max-height: min(700px, 80vh);
+  max-width: min(1200px, 90vw);
+  max-height: 80vh;
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: 0 8px 64px rgba(0, 0, 0, 0.5);
   animation: lbSlide 0.25s ease-out;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @keyframes lbSlide {
@@ -50,14 +53,11 @@
   to   { opacity: 1; transform: scale(1); }
 }
 
-.lightbox-img-bg {
-  width: min(900px, 90vw);
-  height: min(700px, 80vh);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
+.lightbox-img {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  display: block;
 }
 
 .lightbox-placeholder {

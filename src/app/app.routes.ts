@@ -33,7 +33,7 @@ export const routes: Routes = [
         title: 'Galerie — Tanzschule Family & Friends',
       },
       {
-        path: 'galerie/:id',
+        path: 'galerie/:alias',
         loadComponent: () =>
           import('./pages/galerie/detail/galerie-detail').then(m => m.GalerieDetail),
         title: 'Album — Tanzschule Family & Friends',

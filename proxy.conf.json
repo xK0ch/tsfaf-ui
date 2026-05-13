@@ -16,5 +16,14 @@
       "^/joomla-api": ""
     },
     "logLevel": "debug"
+  },
+  "/gallery-api": {
+    "target": "https://www.tanzschule-family-and-friends.de",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/gallery-api": "/gallery-api.php"
+    },
+    "logLevel": "debug"
   }
 }

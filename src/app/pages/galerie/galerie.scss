@@ -53,6 +53,13 @@
   color: var(--color-text);
 }
 
+.gallery-status {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--text-body);
+  padding: var(--space-32) 0;
+}
+
 /* ─── GRID ──────────────────────────────────────────────────────── */
 .page-content {
   padding: 48px 0 96px;

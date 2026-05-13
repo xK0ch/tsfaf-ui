@@ -1,46 +1,56 @@
+import { Injectable, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
+
+import {
+  GalleryApiService,
+  type RawAlbum,
+  type RawImage,
+} from '../../core/services/gallery-api.service';
+
+// ─── Frontend-Typen ───────────────────────────────────────────────
+
 export interface Album {
-  readonly id: string;
+  readonly id: number;
+  readonly alias: string;
   readonly title: string;
-  readonly date: string;
+  readonly description: string;
+  readonly date: Date;
+  /** "5. Mai 2026" */
   readonly dateLong: string;
+  /** "Mai 2026" */
   readonly dateShort: string;
-  readonly category: string;
-  readonly photoCount: number;
-  readonly seed: number;
+  readonly imageCount: number;
+  /**
+   * Cover-URL fuer die Album-Karte in der Listen-Page. Wir nehmen
+   * absichtlich die `detail`-Groesse (~600px) statt `thumb` (~200px) —
+   * Thumbs sehen auf Retina-Displays unscharf aus.
+   */
+  readonly coverUrl: string | null;
 }
 
 export interface Photo {
-  readonly id: string;
+  readonly id: number;
+  readonly alias: string;
+  /** Anzeigetext (Title oder Description), Fallback "Bild <id>". */
   readonly caption: string;
-  readonly seed: number;
-  readonly idx: number;
+  /** Thumbnail (klein, fuer das Grid). */
+  readonly thumb: string;
+  /** Mittelgrosses Bild (fuer Preview). */
+  readonly detail: string;
+  /** Originalgrosses Bild (Lightbox). */
+  readonly original: string;
 }
 
-interface AlbumType {
-  readonly prefix: string;
-  readonly cat: string;
-}
+// ─── Mapper ───────────────────────────────────────────────────────
 
-const ALBUM_TYPES: readonly AlbumType[] = [
-  { prefix: 'Abschlussball', cat: 'Ball' },
-  { prefix: 'Just Dance', cat: 'Party' },
-  { prefix: 'Discofox-Workshop', cat: 'Workshop' },
-  { prefix: 'Tanz in den Mai', cat: 'Party' },
-  { prefix: 'Sommerfest', cat: 'Fest' },
-  { prefix: 'Kinder-Aufführung', cat: 'Kinder' },
-  { prefix: 'HipHop-Showcase', cat: 'Show' },
-];
-
-export function hashSeed(input: string): number {
-  let h = 0;
-  for (let i = 0; i < input.length; i++) {
-    h = (Math.imul(31, h) + input.charCodeAt(i)) | 0;
+function parseDate(raw: string | null | undefined): Date {
+  if (!raw) {
+    return new Date(0);
   }
-  return Math.abs(h);
-}
-
-export function seededRand(seed: number, i: number): number {
-  return ((seed * 1664525 + i * 22695477 + 1013904223) >>> 0);
+  // PHP liefert "YYYY-MM-DD HH:MM:SS" — wir parsen lokal.
+  const d = new Date(raw.replace(' ', 'T'));
+  return Number.isNaN(d.getTime()) ? new Date(0) : d;
 }
 
 const DATE_LONG_FMT: Intl.DateTimeFormatOptions = {
@@ -50,44 +60,64 @@ const DATE_LONG_FMT: Intl.DateTimeFormatOptions = {
 };
 
 const DATE_SHORT_FMT: Intl.DateTimeFormatOptions = {
-  month: 'short',
+  month: 'long',
   year: 'numeric',
 };
 
-function buildAlbums(): readonly Album[] {
-  return Array.from({ length: 28 }, (_, i): Album => {
-    const type = ALBUM_TYPES[i % ALBUM_TYPES.length];
-    const year = 2025 - Math.floor(i / 7);
-    const month = String((i % 12) + 1).padStart(2, '0');
-    const seed = hashSeed(`${type.prefix}-${year}-${month}`);
-    const count = 12 + (seededRand(seed, 1) % 48);
-    const isoDate = `${year}-${month}-15`;
-    const date = new Date(isoDate);
-    return {
-      id: `album-${i + 1}`,
-      title: `${type.prefix} ${year}`,
-      date: isoDate,
-      dateLong: date.toLocaleDateString('de-DE', DATE_LONG_FMT),
-      dateShort: date.toLocaleDateString('de-DE', DATE_SHORT_FMT),
-      category: type.cat,
-      photoCount: count,
-      seed,
-    };
-  });
+export function mapAlbum(raw: RawAlbum): Album {
+  const date = parseDate(raw.date);
+  return {
+    id: raw.id,
+    alias: raw.alias,
+    title: raw.title,
+    description: raw.description ?? '',
+    date,
+    dateLong: date.toLocaleDateString('de-DE', DATE_LONG_FMT),
+    dateShort: date.toLocaleDateString('de-DE', DATE_SHORT_FMT),
+    imageCount: raw.imageCount,
+    // Detail bevorzugt fuer scharfe Anzeige; thumb als Fallback fuer
+    // den Fall dass die alte API-Version (vor dem detail-Feld) noch lebt.
+    coverUrl: raw.cover?.detail ?? raw.cover?.thumb ?? null,
+  };
 }
 
-export const ALBUMS: readonly Album[] = buildAlbums();
+export function mapPhoto(raw: RawImage): Photo {
+  const caption = (raw.title || '').trim() || (raw.description || '').trim() || `Bild ${raw.id}`;
+  return {
+    id: raw.id,
+    alias: raw.alias,
+    caption,
+    thumb: raw.thumb,
+    detail: raw.detail,
+    original: raw.original,
+  };
+}
+
+// ─── Konstanten ───────────────────────────────────────────────────
+
 export const ALBUMS_PER_PAGE = 24;
 
-export function findAlbumById(id: string): Album | undefined {
-  return ALBUMS.find(a => a.id === id);
-}
+// ─── Store ────────────────────────────────────────────────────────
 
-export function makePhotos(album: Album): readonly Photo[] {
-  return Array.from({ length: album.photoCount }, (_, i): Photo => ({
-    id: `${album.id}-p${i}`,
-    caption: `${album.title}, Bild ${i + 1}`,
-    seed: seededRand(album.seed, i + 100),
-    idx: i,
-  }));
+/**
+ * Lazy-Loading Store fuer die Alben-Liste. Erst beim ersten Inject
+ * wird der ?albums-Call ausgefuehrt; danach teilen sich Listen-Page
+ * und Detail-Page denselben Signal-Stand. Bild-Details pro Album
+ * laedt die Detail-Komponente direkt — die holen wir nicht in den
+ * Store weil pro Album-Switch ein neuer Call faellig ist.
+ */
+@Injectable({ providedIn: 'root' })
+export class GalleryStore {
+  private readonly api = inject(GalleryApiService);
+
+  readonly albums = toSignal<readonly Album[] | null>(
+    this.api.listAlbums().pipe(map(items => items.map(mapAlbum))),
+    { initialValue: null },
+  );
+
+  readonly loading = computed(() => this.albums() === null);
+
+  byAlias(alias: string): Album | null {
+    return this.albums()?.find(a => a.alias === alias) ?? null;
+  }
 }

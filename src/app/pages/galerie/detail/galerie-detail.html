@@ -1,42 +1,81 @@
-@if (album(); as a) {
+@if (storeLoading()) {
   <main class="page-content">
     <div class="container">
-      <div class="detail-header">
-        <a routerLink="/galerie" class="back-btn">
-          <span aria-hidden="true">←</span> Alle Alben
-        </a>
-        <div class="detail-title-block">
-          <h1 class="detail-album-title">{{ a.title }}</h1>
-          <div class="detail-album-meta">
-            {{ a.dateLong }} · {{ photos().length }} Fotos
+      <p class="detail-status" role="status">Album wird geladen…</p>
+    </div>
+  </main>
+} @else if (album(); as a) {
+  <header class="page-hero">
+    <div class="page-hero-bg" aria-hidden="true">
+      <svg viewBox="0 0 1200 260" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id="gal-det-grad-1" cx="15%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="#DC8C50" stop-opacity="0.08" />
+            <stop offset="100%" stop-color="#DC8C50" stop-opacity="0" />
+          </radialGradient>
+          <radialGradient id="gal-det-grad-2" cx="90%" cy="40%" r="45%">
+            <stop offset="0%"   stop-color="#64B4C8" stop-opacity="0.07" />
+            <stop offset="100%" stop-color="#64B4C8" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <rect width="1200" height="260" fill="white" />
+        <rect width="1200" height="260" fill="url(#gal-det-grad-1)" />
+        <rect width="1200" height="260" fill="url(#gal-det-grad-2)" />
+        <path
+          d="M -30 190 C 80 70, 260 30, 400 100 C 450 124, 455 175, 415 200 C 345 238, 165 215, 55 228 C -10 236, -30 225, -30 190 Z"
+          fill="#DC8C50" opacity="0.07"
+        />
+        <path
+          d="M 1050 20 C 1140 55, 1220 140, 1195 210 C 1178 248, 1130 255, 1090 235 C 1040 210, 1025 158, 1045 100 C 1055 55, 1010 0, 1050 20 Z"
+          fill="#64B4C8" opacity="0.06"
+        />
+      </svg>
+    </div>
+    <div class="container page-hero-inner">
+      <a routerLink="/galerie" class="back-link" aria-label="Zurück zur Galerie">
+        ← Alle Alben
+      </a>
+      <p class="page-eyebrow">Album</p>
+      <h1 class="page-title">{{ a.title }}</h1>
+      <p class="page-sub">{{ a.dateLong }} · {{ a.imageCount }} Fotos</p>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <div class="container">
+      @if (a.description) {
+        <p class="detail-album-desc">{{ a.description }}</p>
+      }
+
+      @if (photosLoading()) {
+        <p class="detail-status" role="status">Bilder werden geladen…</p>
+      } @else if (photos(); as ps) {
+        @if (ps.length === 0) {
+          <p class="detail-status">In diesem Album sind keine Bilder hinterlegt.</p>
+        } @else {
+          <div class="photo-grid">
+            @for (p of ps; track p.id; let i = $index) {
+              <button
+                type="button"
+                class="photo-thumb"
+                (click)="openLightbox(i)"
+                (keydown)="onThumbKey($event, i)"
+                [attr.aria-label]="'Bild ' + (i + 1) + ' öffnen'"
+              >
+                <div class="photo-thumb-bg">
+                  <app-album-cover
+                    [imageUrl]="p.detail"
+                    [imageAlt]="p.caption"
+                  />
+                </div>
+                <div class="photo-thumb-overlay">
+                  <span class="photo-thumb-overlay-icon" aria-hidden="true">⊕</span>
+                </div>
+              </button>
+            }
           </div>
-        </div>
-      </div>
-
-      <p class="detail-album-desc">
-        Erinnerungen an einen unvergesslichen Abend. Klick auf ein Bild, um es in voller Größe zu sehen.
-        <br />
-        <span class="detail-album-hint">Hier kommen bald die echten Fotos hin.</span>
-      </p>
-
-      <div class="photo-grid">
-        @for (p of photos(); track p.id; let i = $index) {
-          <button
-            type="button"
-            class="photo-thumb"
-            (click)="openLightbox(i)"
-            (keydown)="onThumbKey($event, i)"
-            [attr.aria-label]="'Bild ' + (i + 1) + ' öffnen'"
-          >
-            <div class="photo-thumb-bg">
-              <app-album-cover [seed]="p.seed" />
-            </div>
-            <div class="photo-thumb-overlay">
-              <span class="photo-thumb-overlay-icon" aria-hidden="true">⊕</span>
-            </div>
-          </button>
         }
-      </div>
+      }
 
       <div class="detail-back-bottom">
         <a routerLink="/galerie" class="btn btn-outline btn-sm">
@@ -46,9 +85,9 @@
     </div>
   </main>
 
-  @if (lightboxOpen()) {
+  @if (lightboxOpen() && photos(); as ps) {
     <app-lightbox
-      [photos]="photos()"
+      [photos]="ps"
       [startIdx]="lightboxIdx() ?? 0"
       (closed)="closeLightbox()"
     />

@@ -25,12 +25,12 @@
       >‹</button>
 
       <div class="lightbox-img-wrap" [attr.data-idx]="idx()">
-        <div class="lightbox-img-bg">
-          <app-album-cover [seed]="photo.seed" />
-          <div class="lightbox-placeholder">
-            Bild {{ idx() + 1 }} von {{ total() }}
-          </div>
-        </div>
+        <img
+          [src]="photo.original"
+          [alt]="photo.caption"
+          class="lightbox-img"
+          decoding="async"
+        />
       </div>
 
       <button

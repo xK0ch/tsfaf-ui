@@ -10,12 +10,11 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { AlbumCover } from '../album-cover/album-cover';
-import { Photo } from '../galerie-data';
+
+import { type Photo } from '../galerie-data';
 
 @Component({
   selector: 'app-lightbox',
-  imports: [AlbumCover],
   templateUrl: './lightbox.html',
   styleUrl: './lightbox.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
