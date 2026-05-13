@@ -2,13 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  inject,
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AlbumCover } from './album-cover/album-cover';
-import { Album, ALBUMS, ALBUMS_PER_PAGE } from './galerie-data';
 
-type SortMode = 'newest' | 'oldest';
+import { AlbumCover } from './album-cover/album-cover';
+import { ALBUMS_PER_PAGE, GalleryStore, type Album } from './galerie-data';
 
 interface PaginationToken {
   readonly kind: 'page' | 'ellipsis';
@@ -24,21 +24,25 @@ interface PaginationToken {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Galerie {
-  protected readonly sort = signal<SortMode>('newest');
+  private readonly store = inject(GalleryStore);
+
+  protected readonly loading = this.store.loading;
+  /**
+   * API liefert Alben bereits in der vom Chef im Joomla-Backend per
+   * Drag&Drop gepflegten Reihenfolge (sortiert nach `c.lft` aus dem
+   * Nested-Set-Model). Wir respektieren die Reihenfolge 1:1 — kein
+   * client-seitiges Re-Sort.
+   */
+  protected readonly allAlbums = computed<readonly Album[]>(
+    () => this.store.albums() ?? [],
+  );
+
   protected readonly currentPage = signal(1);
 
-  protected readonly sortedAlbums = computed<readonly Album[]>(() => {
-    const arr = [...ALBUMS];
-    const mode = this.sort();
-    if (mode === 'newest') {
-      arr.sort((a, b) => b.date.localeCompare(a.date));
-    } else {
-      arr.sort((a, b) => a.date.localeCompare(b.date));
-    }
-    return arr;
-  });
-
-  protected readonly totalCount = computed(() => this.sortedAlbums().length);
+  protected readonly totalCount = computed(() => this.allAlbums().length);
+  protected readonly isEmpty = computed(
+    () => !this.loading() && this.totalCount() === 0,
+  );
 
   protected readonly totalPages = computed(() =>
     Math.max(1, Math.ceil(this.totalCount() / ALBUMS_PER_PAGE)),
@@ -46,7 +50,7 @@ export class Galerie {
 
   protected readonly pageAlbums = computed<readonly Album[]>(() => {
     const start = (this.currentPage() - 1) * ALBUMS_PER_PAGE;
-    return this.sortedAlbums().slice(start, start + ALBUMS_PER_PAGE);
+    return this.allAlbums().slice(start, start + ALBUMS_PER_PAGE);
   });
 
   protected readonly canPrev = computed(() => this.currentPage() > 1);
@@ -73,13 +77,6 @@ export class Galerie {
     }
     return tokens;
   });
-
-  protected onSortChange(value: string): void {
-    if (value === 'newest' || value === 'oldest') {
-      this.sort.set(value);
-      this.currentPage.set(1);
-    }
-  }
 
   protected goToPage(page: number): void {
     const clamped = Math.max(1, Math.min(this.totalPages(), page));
