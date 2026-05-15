@@ -93,9 +93,7 @@ export class Home {
   ];
 
   protected readonly openingHours: readonly OpeningRow[] = [
-    { day: 'Montag bis Donnerstag', hours: '15:00 bis 21:30 Uhr',                       closed: false },
-    { day: 'Freitag',               hours: '10:00 bis 12:00 und 15:00 bis 21:00 Uhr',   closed: false },
-    { day: 'Samstag',               hours: 'nach Veranstaltungsplan',                   closed: false },
-    { day: 'Sonntag',               hours: 'geschlossen',                               closed: true  },
+    { day: 'Sonntag bis Freitag', hours: '14:30 bis 21:00 Uhr', closed: false },
+    { day: 'Samstag',             hours: '19:30 bis 23:00 Uhr', closed: false },
   ];
 }

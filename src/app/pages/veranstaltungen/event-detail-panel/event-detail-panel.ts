@@ -120,7 +120,7 @@ export class EventDetailPanel implements AfterViewInit, OnDestroy {
       `DTEND:${dt(ev.end)}`,
       `SUMMARY:${ev.title}`,
       `DESCRIPTION:${ev.excerpt}`,
-      'LOCATION:Tanzschule Family und Friends, Kieler Straße 54, 24534 Neumünster',
+      'LOCATION:Tanzschule Family und Friends, Georg-Fuhg-Straße 6, 24537 Neumünster',
       'END:VEVENT',
       'END:VCALENDAR',
     ];

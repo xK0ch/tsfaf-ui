@@ -72,7 +72,7 @@ export class UeberUns {
     { icon: '🤝', label: 'Gemeinschaft',   desc: 'Bei uns tanzt du nie allein. Wir sind eine Gemeinschaft aus allen Altersgruppen und Tanzlevels.',                                              orange: true  },
     { icon: '📜', label: 'ADTV-Qualität',  desc: 'Als ADTV-zertifizierte Tanzschule stehen wir für geprüfte Ausbildung und höchste Lehrqualität.',                                              orange: false },
     { icon: '🌈', label: 'Für alle',       desc: 'Von 3 bis 90: unser Angebot reicht von den Minis bis zur Parkinson-Gruppe, niemand wird ausgelassen.',                                        orange: true  },
-    { icon: '📍', label: 'Neumünster',     desc: '950 m² in der Kieler Straße 54: moderne Säle, Foyer mit Bar, Licht- und Soundtechnik auf dem neuesten Stand.',                                orange: false },
+    { icon: '📍', label: 'Neumünster',     desc: '950 m² in der Georg-Fuhg-Straße 6: moderne Säle, Foyer mit Bar, Licht- und Soundtechnik auf dem neuesten Stand.',                              orange: false },
     { icon: '❤️', label: 'Mit Herz',       desc: 'Seit über 20 Jahren tanzen wir mit Leidenschaft und freuen uns über jeden neuen Tanzschüler.',                                                orange: true  },
     { icon: '🎓', label: 'Weiterbildung',  desc: 'Unser Team bildet sich kontinuierlich weiter: neue Stile, neue Methoden, immer auf dem neuesten Stand.',                                      orange: false },
   ];

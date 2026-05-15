@@ -13,7 +13,17 @@ import {
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-type FormStep = 'form' | 'loading' | 'success';
+import { KontaktApiService } from '../../core/services/kontakt-api.service';
+
+/**
+ * UI-Zustaende des Formulars:
+ *   form    — Eingabe sichtbar
+ *   loading — Spinner waehrend der HTTP-Request laeuft
+ *   success — Erfolgsmeldung, Formular durch ResetForm zurueck zu form
+ *   error   — Mail konnte nicht verschickt werden (Netzwerk/Server),
+ *             User kann erneut absenden
+ */
+type FormStep = 'form' | 'loading' | 'success' | 'error';
 
 interface OpeningRow {
   readonly day: string;
@@ -35,6 +45,7 @@ interface SubjectOption {
 })
 export class Kontakt {
   private readonly fb = inject(FormBuilder);
+  private readonly api = inject(KontaktApiService);
 
   protected readonly step = signal<FormStep>('form');
   protected readonly mapConsented = signal(false);
@@ -49,10 +60,8 @@ export class Kontakt {
   ];
 
   protected readonly openingHours: readonly OpeningRow[] = [
-    { day: 'Mo bis Do', hours: '15:00 bis 21:30 Uhr',                       closed: false },
-    { day: 'Freitag',   hours: '10:00 bis 12:00 und 15:00 bis 21:00 Uhr',   closed: false },
-    { day: 'Samstag',   hours: 'nach Veranstaltungsplan',                   closed: false },
-    { day: 'Sonntag',   hours: 'geschlossen',                               closed: true  },
+    { day: 'So bis Fr', hours: '14:30 bis 21:00 Uhr', closed: false },
+    { day: 'Samstag',   hours: '19:30 bis 23:00 Uhr', closed: false },
   ];
 
   protected readonly form = this.fb.nonNullable.group({
@@ -76,8 +85,26 @@ export class Kontakt {
       this.form.markAllAsTouched();
       return;
     }
+
     this.step.set('loading');
-    setTimeout(() => this.step.set('success'), 1400);
+    const v = this.form.getRawValue();
+    this.api
+      .send({
+        name: v.name,
+        email: v.email,
+        phone: v.phone,
+        subject: v.subject,
+        message: v.message,
+        datenschutz: v.datenschutz,
+        honeypot: this.honeypot()?.nativeElement.value ?? '',
+      })
+      .subscribe(result => {
+        if (result.kind === 'sent') {
+          this.step.set('success');
+        } else {
+          this.step.set('error');
+        }
+      });
   }
 
   protected resetForm(): void {
@@ -89,6 +116,11 @@ export class Kontakt {
       message: '',
       datenschutz: false,
     });
+    this.step.set('form');
+  }
+
+  /** Aus dem Error-State zurueck zur Eingabe. Form-Werte bleiben erhalten. */
+  protected backToForm(): void {
     this.step.set('form');
   }
 }

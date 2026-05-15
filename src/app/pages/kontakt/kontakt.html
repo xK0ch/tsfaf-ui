@@ -52,7 +52,7 @@
             <div class="phone-block">
               <span class="phone-label">Ruf uns an</span>
               <a href="tel:+4943211490" class="phone-number">04321 – 1 49 00</a>
-              <span class="phone-hint">Mo bis Do 15 bis 21:30 · Fr 10 bis 12 und 15 bis 21 Uhr</span>
+              <span class="phone-hint">So bis Fr 14:30 bis 21 · Sa 19:30 bis 23 Uhr</span>
             </div>
           </div>
         </article>
@@ -66,11 +66,10 @@
           <div class="info-card-body">
             <address class="address-block">
               <strong>Tanzschule Family &amp; Friends</strong>
-              Kieler Straße 54<br>
-              24534 Neumünster<br>
+              Georg-Fuhg-Straße 6<br>
+              24537 Neumünster<br>
               <br>
-              <a href="mailto:info@tanzschule-family-and-friends.de">info&#64;tanzschule-family-and-friends.de</a><br>
-              <a href="https://instagram.com/tsfaf.neumuenster" target="_blank" rel="noopener">&#64;tsfaf.neumuenster</a>
+              <a href="mailto:info@tsfaf.de">info&#64;tsfaf.de</a><br>
             </address>
           </div>
         </article>
@@ -101,7 +100,7 @@
           @if (mapConsented()) {
             <iframe
               class="map-frame"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=9.960%2C54.069%2C9.990%2C54.085&amp;layer=mapnik&amp;marker=54.0776%2C9.9753"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=9.9472%2C54.0641%2C9.9772%2C54.0801&amp;layer=mapnik&amp;marker=54.0720723%2C9.9622051"
               title="Tanzschule Family und Friends auf der Karte"
               loading="lazy"
               allowfullscreen
@@ -132,13 +131,22 @@
             <div class="anfahrt-block">
               <h3>Mit dem Auto</h3>
               <p>
-                Aus Richtung Kiel: A7 Abfahrt Neumünster-Nord, Richtung Innenstadt, Kieler Straße folgen.
-                Aus Richtung Hamburg: A7 Abfahrt Neumünster-Süd, Richtung Zentrum.
+                Aus Richtung Stadt biegt man von der Roonstraße rechts in die
+                Georg-Fuhg-Straße ein. Aus Richtung Aukrug biegt man von der
+                Wasbeker Straße links in die Memellandstraße (LOG-In) und
+                dann zweimal rechts. Parkplätze sind ausreichend an der
+                Tanzschule vorhanden.
               </p>
-              <h3>Mit dem Bus</h3>
+              <h3>Mit öffentlichen Verkehrsmitteln</h3>
               <p>
-                Linien 9, 4, 33, Haltestelle Kieler Straße.
-                Abends: Anruf-Sammeltaxi (AST) auf Anfrage.
+                Bis ca. 20:00 Uhr ist die Tanzschule mit den Buslinien
+                <strong>9</strong> (Haltestelle „Berufsschule", werktags im
+                Stundentakt), <strong>4</strong> (Haltestelle „Legienstraße",
+                werktags im 20-Minutentakt) oder <strong>33</strong>
+                (Haltestelle „Meisenweg", werktags im 40-Minutentakt)
+                erreichbar. Abends fährt das stündlich verkehrende, aber
+                30 Minuten vorher zu bestellende Anruf-Sammeltaxi ab den
+                gleichen Haltestellen.
               </p>
             </div>
           </div>
@@ -158,6 +166,19 @@
               </p>
               <button type="button" class="btn btn-outline-secondary btn-sm" (click)="resetForm()">
                 Neue Nachricht schreiben
+              </button>
+            </div>
+          } @else if (step() === 'error') {
+            <div class="success-state error-state">
+              <div class="success-icon" aria-hidden="true">!</div>
+              <h2 class="success-title">Da ist etwas schief gegangen</h2>
+              <p class="success-sub">
+                Wir konnten deine Nachricht gerade nicht versenden.
+                Bitte probier es in einem Moment noch einmal — oder ruf uns
+                direkt an unter <strong>04321 – 1 49 00</strong>.
+              </p>
+              <button type="button" class="btn btn-outline-secondary btn-sm" (click)="backToForm()">
+                Erneut versuchen
               </button>
             </div>
           } @else {
@@ -280,7 +301,7 @@
                 <button
                   type="submit"
                   class="btn btn-primary btn-lg form-actions-submit"
-                  [disabled]="step() === 'loading'"
+                  [disabled]="step() === 'loading' || form.invalid"
                 >
                   @if (step() === 'loading') {
                     <span class="form-spinner" aria-hidden="true"></span>

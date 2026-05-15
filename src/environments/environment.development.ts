@@ -10,6 +10,8 @@ export const environment = {
   /** Dev geht durch den Angular-Dev-Proxy: /gallery-api -> www.tanzschule-... */
   galleryApiBase: '/gallery-api',
   galleryToken: 'REPLACE_LOCALLY',
+  kontaktApiBase: '/kontakt-api',
+  kontaktToken: 'REPLACE_LOCALLY',
   joomlaApiBase: '/joomla-api/api/index.php/v1',
   /**
    * Im Dev geht der Joomla-Call durch den Angular-Dev-Proxy

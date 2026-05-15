@@ -21,6 +21,12 @@ export const environment = {
   galleryApiBase: 'https://www.tanzschule-family-and-friends.de/gallery-api.php',
   galleryToken: 'REPLACE_LOCALLY',
   /**
+   * kontakt-api.php: nimmt Kontaktformular-POST entgegen, schickt Mail
+   * via PHP mail() an info@tanzschule-... . Token-Auth via X-Kontakt-Token.
+   */
+  kontaktApiBase: 'https://www.tanzschule-family-and-friends.de/kontakt-api.php',
+  kontaktToken: 'REPLACE_LOCALLY',
+  /**
    * Joomla Web Services API Base. Wird gesetzt sobald Token + Endpunkt
    * vom Kunden-Termin bestaetigt sind.
    */
