@@ -22,6 +22,13 @@
   }
 }
 
+@media (min-width: 1100px) {
+  .site-footer-grid {
+    /* 5 Spalten: Brand, Navigation, Ueber uns, Kontakt, Soziale Medien */
+    grid-template-columns: 1.5fr 1fr 1fr 1.2fr 0.8fr;
+  }
+}
+
 .site-footer-brand {
   display: flex;
   align-items: center;
@@ -93,6 +100,46 @@
 
 .site-footer-address a:hover {
   color: #fff;
+}
+
+/*
+ * Soziale-Medien-Spalte: Icon-only-Links (Instagram + Facebook).
+ * Beide Icons nutzen ihre offiziellen Brand-Farben (im SVG selbst), die
+ * Wrapper geben nur Hover-Verhalten.
+ */
+.site-footer-social {
+  display: flex;
+  gap: var(--space-12);
+  margin-top: var(--space-4);
+}
+
+.site-footer-social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: transparent;
+  transition:
+    background var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.site-footer-social-link svg {
+  display: block;
+  transition: transform var(--transition-fast);
+}
+
+.site-footer-social-link:hover,
+.site-footer-social-link:focus-visible {
+  background: rgba(255, 255, 255, .08);
+  outline: none;
+}
+
+.site-footer-social-link:hover svg,
+.site-footer-social-link:focus-visible svg {
+  transform: scale(1.1);
 }
 
 .site-footer-bottom {
