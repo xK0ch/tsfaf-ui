@@ -1,8 +1,9 @@
 import { DecimalPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { map } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { CotasApiService } from '../../core/services/cotas-api.service';
@@ -43,6 +44,22 @@ function htmlToText(html: string): string {
   return (div.textContent ?? '').replace(/\s+/g, ' ').trim();
 }
 
+/**
+ * URL-Slug aus einem Label. Lowercase, deutsche Umlaute transliteriert,
+ * alles ausser a-z/0-9 wird zum Bindestrich. "Erwachsene" → "erwachsene",
+ * "Kinder 3-5 Jahre" → "kinder-3-5-jahre", "Großeltern" → "grosseltern".
+ */
+export function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 @Component({
   selector: 'app-kurse',
   imports: [DecimalPipe, RouterLink],
@@ -53,6 +70,8 @@ function htmlToText(html: string): string {
 export class Kurse {
   private readonly api = inject(CotasApiService);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   protected readonly allCategoriesId = ALL_CATEGORIES_ID;
 
@@ -66,17 +85,48 @@ export class Kurse {
   protected readonly catalog = toSignal(this.api.loadCatalog(), { initialValue: null });
   protected readonly config = toSignal(this.api.loadConfig(), { initialValue: null });
 
-  protected readonly activeGroupId = signal<string | null>(null);
-  protected readonly activeCategoryId = signal<string>(ALL_CATEGORIES_ID);
+  // ─── URL-Sync ────────────────────────────────────────────────────
+  //
+  // Aktive Auswahl von Gruppe + Kategorie wird in der URL als
+  // ?gruppe=erwachsene&kategorie=discofox gespiegelt. So bleibt der
+  // Tab-State beim Browser-Back vom Anmelde-Detail erhalten, und Links
+  // sind teilbar/bookmarkable.
+  //
+  // Slug-Lookup mit Fallback auf Cotas-ID, damit alte Bookmarks mit
+  // direkter ID-URL trotzdem funktionieren wenn der Chef ein Label
+  // umbenennt. Wenn weder Slug noch ID matchen, fallen wir auf
+  // erste-Gruppe / "Alle"-Kategorie zurueck.
+
+  private readonly urlGroupParam = toSignal(
+    this.route.queryParamMap.pipe(map(p => p.get('gruppe') ?? '')),
+    { initialValue: '' },
+  );
+  private readonly urlCategoryParam = toSignal(
+    this.route.queryParamMap.pipe(map(p => p.get('kategorie') ?? '')),
+    { initialValue: '' },
+  );
 
   protected readonly targetGroups = computed<readonly CotasTargetGroup[]>(
     () => this.catalog()?.targetGroups ?? [],
   );
 
+  /**
+   * Aktuell aktive Gruppe (id). Aus URL-Param `gruppe` resolved:
+   * 1. Slug-Match auf `targetGroup.bez` (Hauptpfad)
+   * 2. Fallback ID-Match (alte Bookmarks)
+   * 3. Fallback erste Gruppe
+   */
   protected readonly currentGroupId = computed<string | null>(() => {
-    const explicit = this.activeGroupId();
-    if (explicit) return explicit;
-    return this.targetGroups()[0]?.id ?? null;
+    const groups = this.targetGroups();
+    if (groups.length === 0) return null;
+    const param = this.urlGroupParam();
+    if (param) {
+      const bySlug = groups.find(g => slugify(g.bez) === param);
+      if (bySlug) return bySlug.id;
+      const byId = groups.find(g => g.id === param);
+      if (byId) return byId.id;
+    }
+    return groups[0].id;
   });
 
   /**
@@ -99,6 +149,22 @@ export class Kurse {
     const gid = this.currentGroupId();
     if (!cat || !gid) return [];
     return cat.categoriesByGroup.get(gid) ?? [];
+  });
+
+  /**
+   * Aktuell aktive Kategorie (id). Selbe Slug/ID/Fallback-Logik wie
+   * bei der Gruppe; "Alle" wenn kein passender Match.
+   */
+  protected readonly activeCategoryId = computed<string>(() => {
+    const param = this.urlCategoryParam();
+    if (!param) return ALL_CATEGORIES_ID;
+    const cats = this.categories();
+    if (cats.length === 0) return ALL_CATEGORIES_ID;
+    const bySlug = cats.find(c => slugify(c.bez) === param);
+    if (bySlug) return bySlug.id;
+    const byId = cats.find(c => c.id === param);
+    if (byId) return byId.id;
+    return ALL_CATEGORIES_ID;
   });
 
   /**
@@ -150,17 +216,46 @@ export class Kurse {
 
   // ----- Aktionen -----
 
+  /**
+   * Tab-Wechsel: setzt `gruppe` als Slug in der URL und entfernt das
+   * `kategorie`-Param (damit der "Alle"-Default greift, sonst koennte ein
+   * Kategorie-Slug stehen bleiben der in der neuen Gruppe nicht existiert).
+   * replaceUrl=true, damit jedes Filter-Klicken keinen History-Eintrag
+   * generiert.
+   */
   protected selectGroup(id: string): void {
-    this.activeGroupId.set(id);
-    this.activeCategoryId.set(ALL_CATEGORIES_ID);
+    const group = this.targetGroups().find(g => g.id === id);
+    const slug = group ? slugify(group.bez) : id;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { gruppe: slug, kategorie: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   protected selectCategory(id: string): void {
-    this.activeCategoryId.set(id);
+    if (id === ALL_CATEGORIES_ID) {
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { kategorie: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+      return;
+    }
+    const cat = this.categories().find(c => c.id === id);
+    const slug = cat ? slugify(cat.bez) : id;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { kategorie: slug },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   protected resetCategory(): void {
-    this.activeCategoryId.set(ALL_CATEGORIES_ID);
+    this.selectCategory(ALL_CATEGORIES_ID);
   }
 
   // ----- Display-Helpers -----

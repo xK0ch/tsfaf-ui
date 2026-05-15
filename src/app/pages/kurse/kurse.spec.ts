@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
+import { BehaviorSubject, EMPTY, Observable, of } from 'rxjs';
 
-import { Kurse } from './kurse';
+import { Kurse, slugify } from './kurse';
 import { CotasApiService } from '../../core/services/cotas-api.service';
 import {
   CategoryWithClasses,
@@ -97,64 +97,179 @@ const EMPTY_CONFIG: CotasSiteConfig = {
   phone: '04321 1 49 00',
 };
 
+interface RouterSpy {
+  navigate: (cmds: unknown[], extras?: unknown) => Promise<boolean>;
+  events: Observable<never>;
+  createUrlTree: () => null;
+  serializeUrl: () => string;
+  navigateCalls: { cmds: unknown[]; extras: unknown }[];
+}
+
+function makeRouterSpy(): RouterSpy {
+  const calls: { cmds: unknown[]; extras: unknown }[] = [];
+  return {
+    navigate: (cmds: unknown[], extras?: unknown): Promise<boolean> => {
+      calls.push({ cmds, extras });
+      return Promise.resolve(true);
+    },
+    events: EMPTY,
+    createUrlTree: () => null,
+    serializeUrl: () => '',
+    get navigateCalls() {
+      return calls;
+    },
+  };
+}
+
+function makeRoute(opts: { gruppe?: string; kategorie?: string } = {}) {
+  const initial: Record<string, string> = {};
+  if (opts.gruppe) initial['gruppe'] = opts.gruppe;
+  if (opts.kategorie) initial['kategorie'] = opts.kategorie;
+  const params$ = new BehaviorSubject(convertToParamMap(initial));
+  return {
+    queryParamMap: params$.asObservable(),
+  };
+}
+
 describe('Kurse', () => {
-  function setup(opts: { catalog?: DanceClassCatalog | null; config?: CotasSiteConfig | null } = {}) {
+  function setup(opts: {
+    catalog?: DanceClassCatalog | null;
+    config?: CotasSiteConfig | null;
+    gruppe?: string;
+    kategorie?: string;
+  } = {}) {
     const apiMock = {
       loadCatalog: () => (opts.catalog === undefined ? of(mkCatalog()) : of(opts.catalog!)),
       loadConfig: () => (opts.config === undefined ? of(EMPTY_CONFIG) : of(opts.config!)),
     };
+    const routerSpy = makeRouterSpy();
+    const route = makeRoute({ gruppe: opts.gruppe, kategorie: opts.kategorie });
     TestBed.configureTestingModule({
       imports: [Kurse],
-      providers: [provideRouter([]), { provide: CotasApiService, useValue: apiMock }],
+      providers: [
+        { provide: CotasApiService, useValue: apiMock },
+        { provide: Router, useValue: routerSpy },
+        { provide: ActivatedRoute, useValue: route },
+      ],
     });
-    return TestBed.createComponent(Kurse);
+    const fixture = TestBed.createComponent(Kurse);
+    return { fixture, routerSpy };
   }
 
   it('zeigt Loading-State wenn Katalog noch null ist', () => {
-    const fixture = setup({ catalog: null as unknown as DanceClassCatalog });
+    const { fixture } = setup({ catalog: null as unknown as DanceClassCatalog });
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
     expect(el.textContent).toContain('Kurse werden geladen');
   });
 
   it('zeigt Tabs aus den Target Groups', () => {
-    const fixture = setup();
+    const { fixture } = setup();
     fixture.detectChanges();
     const tabs = (fixture.nativeElement as HTMLElement).querySelectorAll('.zg-tab');
     expect(tabs.length).toBe(2);
     expect(tabs[0].textContent).toContain('Zielgruppe A');
   });
 
-  it('selectGroup setzt activeGroup und reset Category auf "Alle"', () => {
-    const fixture = setup();
+  it('selectGroup navigiert mit slugified Gruppen-Label und entfernt kategorie-Param', () => {
+    const { fixture, routerSpy } = setup();
     fixture.detectChanges();
     const cmp = fixture.componentInstance as unknown as {
       selectGroup(id: string): void;
-      activeGroupId: { (): string | null };
-      activeCategoryId: { (): string };
-      allCategoriesId: string;
     };
     cmp.selectGroup('ZG-B');
-    expect(cmp.activeGroupId()).toBe('ZG-B');
-    expect(cmp.activeCategoryId()).toBe(cmp.allCategoriesId);
+    expect(routerSpy.navigateCalls).toHaveLength(1);
+    const extras = routerSpy.navigateCalls[0].extras as {
+      queryParams: { gruppe: string; kategorie: string | null };
+      queryParamsHandling: string;
+      replaceUrl: boolean;
+    };
+    // "Zielgruppe B" -> "zielgruppe-b"
+    expect(extras.queryParams.gruppe).toBe('zielgruppe-b');
+    // Kategorie wird zurueckgesetzt (sonst koennte ein Slug aus der
+    // vorherigen Gruppe stehenbleiben der hier nicht existiert)
+    expect(extras.queryParams.kategorie).toBeNull();
+    expect(extras.replaceUrl).toBe(true);
   });
 
-  it('filteredCategories zeigt nur die aktive Kategorie wenn gewaehlt', () => {
-    const fixture = setup();
+  it('selectCategory navigiert mit kategorie-Slug', () => {
+    const { fixture, routerSpy } = setup();
     fixture.detectChanges();
     const cmp = fixture.componentInstance as unknown as {
       selectCategory(id: string): void;
-      filteredCategories: { (): readonly CategoryWithClasses[] };
     };
     cmp.selectCategory('CAT-2');
+    expect(routerSpy.navigateCalls).toHaveLength(1);
+    const extras = routerSpy.navigateCalls[0].extras as {
+      queryParams: { kategorie: string };
+    };
+    // "Discofox" -> "discofox"
+    expect(extras.queryParams.kategorie).toBe('discofox');
+  });
+
+  it('selectCategory mit "Alle" entfernt den kategorie-Param', () => {
+    const { fixture, routerSpy } = setup();
     fixture.detectChanges();
+    const cmp = fixture.componentInstance as unknown as {
+      selectCategory(id: string): void;
+      allCategoriesId: string;
+    };
+    cmp.selectCategory(cmp.allCategoriesId);
+    const extras = routerSpy.navigateCalls[0].extras as {
+      queryParams: { kategorie: string | null };
+    };
+    expect(extras.queryParams.kategorie).toBeNull();
+  });
+
+  it('filteredCategories: URL-Param kategorie filtert auf die passende Kategorie', () => {
+    const { fixture } = setup({ kategorie: 'discofox' });
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance as unknown as {
+      filteredCategories: { (): readonly CategoryWithClasses[] };
+    };
     const cats = cmp.filteredCategories();
     expect(cats).toHaveLength(1);
     expect(cats[0].id).toBe('CAT-2');
   });
 
+  it('currentGroupId: URL-Param matched per Slug auf die richtige Gruppe', () => {
+    const { fixture } = setup({ gruppe: 'zielgruppe-b' });
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance as unknown as {
+      currentGroupId: { (): string | null };
+    };
+    expect(cmp.currentGroupId()).toBe('ZG-B');
+  });
+
+  it('currentGroupId: Fallback ID-Match wenn Slug nicht passt (alte Bookmarks)', () => {
+    const { fixture } = setup({ gruppe: 'ZG-B' });
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance as unknown as {
+      currentGroupId: { (): string | null };
+    };
+    expect(cmp.currentGroupId()).toBe('ZG-B');
+  });
+
+  it('currentGroupId: Fallback auf erste Gruppe wenn Slug NICHT existiert', () => {
+    const { fixture } = setup({ gruppe: 'haengematte' });
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance as unknown as {
+      currentGroupId: { (): string | null };
+    };
+    expect(cmp.currentGroupId()).toBe('ZG-A');
+  });
+
+  it('currentGroupId: Default-Verhalten (kein Param) -> erste Gruppe', () => {
+    const { fixture } = setup();
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance as unknown as {
+      currentGroupId: { (): string | null };
+    };
+    expect(cmp.currentGroupId()).toBe('ZG-A');
+  });
+
   it('isOnlineRegistrationBlocked erkennt no_online Kategorien', () => {
-    const fixture = setup({
+    const { fixture } = setup({
       config: { ...EMPTY_CONFIG, no_online_registration: ['CAT-1'] },
     });
     fixture.detectChanges();
@@ -166,7 +281,7 @@ describe('Kurse', () => {
   });
 
   it('isFull erkennt full=1, "1", true; rest behandelt als open', () => {
-    const fixture = setup();
+    const { fixture } = setup();
     fixture.detectChanges();
     const cmp = fixture.componentInstance as unknown as {
       isFull(c: CotasDanceClass): boolean;
@@ -179,7 +294,7 @@ describe('Kurse', () => {
   });
 
   it('seatsLeft liefert Zahl bei rest gesetzt, null wenn fehlt', () => {
-    const fixture = setup();
+    const { fixture } = setup();
     fixture.detectChanges();
     const cmp = fixture.componentInstance as unknown as {
       seatsLeft(c: CotasDanceClass): number | null;
@@ -189,12 +304,34 @@ describe('Kurse', () => {
   });
 
   it('duration berechnet aus start/ende in Minuten', () => {
-    const fixture = setup();
+    const { fixture } = setup();
     fixture.detectChanges();
     const cmp = fixture.componentInstance as unknown as {
       duration(c: CotasDanceClass): number;
     };
     expect(cmp.duration(mkClass({ start: '19:30:00', ende: '20:45:00' }))).toBe(75);
     expect(cmp.duration(mkClass({ start: '', ende: '' }))).toBe(0);
+  });
+});
+
+describe('slugify', () => {
+  it('lowercased ascii', () => {
+    expect(slugify('Erwachsene')).toBe('erwachsene');
+  });
+
+  it('deutsche Umlaute werden transliteriert', () => {
+    expect(slugify('Tanzschüler')).toBe('tanzschueler');
+    expect(slugify('Mädchen')).toBe('maedchen');
+    expect(slugify('Größenwahn')).toBe('groessenwahn');
+  });
+
+  it('Sonderzeichen + Whitespace werden zu Bindestrichen', () => {
+    expect(slugify('Kinder 3-5 Jahre')).toBe('kinder-3-5-jahre');
+    expect(slugify('Hip Hop / Streetdance')).toBe('hip-hop-streetdance');
+  });
+
+  it('keine fuehrenden/trailing Bindestriche', () => {
+    expect(slugify('  Discofox  ')).toBe('discofox');
+    expect(slugify('--Test--')).toBe('test');
   });
 });
