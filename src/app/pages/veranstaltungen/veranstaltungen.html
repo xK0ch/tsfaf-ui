@@ -36,15 +36,21 @@
 <div class="filter-wrap">
   <div class="container">
     <div class="filter-inner">
-      <div class="filter-chips" role="tablist" aria-label="Veranstaltungstyp filtern">
+      <div class="filter-chips" role="group" aria-label="Veranstaltungstyp filtern">
+        <button
+          type="button"
+          class="filter-chip"
+          [class.active]="activeTypes().size === 0"
+          [attr.aria-pressed]="activeTypes().size === 0"
+          (click)="clearFilters()"
+        >Alle</button>
         @for (f of filters(); track f.key) {
           <button
             type="button"
-            role="tab"
             class="filter-chip"
-            [class.active]="activeFilter() === f.key"
-            [attr.aria-selected]="activeFilter() === f.key"
-            (click)="selectFilter(f.key)"
+            [class.active]="activeTypes().has(f.key)"
+            [attr.aria-pressed]="activeTypes().has(f.key)"
+            (click)="toggleFilter(f.key)"
           >{{ f.label }}</button>
         }
       </div>

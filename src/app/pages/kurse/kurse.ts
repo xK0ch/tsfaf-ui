@@ -101,6 +101,10 @@ export class Kurse {
     this.route.queryParamMap.pipe(map(p => p.get('gruppe') ?? '')),
     { initialValue: '' },
   );
+  /**
+   * Komma-separierte Slug-Liste, z.B. "discofox,hip-hop". Leer/fehlend
+   * == kein Filter aktiv == alle Kategorien sichtbar ("Alle"-Default).
+   */
   private readonly urlCategoryParam = toSignal(
     this.route.queryParamMap.pipe(map(p => p.get('kategorie') ?? '')),
     { initialValue: '' },
@@ -152,30 +156,38 @@ export class Kurse {
   });
 
   /**
-   * Aktuell aktive Kategorie (id). Selbe Slug/ID/Fallback-Logik wie
-   * bei der Gruppe; "Alle" wenn kein passender Match.
+   * Aktuell aktive Kategorie-IDs als Set. Resolved aus dem komma-Slug-
+   * Param: pro Token erst Slug-Match, dann ID-Match. Tokens die weder
+   * matchen werden ignoriert (URL bleibt aber stehen).
    */
-  protected readonly activeCategoryId = computed<string>(() => {
-    const param = this.urlCategoryParam();
-    if (!param) return ALL_CATEGORIES_ID;
+  protected readonly activeCategoryIds = computed<ReadonlySet<string>>(() => {
+    const raw = this.urlCategoryParam();
+    if (!raw) return new Set<string>();
     const cats = this.categories();
-    if (cats.length === 0) return ALL_CATEGORIES_ID;
-    const bySlug = cats.find(c => slugify(c.bez) === param);
-    if (bySlug) return bySlug.id;
-    const byId = cats.find(c => c.id === param);
-    if (byId) return byId.id;
-    return ALL_CATEGORIES_ID;
+    if (cats.length === 0) return new Set<string>();
+    const tokens = raw.split(',').map(s => s.trim()).filter(Boolean);
+    const out = new Set<string>();
+    for (const tok of tokens) {
+      const bySlug = cats.find(c => slugify(c.bez) === tok);
+      if (bySlug) {
+        out.add(bySlug.id);
+        continue;
+      }
+      const byId = cats.find(c => c.id === tok);
+      if (byId) out.add(byId.id);
+    }
+    return out;
   });
 
   /**
-   * Sichtbare Kategorien-Karten. Bei "Alle" alle Kategorien, sonst nur die
-   * eine ausgewaehlte. Jede Karte rendert intern alle ihre Termine.
+   * Sichtbare Kategorien-Karten. Wenn Set leer (= "Alle"): alle. Sonst
+   * nur die ausgewaehlten. Reihenfolge bleibt wie in der API.
    */
   protected readonly filteredCategories = computed<readonly CategoryWithClasses[]>(() => {
     const cats = this.categories();
-    const catId = this.activeCategoryId();
-    if (catId === ALL_CATEGORIES_ID) return cats;
-    return cats.filter(c => c.id === catId);
+    const active = this.activeCategoryIds();
+    if (active.size === 0) return cats;
+    return cats.filter(c => active.has(c.id));
   });
 
   protected readonly filteredCategoryCount = computed(() => this.filteredCategories().length);
@@ -186,28 +198,37 @@ export class Kurse {
     return n;
   });
 
+  /** Wahr wenn alle Kategorien gezeigt werden (= keine Filter aktiv). */
+  protected readonly allCategoriesActive = computed(() => this.activeCategoryIds().size === 0);
+
+  /**
+   * Komma-separiertes Display-Label aller aktiven Kategorien, z.B.
+   * "Discofox" oder "Discofox, Hip Hop". Leer wenn keine Auswahl.
+   */
   protected readonly activeCategoryLabel = computed<string>(() => {
-    const id = this.activeCategoryId();
-    if (id === ALL_CATEGORIES_ID) return '';
-    return this.categories().find(c => c.id === id)?.bez ?? '';
+    const active = this.activeCategoryIds();
+    if (active.size === 0) return '';
+    return this.categories()
+      .filter(c => active.has(c.id))
+      .map(c => c.bez)
+      .join(', ');
   });
 
   /**
-   * Globaler Infotext-Banner ueber den Cards: greift wenn die aktuelle
-   * Auswahl mind. eine Kategorie zeigt, fuer die ein Infotext konfiguriert
-   * ist. Bei "Alle"-Tab zeigen wir den ersten matchenden, weil sonst die
-   * Anzeige zu voll wird; spezifische Infotexte rendern wir ZUSAETZLICH
-   * pro Karte (siehe infotextForCategory).
+   * Globaler Infotext-Banner ueber den Cards. Greift nur bei spezifischer
+   * Filter-Auswahl (NICHT bei "Alle" — da waere der Banner zu generisch).
+   * Bei mehreren aktiven Kategorien zeigen wir den ersten matchenden;
+   * detaillierte/pro-Kategorie Infotexte rendern wir zusaetzlich pro
+   * Karte (siehe infotextForCategory).
    */
   protected readonly currentInfotextHtml = computed<SafeHtml | null>(() => {
     const cfg = this.config();
     if (!cfg || !cfg.infotexts.length) return null;
-    if (this.activeCategoryId() === ALL_CATEGORIES_ID) return null;
+    const active = this.activeCategoryIds();
+    if (active.size === 0) return null;
 
-    const visibleCategoryIds = new Set([this.activeCategoryId()]);
     for (const it of cfg.infotexts) {
-      const matches = it.category_ids.some(id => visibleCategoryIds.has(id));
-      if (matches) {
+      if (it.category_ids.some(id => active.has(id))) {
         return this.sanitizer.bypassSecurityTrustHtml(it.body);
       }
     }
@@ -234,28 +255,47 @@ export class Kurse {
     });
   }
 
-  protected selectCategory(id: string): void {
-    if (id === ALL_CATEGORIES_ID) {
-      this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams: { kategorie: null },
-        queryParamsHandling: 'merge',
-        replaceUrl: true,
-      });
-      return;
+  /**
+   * Toggle einer Kategorie: ist sie schon aktiv -> raus, sonst dazu.
+   * Resultierende Slug-Liste landet als komma-separierter Wert in der URL.
+   * Leerer Set -> Param wird entfernt (= "Alle" wieder aktiv).
+   */
+  protected toggleCategory(id: string): void {
+    const cats = this.categories();
+    const cat = cats.find(c => c.id === id);
+    if (!cat) return;
+    const slug = slugify(cat.bez);
+
+    // Konstruiere die neue Slug-Liste aus den AKTUELLEN aktiven Slugs +
+    // Toggle. Aktive Slugs ableiten wir aus activeCategoryIds (id -> slug).
+    const activeIds = new Set(this.activeCategoryIds());
+    const nextSlugs = new Set<string>();
+    for (const c of cats) {
+      if (activeIds.has(c.id) && c.id !== id) {
+        nextSlugs.add(slugify(c.bez));
+      }
     }
-    const cat = this.categories().find(c => c.id === id);
-    const slug = cat ? slugify(cat.bez) : id;
+    if (!activeIds.has(id)) {
+      nextSlugs.add(slug);
+    }
+    this.navigateCategories(nextSlugs);
+  }
+
+  /** Setzt alle Kategorie-Filter zurueck (= "Alle"-Chip-Klick). */
+  protected resetCategory(): void {
+    this.navigateCategories(new Set());
+  }
+
+  private navigateCategories(slugs: ReadonlySet<string>): void {
+    // Alphabetisch sortiert damit die URL deterministisch ist (gleicher
+    // Filter-Stand == identische URL, egal in welcher Reihenfolge geklickt).
+    const value = slugs.size === 0 ? null : Array.from(slugs).sort().join(',');
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { kategorie: slug },
+      queryParams: { kategorie: value },
       queryParamsHandling: 'merge',
       replaceUrl: true,
     });
-  }
-
-  protected resetCategory(): void {
-    this.selectCategory(ALL_CATEGORIES_ID);
   }
 
   // ----- Display-Helpers -----

@@ -88,15 +88,17 @@
             <button
               type="button"
               class="chip"
-              [class.active]="activeCategoryId() === allCategoriesId"
-              (click)="selectCategory(allCategoriesId)"
+              [class.active]="allCategoriesActive()"
+              [attr.aria-pressed]="allCategoriesActive()"
+              (click)="resetCategory()"
             >Alle</button>
             @for (cat of categories(); track cat.id) {
               <button
                 type="button"
                 class="chip"
-                [class.active]="activeCategoryId() === cat.id"
-                (click)="selectCategory(cat.id)"
+                [class.active]="activeCategoryIds().has(cat.id)"
+                [attr.aria-pressed]="activeCategoryIds().has(cat.id)"
+                (click)="toggleCategory(cat.id)"
               >{{ cat.bez }}</button>
             }
           </div>

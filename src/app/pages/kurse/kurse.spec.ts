@@ -192,13 +192,13 @@ describe('Kurse', () => {
     expect(extras.replaceUrl).toBe(true);
   });
 
-  it('selectCategory navigiert mit kategorie-Slug', () => {
+  it('toggleCategory navigiert mit kategorie-Slug (Add)', () => {
     const { fixture, routerSpy } = setup();
     fixture.detectChanges();
     const cmp = fixture.componentInstance as unknown as {
-      selectCategory(id: string): void;
+      toggleCategory(id: string): void;
     };
-    cmp.selectCategory('CAT-2');
+    cmp.toggleCategory('CAT-2');
     expect(routerSpy.navigateCalls).toHaveLength(1);
     const extras = routerSpy.navigateCalls[0].extras as {
       queryParams: { kategorie: string };
@@ -207,21 +207,60 @@ describe('Kurse', () => {
     expect(extras.queryParams.kategorie).toBe('discofox');
   });
 
-  it('selectCategory mit "Alle" entfernt den kategorie-Param', () => {
-    const { fixture, routerSpy } = setup();
+  it('toggleCategory dedupliziert + sortiert die Slug-Liste alphabetisch', () => {
+    const { fixture, routerSpy } = setup({ kategorie: 'welttanz' });
     fixture.detectChanges();
     const cmp = fixture.componentInstance as unknown as {
-      selectCategory(id: string): void;
-      allCategoriesId: string;
+      toggleCategory(id: string): void;
     };
-    cmp.selectCategory(cmp.allCategoriesId);
+    cmp.toggleCategory('CAT-2'); // Discofox dazu
+    const extras = routerSpy.navigateCalls[0].extras as {
+      queryParams: { kategorie: string };
+    };
+    // Alphabetisch: discofox vor welttanz
+    expect(extras.queryParams.kategorie).toBe('discofox,welttanz');
+  });
+
+  it('toggleCategory entfernt die Kategorie wenn schon aktiv', () => {
+    const { fixture, routerSpy } = setup({ kategorie: 'discofox,welttanz' });
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance as unknown as {
+      toggleCategory(id: string): void;
+    };
+    cmp.toggleCategory('CAT-2'); // Discofox wieder raus
+    const extras = routerSpy.navigateCalls[0].extras as {
+      queryParams: { kategorie: string };
+    };
+    expect(extras.queryParams.kategorie).toBe('welttanz');
+  });
+
+  it('toggleCategory: letzte aktive Kategorie wegklicken -> Param null', () => {
+    const { fixture, routerSpy } = setup({ kategorie: 'discofox' });
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance as unknown as {
+      toggleCategory(id: string): void;
+    };
+    cmp.toggleCategory('CAT-2');
     const extras = routerSpy.navigateCalls[0].extras as {
       queryParams: { kategorie: string | null };
     };
     expect(extras.queryParams.kategorie).toBeNull();
   });
 
-  it('filteredCategories: URL-Param kategorie filtert auf die passende Kategorie', () => {
+  it('resetCategory: leert alle Kategorie-Filter', () => {
+    const { fixture, routerSpy } = setup({ kategorie: 'discofox,welttanz' });
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance as unknown as {
+      resetCategory(): void;
+    };
+    cmp.resetCategory();
+    const extras = routerSpy.navigateCalls[0].extras as {
+      queryParams: { kategorie: string | null };
+    };
+    expect(extras.queryParams.kategorie).toBeNull();
+  });
+
+  it('filteredCategories: URL-Param kategorie filtert (einzeln)', () => {
     const { fixture } = setup({ kategorie: 'discofox' });
     fixture.detectChanges();
     const cmp = fixture.componentInstance as unknown as {
@@ -230,6 +269,28 @@ describe('Kurse', () => {
     const cats = cmp.filteredCategories();
     expect(cats).toHaveLength(1);
     expect(cats[0].id).toBe('CAT-2');
+  });
+
+  it('filteredCategories: URL-Param kategorie filtert (mehrfach, Slug-Liste)', () => {
+    const { fixture } = setup({ kategorie: 'discofox,welttanz' });
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance as unknown as {
+      filteredCategories: { (): readonly CategoryWithClasses[] };
+      activeCategoryIds: { (): ReadonlySet<string> };
+    };
+    expect(cmp.activeCategoryIds().size).toBe(2);
+    expect(cmp.filteredCategories()).toHaveLength(2);
+  });
+
+  it('filteredCategories: leerer Param == alle Kategorien sichtbar', () => {
+    const { fixture } = setup();
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance as unknown as {
+      filteredCategories: { (): readonly CategoryWithClasses[] };
+      allCategoriesActive: { (): boolean };
+    };
+    expect(cmp.allCategoriesActive()).toBe(true);
+    expect(cmp.filteredCategories()).toHaveLength(2);
   });
 
   it('currentGroupId: URL-Param matched per Slug auf die richtige Gruppe', () => {
