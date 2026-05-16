@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { NewsStore, type NewsArticle } from '../neuigkeiten/neuigkeiten-data';
@@ -40,6 +47,32 @@ const HOME_EVENTS_COUNT = 3;
 export class Home {
   private readonly newsStore = inject(NewsStore);
   private readonly eventsStore = inject(VeranstaltungenStore);
+
+  private readonly heroVideo = viewChild<ElementRef<HTMLVideoElement>>('heroVideo');
+
+  /**
+   * Programmatischer Autoplay-Start. Wird vom `loadedmetadata`-Event
+   * des Hero-Videos aufgerufen — also genau dann wenn der Browser
+   * weiss wie er das Video abspielen kann.
+   *
+   * Warum nicht nur das `autoplay`-Attribut: Browser-Autoplay-Policies
+   * sind streng (Battery-Saver-Mode, Low-Power-Mode, manche corporate
+   * Profile blocken stummes Autoplay sogar). Dieser Call ist die
+   * zweite Chance: wir setzen `muted = true` explizit auf Property-
+   * Ebene und triggern play(). Wenn der Browser dann TROTZDEM blockt,
+   * fangen wir den Rejection und tun nichts — das Video bleibt halt
+   * stehen, Hero-Text + Overlay bleiben sichtbar (kein White-Screen).
+   */
+  protected playHeroVideo(): void {
+    const el = this.heroVideo()?.nativeElement;
+    if (!el) return;
+    el.muted = true;
+    void el.play().catch(() => {
+      // Browser hat Autoplay endgueltig geblockt (sehr selten bei
+      // muted+playsinline). Wir akzeptieren das und zeigen den
+      // ersten Frame stehend.
+    });
+  }
 
   /**
    * Events-Teaser auf der Home: die naechsten max. 3 kommenden

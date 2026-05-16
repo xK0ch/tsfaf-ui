@@ -1,44 +1,17 @@
 <!-- ─── HERO ──────────────────────────────────────────────────────── -->
 <section class="hero" aria-label="Hero">
-  <div class="hero-bg" aria-hidden="true">
-    <svg
-      viewBox="0 0 1200 700"
-      width="100%"
-      height="100%"
-      preserveAspectRatio="xMidYMid slice"
-      class="hero-pattern"
-    >
-      <defs>
-        <radialGradient id="hero-grad-1" cx="30%" cy="40%" r="60%">
-          <stop offset="0%" stop-color="#DC8C50" stop-opacity="0.25" />
-          <stop offset="100%" stop-color="#DC8C50" stop-opacity="0" />
-        </radialGradient>
-        <radialGradient id="hero-grad-2" cx="75%" cy="65%" r="50%">
-          <stop offset="0%" stop-color="#64B4C8" stop-opacity="0.20" />
-          <stop offset="100%" stop-color="#64B4C8" stop-opacity="0" />
-        </radialGradient>
-      </defs>
-      <rect width="1200" height="700" fill="#2A2520" />
-      <rect width="1200" height="700" fill="url(#hero-grad-1)" />
-      <rect width="1200" height="700" fill="url(#hero-grad-2)" />
-      <path
-        d="M -60 520 C 80 150, 420 30, 700 120 C 820 165, 840 260, 780 300 C 680 360, 480 240, 260 320 C 100 380, -30 460, -60 520 Z"
-        fill="#DC8C50" opacity="0.12"
-      />
-      <path
-        d="M 500 -40 C 780 20, 1100 200, 1160 480 C 1180 560, 1100 620, 1020 590 C 900 550, 820 400, 700 280 C 580 160, 380 80, 500 -40 Z"
-        fill="#64B4C8" opacity="0.10"
-      />
-      <path
-        d="M 100 600 C 180 500, 340 480, 420 550 C 460 585, 450 620, 400 630 C 320 645, 180 620, 100 600 Z"
-        fill="#DC8C50" opacity="0.15"
-      />
-      <path
-        d="M 900 80 C 980 120, 1060 200, 1020 270 C 990 320, 920 310, 880 270 C 830 220, 840 140, 900 80 Z"
-        fill="#64B4C8" opacity="0.13"
-      />
-    </svg>
-  </div>
+  <video
+    #heroVideo
+    class="hero-video"
+    src="/homepage-video.mp4"
+    [muted]="true"
+    autoplay
+    loop
+    playsinline
+    preload="auto"
+    aria-hidden="true"
+    (loadedmetadata)="playHeroVideo()"
+  ></video>
   <div class="hero-overlay" aria-hidden="true"></div>
   <div class="hero-content">
     <div class="container">

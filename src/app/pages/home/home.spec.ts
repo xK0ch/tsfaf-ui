@@ -192,6 +192,63 @@ describe('Home', () => {
     expect(link?.getAttribute('href')).toContain('event=tanz-in-den-mai');
   });
 
+  // ─── Hero-Video ────────────────────────────────────────────────
+
+  it('rendert ein Video-Element im Hero mit Loop + Autoplay + Inline-Playback', () => {
+    const fixture = setup();
+    fixture.detectChanges();
+    const video = (fixture.nativeElement as HTMLElement).querySelector(
+      '.hero-video',
+    ) as HTMLVideoElement | null;
+    expect(video).not.toBeNull();
+    expect(video!.getAttribute('src')).toBe('/homepage-video.mp4');
+    expect(video!.hasAttribute('autoplay')).toBe(true);
+    expect(video!.hasAttribute('loop')).toBe(true);
+    expect(video!.hasAttribute('playsinline')).toBe(true);
+    expect(video!.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('Video-Element ist via Property-Binding stumm (kritisch fuer Browser-Autoplay-Policy)', () => {
+    const fixture = setup();
+    fixture.detectChanges();
+    const video = (fixture.nativeElement as HTMLElement).querySelector(
+      '.hero-video',
+    ) as HTMLVideoElement;
+    expect(video.muted).toBe(true);
+  });
+
+  it('playHeroVideo() ruft play() auf das Video und faengt Rejection silent ab', async () => {
+    const fixture = setup();
+    fixture.detectChanges();
+    const video = (fixture.nativeElement as HTMLElement).querySelector(
+      '.hero-video',
+    ) as HTMLVideoElement;
+
+    let playCalls = 0;
+    let mutedSetToTrue = false;
+    // Stub play() + den muted-Setter, damit wir das Verhalten von
+    // playHeroVideo() pruefen koennen ohne echte Media-Decoder.
+    Object.defineProperty(video, 'muted', {
+      configurable: true,
+      get: () => true,
+      set: (v: boolean) => { if (v) mutedSetToTrue = true; },
+    });
+    video.play = () => {
+      playCalls++;
+      // Browser-block-Simulation: Promise rejected.
+      return Promise.reject(new DOMException('autoplay blocked', 'NotAllowedError'));
+    };
+
+    const cmp = fixture.componentInstance as unknown as { playHeroVideo(): void };
+    cmp.playHeroVideo();
+
+    expect(mutedSetToTrue).toBe(true);
+    expect(playCalls).toBe(1);
+    // Microtask warten, damit die Rejection durch ist, dann darf
+    // nichts unhandelt geworfen sein (sonst wuerde Vitest motzen).
+    await Promise.resolve();
+  });
+
   // ─── Sonstiges ──────────────────────────────────────────────────
 
   it('Gutschein-Band-Section wurde komplett entfernt', () => {
