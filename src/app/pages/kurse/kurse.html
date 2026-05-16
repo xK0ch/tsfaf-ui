@@ -121,10 +121,6 @@
         </p>
       </div>
 
-      @if (currentInfotextHtml(); as html) {
-        <div class="infotext-banner" [innerHTML]="html"></div>
-      }
-
       @if (filteredCategoryCount() === 0) {
         <div class="state-box">
           <div class="state-icon" aria-hidden="true">🎭</div>
