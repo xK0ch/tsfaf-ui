@@ -12,47 +12,8 @@ import {
  */
 @Component({
   selector: 'app-album-cover',
-  template: `
-    @if (imageUrl(); as url) {
-      <img
-        [src]="url"
-        [alt]="imageAlt()"
-        [attr.loading]="eager() ? 'eager' : 'lazy'"
-        decoding="async"
-        class="album-cover-img"
-      />
-    } @else {
-      <div class="album-cover-placeholder" aria-hidden="true">
-        <span class="album-cover-placeholder-icon">🖼</span>
-      </div>
-    }
-  `,
-  styles: `
-    :host {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
-    .album-cover-img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .album-cover-placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #2a2520 0%, #1e2e32 100%);
-      color: rgba(255, 255, 255, 0.5);
-    }
-    .album-cover-placeholder-icon {
-      font-size: 32px;
-      filter: grayscale(0.3);
-    }
-  `,
+  templateUrl: './album-cover.html',
+  styleUrl: './album-cover.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AlbumCover {

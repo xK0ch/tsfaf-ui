@@ -11,12 +11,11 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import type { VeranstaltungItem } from '../veranstaltungen';
 
 @Component({
   selector: 'app-event-detail-panel',
-  imports: [RouterLink],
+  imports: [],
   templateUrl: './event-detail-panel.html',
   styleUrl: './event-detail-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

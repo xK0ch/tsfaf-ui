@@ -1,0 +1,13 @@
+@if (imageUrl(); as url) {
+  <img
+    [src]="url"
+    [alt]="imageAlt()"
+    [attr.loading]="eager() ? 'eager' : 'lazy'"
+    decoding="async"
+    class="album-cover-img"
+  />
+} @else {
+  <div class="album-cover-placeholder" aria-hidden="true">
+    <span class="album-cover-placeholder-icon">🖼</span>
+  </div>
+}
