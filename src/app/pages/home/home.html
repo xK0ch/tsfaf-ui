@@ -38,39 +38,6 @@
   </div>
 </section>
 
-<!-- ─── NEWS ──────────────────────────────────────────────────────── -->
-<section class="section section-news">
-  <div class="container">
-    <div class="section-header section-header-split">
-      <div>
-        <p class="section-eyebrow">Aktuelles</p>
-        <h2 class="section-title">Neuigkeiten</h2>
-      </div>
-      <a routerLink="/neuigkeiten" class="section-link">
-        Alle Beiträge <span aria-hidden="true">→</span>
-      </a>
-    </div>
-    @if (newsLoading()) {
-      <p class="news-status" role="status">Wird geladen…</p>
-    } @else if (newsEmpty()) {
-      <p class="news-status">Aktuell sind keine Beiträge online.</p>
-    } @else {
-      <div class="news-grid">
-        @for (item of newsTeaser(); track item.id) {
-          <a [routerLink]="['/neuigkeiten', item.slug]" class="news-card">
-            <div class="news-date">{{ item.dateLong }}</div>
-            <h3 class="news-title">{{ item.title }}</h3>
-            <p class="news-excerpt">{{ item.excerpt }}</p>
-            <span class="news-link">
-              Weiterlesen <span aria-hidden="true">→</span>
-            </span>
-          </a>
-        }
-      </div>
-    }
-  </div>
-</section>
-
 <!-- ─── ZIELGRUPPEN ───────────────────────────────────────────────── -->
 <section class="section section-zielgruppen">
   <div class="container">
@@ -83,7 +50,12 @@
     </div>
     <div class="zg-grid">
       @for (item of zielgruppen; track item.id) {
-        <a routerLink="/kurse" class="zg-card" [class.is-orange]="item.orange">
+        <a
+          routerLink="/kurse"
+          [queryParams]="{ gruppe: item.gruppe }"
+          class="zg-card"
+          [class.is-orange]="item.orange"
+        >
           <div class="zg-bg" aria-hidden="true">
             <svg viewBox="0 0 300 220" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
               <defs>
@@ -122,29 +94,36 @@
   </div>
 </section>
 
-<!-- ─── TANZSTILE ─────────────────────────────────────────────────── -->
-<section class="section section-tanzstile">
+<!-- ─── NEWS ──────────────────────────────────────────────────────── -->
+<section class="section section-news">
   <div class="container">
     <div class="section-header section-header-split">
       <div>
-        <p class="section-eyebrow">Tanzstile</p>
-        <h2 class="section-title">Was wir tanzen</h2>
+        <p class="section-eyebrow">Aktuelles</p>
+        <h2 class="section-title">Neuigkeiten</h2>
       </div>
-      <a routerLink="/kurse" class="section-link">
-        Alle Kurse ansehen <span aria-hidden="true">→</span>
+      <a routerLink="/neuigkeiten" class="section-link">
+        Alle Beiträge <span aria-hidden="true">→</span>
       </a>
     </div>
-    <div class="ts-scroll">
-      <div class="ts-grid">
-        @for (style of tanzstile; track style.name) {
-          <a routerLink="/kurse" class="ts-card" [class.is-orange]="style.orange">
-            <span class="ts-icon-wrap" aria-hidden="true">{{ style.icon }}</span>
-            <span class="ts-name">{{ style.name }}</span>
-            <span class="ts-sub">{{ style.sub }}</span>
+    @if (newsLoading()) {
+      <p class="news-status" role="status">Wird geladen…</p>
+    } @else if (newsEmpty()) {
+      <p class="news-status">Aktuell sind keine Beiträge online.</p>
+    } @else {
+      <div class="news-grid">
+        @for (item of newsTeaser(); track item.id) {
+          <a [routerLink]="['/neuigkeiten', item.slug]" class="news-card">
+            <div class="news-date">{{ item.dateLong }}</div>
+            <h3 class="news-title">{{ item.title }}</h3>
+            <p class="news-excerpt">{{ item.excerpt }}</p>
+            <span class="news-link">
+              Weiterlesen <span aria-hidden="true">→</span>
+            </span>
           </a>
         }
       </div>
-    </div>
+    }
   </div>
 </section>
 

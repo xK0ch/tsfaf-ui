@@ -228,98 +228,6 @@
   transition: transform var(--transition-base);
 }
 
-/* ─── TANZSTILE ────────────────────────────────────────────────── */
-.section-tanzstile { background: var(--color-surface); }
-
-.ts-scroll {
-  overflow-x: auto;
-  scrollbar-width: none;
-  margin: 0 calc(-1 * var(--space-24));
-  padding: var(--space-4) var(--space-24) var(--space-24);
-}
-
-.ts-scroll::-webkit-scrollbar { display: none; }
-
-.ts-grid {
-  display: flex;
-  gap: var(--space-12);
-  width: max-content;
-}
-
-@media (min-width: 900px) {
-  .ts-scroll {
-    overflow-x: visible;
-    margin: 0;
-    padding: 0;
-  }
-  .ts-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    width: auto;
-    gap: var(--space-16);
-  }
-}
-
-.ts-card {
-  width: 160px;
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-lg);
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  padding: var(--space-24) var(--space-16) var(--space-16);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-8);
-  cursor: pointer;
-  transition: all var(--transition-base);
-  box-shadow: var(--shadow-card);
-}
-
-@media (min-width: 900px) {
-  .ts-card { width: auto; }
-}
-
-.ts-card:hover {
-  background: var(--color-surface);
-  box-shadow: var(--shadow-hover);
-  transform: translateY(-2px);
-  border-color: transparent;
-}
-
-.ts-card:hover .ts-icon-wrap {
-  transform: scale(1.1);
-}
-
-.ts-icon-wrap {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  background: #FBF0E5;
-  transition: transform var(--transition-base);
-}
-
-.ts-card:not(.is-orange) .ts-icon-wrap {
-  background: #E8F4F8;
-}
-
-.ts-name {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--color-text);
-}
-
-.ts-sub {
-  font-size: 12px;
-  color: var(--color-text-muted);
-  line-height: 1.4;
-}
-
 /* ─── EVENTS ───────────────────────────────────────────────────── */
 .section-events { background: var(--color-bg); }
 
@@ -479,8 +387,15 @@
 }
 
 /* ─── KONTAKT-STRIP ────────────────────────────────────────────── */
+/*
+ * Alternierende Section-Hintergruende (creme/weiss) auf der Home:
+ *   Zielgruppen -> creme   (--color-bg)
+ *   News        -> weiss   (--color-surface)
+ *   Events      -> creme   (--color-bg)
+ *   Kontakt     -> weiss   (--color-surface)
+ */
 .section-kontakt-strip {
-  background: var(--color-bg);
+  background: var(--color-surface);
 }
 
 .kontakt-grid {

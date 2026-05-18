@@ -258,11 +258,37 @@ describe('Home', () => {
     expect(el.querySelector('.section-gutschein')).toBeNull();
   });
 
-  it('News-Section steht direkt nach Hero (vor Zielgruppen)', () => {
-    const fixture = setup({ articles: [mkArticle()] });
+  it('Section-Reihenfolge: Hero, Zielgruppen, News, Events, Kontakt-Strip', () => {
+    const fixture = setup({ articles: [mkArticle()], events: [mkEvent()] });
     fixture.detectChanges();
     const sections = (fixture.nativeElement as HTMLElement).querySelectorAll('section');
-    expect(sections[1]?.classList.contains('section-news')).toBe(true);
-    expect(sections[2]?.classList.contains('section-zielgruppen')).toBe(true);
+    expect(sections[0]?.classList.contains('hero')).toBe(true);
+    expect(sections[1]?.classList.contains('section-zielgruppen')).toBe(true);
+    expect(sections[2]?.classList.contains('section-news')).toBe(true);
+    expect(sections[3]?.classList.contains('section-events')).toBe(true);
+    expect(sections[4]?.classList.contains('section-kontakt-strip')).toBe(true);
+  });
+
+  it('Zielgruppen-Cards verlinken auf /kurse mit ?gruppe=<slug>', () => {
+    const fixture = setup();
+    fixture.detectChanges();
+    const links = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('.zg-card'),
+    ).map(a => a.getAttribute('href') ?? '');
+    expect(links.length).toBe(4);
+    // Reihenfolge: Kinder, Jugendliche, Erwachsene, Senioren
+    expect(links[0]).toContain('/kurse');
+    expect(links[0]).toContain('gruppe=kinder');
+    expect(links[1]).toContain('gruppe=jugendliche');
+    expect(links[2]).toContain('gruppe=erwachsene');
+    expect(links[3]).toContain('gruppe=senioren');
+  });
+
+  it('Tanzstile-Section ("Was wir tanzen") wurde entfernt', () => {
+    const fixture = setup();
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.section-tanzstile')).toBeNull();
+    expect(el.textContent ?? '').not.toContain('Was wir tanzen');
   });
 });

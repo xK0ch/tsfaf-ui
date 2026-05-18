@@ -19,13 +19,8 @@ interface Zielgruppe {
   readonly title: string;
   readonly desc: string;
   readonly orange: boolean;
-}
-
-interface Tanzstil {
-  readonly name: string;
-  readonly sub: string;
-  readonly icon: string;
-  readonly orange: boolean;
+  /** Slug fuer den `?gruppe=`-QueryParam auf /kurse. */
+  readonly gruppe: string;
 }
 
 interface OpeningRow {
@@ -82,7 +77,7 @@ export class Home {
   protected readonly eventsTeaser = computed<readonly VeranstaltungItem[]>(() => {
     const all = this.eventsStore.events() ?? [];
     return [...all]
-      .filter(ev => !ev.past)
+      .filter((ev) => !ev.past)
       .sort((a, b) => a.start.getTime() - b.start.getTime())
       .slice(0, HOME_EVENTS_COUNT);
   });
@@ -97,8 +92,8 @@ export class Home {
    * Loading-Phase liefert leeres Array (Section ist dann leer aber stoert
    * nicht das Layout).
    */
-  protected readonly newsTeaser = computed<readonly NewsArticle[]>(
-    () => (this.newsStore.articles() ?? []).slice(0, HOME_NEWS_COUNT),
+  protected readonly newsTeaser = computed<readonly NewsArticle[]>(() =>
+    (this.newsStore.articles() ?? []).slice(0, HOME_NEWS_COUNT),
   );
 
   protected readonly newsLoading = this.newsStore.loading;
@@ -108,25 +103,38 @@ export class Home {
   );
 
   protected readonly zielgruppen: readonly Zielgruppe[] = [
-    { id: 'zg-kinder',      title: 'Kinder',      desc: 'Ab 3 Jahren spielerisch tanzen', orange: true  },
-    { id: 'zg-jugendliche', title: 'Jugendliche', desc: 'Hip Hop, Videoclip & mehr',      orange: false },
-    { id: 'zg-erwachsene',  title: 'Erwachsene',  desc: 'Discofox, Walzer, Standards',    orange: true  },
-    { id: 'zg-senioren',    title: 'Senioren',    desc: 'Zumba Gold, Parkinson-Gruppe',   orange: false },
-  ];
-
-  protected readonly tanzstile: readonly Tanzstil[] = [
-    { name: 'Discofox',  sub: 'Für alle Levels', icon: '🕺', orange: true  },
-    { name: 'Hip Hop',   sub: 'Ab 6 Jahre',      icon: '🎤', orange: false },
-    { name: 'Zumba',     sub: 'Fitness & Tanz',  icon: '🌀', orange: true  },
-    { name: 'Videoclip', sub: 'Dancing',         icon: '🎬', orange: false },
-    { name: 'Kanga',     sub: 'Mit Baby',        icon: '👶', orange: true  },
-    { name: 'Handicap',  sub: 'Für alle',        icon: '♿', orange: false },
-    { name: 'Parkinson', sub: 'Tanzgruppe',      icon: '💚', orange: true  },
-    { name: 'Kinder',    sub: 'Minis ab 3 J.',   icon: '⭐', orange: false },
+    {
+      id: 'zg-kinder',
+      title: 'Kinder',
+      desc: 'Ab 2 Jahren spielerisch tanzen',
+      orange: true,
+      gruppe: 'kinder',
+    },
+    {
+      id: 'zg-jugendliche',
+      title: 'Jugendliche',
+      desc: 'Hip Hop, Videoclip & mehr',
+      orange: false,
+      gruppe: 'jugendliche',
+    },
+    {
+      id: 'zg-erwachsene',
+      title: 'Erwachsene',
+      desc: 'Standards, Line-Dance & mehr',
+      orange: true,
+      gruppe: 'erwachsene',
+    },
+    {
+      id: 'zg-senioren',
+      title: 'Senioren',
+      desc: 'Parkinson-Gruppe, Agilando',
+      orange: false,
+      gruppe: 'senioren',
+    },
   ];
 
   protected readonly openingHours: readonly OpeningRow[] = [
     { day: 'Sonntag bis Freitag', hours: '14:30 bis 21:00 Uhr', closed: false },
-    { day: 'Samstag',             hours: '19:30 bis 23:00 Uhr', closed: false },
+    { day: 'Samstag', hours: '19:30 bis 23:00 Uhr', closed: false },
   ];
 }
