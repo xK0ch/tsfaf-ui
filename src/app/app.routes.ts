@@ -80,6 +80,12 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/impressum/impressum').then(m => m.Impressum),
         title: 'Impressum — Tanzschule Family & Friends',
       },
+      {
+        path: 'datenschutz',
+        loadComponent: () =>
+          import('./pages/datenschutz/datenschutz').then(m => m.Datenschutz),
+        title: 'Datenschutzerklärung — Tanzschule Family & Friends',
+      },
     ],
   },
   { path: '**', redirectTo: '' },

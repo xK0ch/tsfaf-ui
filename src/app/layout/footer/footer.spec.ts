@@ -75,7 +75,8 @@ describe('Footer', () => {
     );
     expect(legal.length).toBeGreaterThanOrEqual(2);
     const hrefs = legal.map(a => a.getAttribute('href') ?? '');
-    expect(hrefs.some(h => h.startsWith('/impressum'))).toBe(true);
+    expect(hrefs).toContain('/impressum');
+    expect(hrefs).toContain('/datenschutz');
   });
 
   // ─── Soziale Medien ────────────────────────────────────────────
