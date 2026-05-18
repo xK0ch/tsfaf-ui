@@ -3,9 +3,10 @@ import {
   Component,
   computed,
   inject,
-  signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { map } from 'rxjs';
 
 import { AlbumCover } from './album-cover/album-cover';
 import { ALBUMS_PER_PAGE, GalleryStore, type Album } from './galerie-data';
@@ -25,6 +26,8 @@ interface PaginationToken {
 })
 export class Galerie {
   private readonly store = inject(GalleryStore);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   protected readonly loading = this.store.loading;
   /**
@@ -37,7 +40,21 @@ export class Galerie {
     () => this.store.albums() ?? [],
   );
 
-  protected readonly currentPage = signal(1);
+  // ─── URL-Sync `?page=` ──────────────────────────────────────────
+  //
+  // Aktuelle Seite landet als ?page=4 in der URL. Klick auf ein Album
+  // pusht /galerie/<alias>; Browser-Back fuehrt zurueck zur Galerie-
+  // Liste auf der Seite die der User vorher angeschaut hat — statt
+  // immer wieder auf Seite 1 zu landen.
+  //
+  // Fehler-Toleranz: ungueltige Werte (nicht-Zahl, 0, negativ, > totalPages)
+  // werden auf 1 bzw. totalPages geklammert. URL bleibt aber stehen
+  // damit der User merkt wenn er einen kaputten Bookmark hat.
+
+  private readonly urlPageParam = toSignal(
+    this.route.queryParamMap.pipe(map(p => p.get('page') ?? '')),
+    { initialValue: '' },
+  );
 
   protected readonly totalCount = computed(() => this.allAlbums().length);
   protected readonly isEmpty = computed(
@@ -47,6 +64,14 @@ export class Galerie {
   protected readonly totalPages = computed(() =>
     Math.max(1, Math.ceil(this.totalCount() / ALBUMS_PER_PAGE)),
   );
+
+  protected readonly currentPage = computed(() => {
+    const raw = this.urlPageParam();
+    if (!raw) return 1;
+    const parsed = parseInt(raw, 10);
+    if (!Number.isFinite(parsed) || parsed < 1) return 1;
+    return Math.min(parsed, this.totalPages());
+  });
 
   protected readonly pageAlbums = computed<readonly Album[]>(() => {
     const start = (this.currentPage() - 1) * ALBUMS_PER_PAGE;
@@ -78,20 +103,33 @@ export class Galerie {
     return tokens;
   });
 
+  // ─── Aktionen ───────────────────────────────────────────────────
+
+  /**
+   * Seitenwechsel: page landet als Query-Param in der URL.
+   * Seite 1 -> Param wird entfernt (huebschere Default-URL ohne ?page=1).
+   * replaceUrl=true, damit jeder Pagination-Klick keinen History-Eintrag
+   * macht — der Back-Button springt direkt zur Seite vor der Galerie.
+   */
   protected goToPage(page: number): void {
     const clamped = Math.max(1, Math.min(this.totalPages(), page));
-    this.currentPage.set(clamped);
+    this.navigatePage(clamped);
   }
 
   protected prev(): void {
-    if (this.canPrev()) {
-      this.currentPage.update(p => p - 1);
-    }
+    if (this.canPrev()) this.navigatePage(this.currentPage() - 1);
   }
 
   protected next(): void {
-    if (this.canNext()) {
-      this.currentPage.update(p => p + 1);
-    }
+    if (this.canNext()) this.navigatePage(this.currentPage() + 1);
+  }
+
+  private navigatePage(page: number): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page: page === 1 ? null : page },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 }
