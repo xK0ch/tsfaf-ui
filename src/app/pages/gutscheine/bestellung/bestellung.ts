@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -23,6 +24,7 @@ import {
   VoucherOrderPayload,
 } from '../../../core/models/cotas.models';
 import { CotasApiService } from '../../../core/services/cotas-api.service';
+import { Seo } from '../../../core/services/seo';
 
 type Step = 'form' | 'submitting' | 'success' | 'error';
 
@@ -46,6 +48,7 @@ export class Bestellung {
   private readonly router = inject(Router);
   private readonly api = inject(CotasApiService);
   private readonly fb = inject(FormBuilder);
+  private readonly seo = inject(Seo);
 
   // ----- Daten-Lade-Pipeline -----
 
@@ -135,6 +138,22 @@ export class Bestellung {
           emitEvent: false,
         });
       });
+
+    // SEO-Meta-Tags: sobald die Voucher-Vorlage geladen ist, nutzen wir
+    // ihr Bild als og:image, damit Social-Sharing-Previews den jeweiligen
+    // Gutschein zeigen.
+    effect(() => {
+      const v = this.voucher();
+      if (v) {
+        this.seo.set({
+          title: 'Gutschein bestellen',
+          description:
+            'Gutschein der Tanzschule Family & Friends online bestellen. '
+            + 'Das passende Geschenk für Tanzbegeisterte.',
+          image: v.imageUrl,
+        });
+      }
+    });
   }
 
   // ----- Aktionen -----

@@ -8,10 +8,10 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 
+import { Seo } from '../../../core/services/seo';
 import { NewsStore } from '../neuigkeiten-data';
 import { NewsCover } from '../news-cover/news-cover';
 import { NewsSidebar } from '../news-sidebar/news-sidebar';
@@ -26,7 +26,7 @@ import { NewsSidebar } from '../news-sidebar/news-sidebar';
 export class NeuigkeitenDetail {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly title = inject(Title);
+  private readonly seo = inject(Seo);
   private readonly document = inject(DOCUMENT);
   private readonly store = inject(NewsStore);
 
@@ -66,7 +66,13 @@ export class NeuigkeitenDetail {
     effect(() => {
       const a = this.article();
       if (a) {
-        this.title.setTitle(`${a.title} - Tanzschule Family & Friends`);
+        this.seo.set({
+          title: a.title,
+          description:
+            a.excerpt
+            || `Aktueller Beitrag der Tanzschule Family & Friends in Neumünster.`,
+          image: a.imageUrl ?? undefined,
+        });
         return;
       }
       // Wenn die Daten schon da sind und kein Artikel zum Slug existiert,

@@ -7,12 +7,12 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 
 import { AlbumCover } from '../album-cover/album-cover';
 import { GalleryApiService } from '../../../core/services/gallery-api.service';
+import { Seo } from '../../../core/services/seo';
 import {
   GalleryStore,
   mapPhoto,
@@ -31,7 +31,7 @@ import { Lightbox } from '../lightbox/lightbox';
 export class GalerieDetail {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly title = inject(Title);
+  private readonly seo = inject(Seo);
   private readonly store = inject(GalleryStore);
   private readonly api = inject(GalleryApiService);
 
@@ -65,11 +65,17 @@ export class GalerieDetail {
   protected readonly lightboxOpen = computed(() => this.lightboxIdx() !== null);
 
   constructor() {
-    // Title + Not-Found-Redirect
+    // SEO-Meta-Tags + Not-Found-Redirect
     effect(() => {
       const a = this.album();
       if (a) {
-        this.title.setTitle(`${a.title} - Tanzschule Family & Friends`);
+        this.seo.set({
+          title: a.title,
+          description:
+            a.description
+            || `Bildergalerie "${a.title}" der Tanzschule Family & Friends in Neumünster.`,
+          image: a.coverUrl ?? undefined,
+        });
         return;
       }
       if (this.notFound()) {

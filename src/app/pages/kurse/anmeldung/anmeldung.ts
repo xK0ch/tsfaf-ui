@@ -26,6 +26,7 @@ import {
   RegistrationSubmitPayload,
 } from '../../../core/models/cotas.models';
 import { CotasApiService } from '../../../core/services/cotas-api.service';
+import { Seo } from '../../../core/services/seo';
 
 type Step = 'form' | 'submitting' | 'success' | 'error';
 
@@ -49,6 +50,7 @@ export class Anmeldung {
   private readonly router = inject(Router);
   private readonly api = inject(CotasApiService);
   private readonly fb = inject(FormBuilder);
+  private readonly seo = inject(Seo);
 
   // ----- Daten-Lade-Pipeline -----
 
@@ -243,6 +245,21 @@ export class Anmeldung {
   }
 
   constructor() {
+    // SEO-Meta-Tags: sobald der Kurs geladen ist, schreiben wir den
+    // konkreten Kurs-Namen in <title> und meta description. Vorher
+    // greift die generische Route-Default-Beschreibung aus app.routes.ts.
+    effect(() => {
+      const c = this.course();
+      if (c) {
+        this.seo.set({
+          title: `Anmeldung: ${c.kurs_bez}`,
+          description:
+            `Online-Anmeldung für den Kurs "${c.kurs_bez}" der `
+            + 'Tanzschule Family & Friends in Neumünster.',
+        });
+      }
+    });
+
     // Conditional validators: bei Aenderung von partner/payment die
     // entsprechenden Validators (de)aktivieren.
     effect(() => {
