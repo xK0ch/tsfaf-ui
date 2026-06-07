@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { Spinner } from '../../shared/spinner/spinner';
 import { environment } from '../../../environments/environment';
 import { NewsStore, type NewsArticle } from '../neuigkeiten/neuigkeiten-data';
 import {
@@ -51,7 +52,7 @@ const HOME_EVENTS_COUNT = 3;
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, NgOptimizedImage],
+  imports: [RouterLink, NgOptimizedImage, Spinner],
   templateUrl: './home.html',
   styleUrl: './home.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

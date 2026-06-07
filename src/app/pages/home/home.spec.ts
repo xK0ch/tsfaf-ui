@@ -134,7 +134,7 @@ describe('Home', () => {
     const fixture = setup({ events: null });
     fixture.detectChanges();
     const evSec = (fixture.nativeElement as HTMLElement).querySelector('.section-events');
-    expect(evSec?.textContent).toContain('Veranstaltungen werden geladen');
+    expect(evSec?.textContent).toContain('Wird geladen');
   });
 
   it('zeigt Events-Empty wenn keine kommenden Veranstaltungen', () => {

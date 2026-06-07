@@ -39,11 +39,7 @@
 <section class="page-content">
   <div class="container">
     @if (vouchers() === null) {
-      <div class="state-box">
-        <div class="state-icon" aria-hidden="true">⏳</div>
-        <h2 class="state-title">Gutscheine werden geladen</h2>
-        <p class="state-sub">Einen Moment bitte.</p>
-      </div>
+      <app-spinner />
     } @else if (vouchers()!.length === 0) {
       <div class="state-box">
         <div class="state-icon" aria-hidden="true">🎁</div>

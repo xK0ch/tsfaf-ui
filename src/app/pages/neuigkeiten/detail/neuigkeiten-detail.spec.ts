@@ -71,7 +71,7 @@ describe('NeuigkeitenDetail', () => {
     const { fixture } = setup({ slug: 'parken', articles: null });
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.textContent).toContain('Beitrag wird geladen');
+    expect(el.textContent).toContain('Wird geladen');
   });
 
   it('rendert Artikel wenn vorhanden', () => {

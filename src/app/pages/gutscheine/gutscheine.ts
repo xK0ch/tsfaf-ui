@@ -4,10 +4,11 @@ import { RouterLink } from '@angular/router';
 
 import { CotasApiService } from '../../core/services/cotas-api.service';
 import { CotasVoucher } from '../../core/models/cotas.models';
+import { Spinner } from '../../shared/spinner/spinner';
 
 @Component({
   selector: 'app-gutscheine',
-  imports: [RouterLink],
+  imports: [RouterLink, Spinner],
   templateUrl: './gutscheine.html',
   styleUrl: './gutscheine.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -135,7 +135,7 @@
       </a>
     </div>
     @if (newsLoading()) {
-      <p class="news-status" role="status">Wird geladen…</p>
+      <app-spinner />
     } @else if (newsEmpty()) {
       <p class="news-status">Aktuell sind keine Beiträge online.</p>
     } @else {
@@ -168,7 +168,7 @@
       </a>
     </div>
     @if (eventsLoading()) {
-      <p class="events-status" role="status">Veranstaltungen werden geladen…</p>
+      <app-spinner />
     } @else if (eventsEmpty()) {
       <p class="events-status">Aktuell keine kommenden Veranstaltungen.</p>
     } @else {

@@ -1,7 +1,7 @@
 @if (loading()) {
   <section class="detail-section">
     <div class="container">
-      <p class="news-status" role="status">Beitrag wird geladen…</p>
+      <app-spinner />
     </div>
   </section>
 } @else if (article(); as a) {

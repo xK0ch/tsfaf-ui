@@ -13,6 +13,7 @@ import { map } from 'rxjs';
 import { AlbumCover } from '../album-cover/album-cover';
 import { GalleryApiService } from '../../../core/services/gallery-api.service';
 import { Seo } from '../../../core/services/seo';
+import { Spinner } from '../../../shared/spinner/spinner';
 import {
   GalleryStore,
   mapPhoto,
@@ -23,7 +24,7 @@ import { Lightbox } from '../lightbox/lightbox';
 
 @Component({
   selector: 'app-galerie-detail',
-  imports: [RouterLink, AlbumCover, Lightbox],
+  imports: [RouterLink, AlbumCover, Lightbox, Spinner],
   templateUrl: './galerie-detail.html',
   styleUrl: './galerie-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

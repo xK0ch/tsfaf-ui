@@ -11,6 +11,7 @@ import {
   CotasDanceClass,
   CotasTargetGroup,
 } from '../../core/models/cotas.models';
+import { Spinner } from '../../shared/spinner/spinner';
 
 const ALL_CATEGORIES_ID = '__all__';
 
@@ -48,7 +49,7 @@ export function slugify(value: string): string {
 
 @Component({
   selector: 'app-kurse',
-  imports: [DecimalPipe, RouterLink],
+  imports: [DecimalPipe, RouterLink, Spinner],
   templateUrl: './kurse.html',
   styleUrl: './kurse.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -125,8 +125,8 @@ describe('Veranstaltungen', () => {
     const { fixture } = setup({ events: null });
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.ev-status')?.textContent).toContain(
-      'Veranstaltungen werden geladen',
+    expect(el.querySelector('app-spinner')?.textContent).toContain(
+      'Wird geladen',
     );
   });
 

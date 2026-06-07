@@ -34,7 +34,7 @@ describe('Gutscheine (Liste)', () => {
     const fixture = TestBed.createComponent(Gutscheine);
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).textContent).toContain(
-      'Gutscheine werden geladen',
+      'Wird geladen',
     );
   });
 

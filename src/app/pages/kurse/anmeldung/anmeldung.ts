@@ -27,6 +27,7 @@ import {
 } from '../../../core/models/cotas.models';
 import { CotasApiService } from '../../../core/services/cotas-api.service';
 import { Seo } from '../../../core/services/seo';
+import { Spinner } from '../../../shared/spinner/spinner';
 
 type Step = 'form' | 'submitting' | 'success' | 'error';
 
@@ -40,7 +41,7 @@ const PHASE_PRELOAD: PreviewState = { loading: true, error: null, data: null };
 
 @Component({
   selector: 'app-anmeldung',
-  imports: [ReactiveFormsModule, RouterLink, DecimalPipe],
+  imports: [ReactiveFormsModule, RouterLink, DecimalPipe, Spinner],
   templateUrl: './anmeldung.html',
   styleUrl: './anmeldung.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

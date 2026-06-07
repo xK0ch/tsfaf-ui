@@ -8,6 +8,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 
+import { Spinner } from '../../shared/spinner/spinner';
 import { AlbumCover } from './album-cover/album-cover';
 import { ALBUMS_PER_PAGE, GalleryStore, type Album } from './galerie-data';
 
@@ -19,7 +20,7 @@ interface PaginationToken {
 
 @Component({
   selector: 'app-galerie',
-  imports: [RouterLink, AlbumCover],
+  imports: [RouterLink, AlbumCover, Spinner],
   templateUrl: './galerie.html',
   styleUrl: './galerie.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

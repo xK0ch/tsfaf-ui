@@ -136,7 +136,7 @@
       </p>
     </div>
     @if (teamLoading()) {
-      <p class="team-status" role="status">Team wird geladen…</p>
+      <app-spinner />
     } @else if (teamEmpty()) {
       <p class="team-status">Aktuell sind keine Team-Mitglieder hinterlegt.</p>
     } @else {

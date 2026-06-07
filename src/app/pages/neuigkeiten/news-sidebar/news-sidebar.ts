@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
+import { Spinner } from '../../../shared/spinner/spinner';
 import { NewsStore, type NewsArticle } from '../neuigkeiten-data';
 
 @Component({
   selector: 'app-news-sidebar',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, Spinner],
   templateUrl: './news-sidebar.html',
   styleUrl: './news-sidebar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

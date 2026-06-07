@@ -37,6 +37,9 @@
 <!-- ─── LAYOUT ────────────────────────────────────────────────────── -->
 <main>
   <div class="container">
+    @if (loading()) {
+      <app-spinner />
+    } @else {
     <div class="faq-layout">
       <nav class="faq-nav" aria-label="Kategorien">
         <p class="cat-label">Kategorien</p>
@@ -127,5 +130,6 @@
         </div>
       </div>
     </div>
+    }
   </div>
 </main>

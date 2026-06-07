@@ -74,7 +74,7 @@
 <section class="page-content">
   <div class="container">
     @if (loading()) {
-      <p class="ev-status" role="status">Veranstaltungen werden geladen…</p>
+      <app-spinner />
     } @else if (grouped().length === 0) {
       <div class="state-box">
         <div class="state-icon" aria-hidden="true">📅</div>

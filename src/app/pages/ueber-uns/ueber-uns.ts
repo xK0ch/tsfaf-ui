@@ -2,6 +2,7 @@ import { NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { Spinner } from '../../shared/spinner/spinner';
 import { environment } from '../../../environments/environment';
 import { type Photo } from '../galerie/galerie-data';
 import { Lightbox } from '../galerie/lightbox/lightbox';
@@ -58,7 +59,7 @@ interface Room {
 
 @Component({
   selector: 'app-ueber-uns',
-  imports: [RouterLink, TeamCard, NgOptimizedImage, Lightbox],
+  imports: [RouterLink, TeamCard, NgOptimizedImage, Lightbox, Spinner],
   templateUrl: './ueber-uns.html',
   styleUrl: './ueber-uns.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

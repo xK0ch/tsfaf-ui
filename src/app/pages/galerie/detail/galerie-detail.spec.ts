@@ -143,8 +143,8 @@ describe('GalerieDetail', () => {
     const { fixture } = setup({ albums: null });
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.detail-status')?.textContent).toContain(
-      'Album wird geladen',
+    expect(el.querySelector('app-spinner')?.textContent).toContain(
+      'Wird geladen',
     );
   });
 
@@ -156,7 +156,7 @@ describe('GalerieDetail', () => {
     const { fixture } = setup({ apiResponse: () => never$ });
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.textContent).toContain('Bilder werden geladen');
+    expect(el.textContent).toContain('Wird geladen');
   });
 
   // ─── Album-Render ──────────────────────────────────────────────

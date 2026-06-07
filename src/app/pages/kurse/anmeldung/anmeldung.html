@@ -1,11 +1,7 @@
 @if (state().loading) {
   <section class="page-content">
     <div class="container">
-      <div class="state-box">
-        <div class="state-icon" aria-hidden="true">⏳</div>
-        <h2 class="state-title">Kurs wird geladen</h2>
-        <p class="state-sub">Einen Moment bitte.</p>
-      </div>
+      <app-spinner />
     </div>
   </section>
 } @else if (state().error || !course()) {

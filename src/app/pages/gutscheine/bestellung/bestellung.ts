@@ -25,6 +25,7 @@ import {
 } from '../../../core/models/cotas.models';
 import { CotasApiService } from '../../../core/services/cotas-api.service';
 import { Seo } from '../../../core/services/seo';
+import { Spinner } from '../../../shared/spinner/spinner';
 
 type Step = 'form' | 'submitting' | 'success' | 'error';
 
@@ -38,7 +39,7 @@ const PRELOAD: State = { loading: true, error: null, voucher: null };
 
 @Component({
   selector: 'app-gutschein-bestellung',
-  imports: [ReactiveFormsModule, RouterLink, DecimalPipe],
+  imports: [ReactiveFormsModule, RouterLink, DecimalPipe, Spinner],
   templateUrl: './bestellung.html',
   styleUrl: './bestellung.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

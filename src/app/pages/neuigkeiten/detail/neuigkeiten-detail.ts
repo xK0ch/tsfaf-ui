@@ -12,13 +12,14 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 
 import { Seo } from '../../../core/services/seo';
+import { Spinner } from '../../../shared/spinner/spinner';
 import { NewsStore } from '../neuigkeiten-data';
 import { NewsCover } from '../news-cover/news-cover';
 import { NewsSidebar } from '../news-sidebar/news-sidebar';
 
 @Component({
   selector: 'app-neuigkeiten-detail',
-  imports: [RouterLink, NewsCover, NewsSidebar],
+  imports: [RouterLink, NewsCover, NewsSidebar, Spinner],
   templateUrl: './neuigkeiten-detail.html',
   styleUrl: './neuigkeiten-detail.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

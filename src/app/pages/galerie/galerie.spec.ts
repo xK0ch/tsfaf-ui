@@ -84,8 +84,8 @@ describe('Galerie', () => {
     const { fixture } = setup({ albums: null });
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.gallery-status')?.textContent).toContain(
-      'Alben werden geladen',
+    expect(el.querySelector('app-spinner')?.textContent).toContain(
+      'Wird geladen',
     );
     expect(el.querySelector('.album-grid')).toBeNull();
   });

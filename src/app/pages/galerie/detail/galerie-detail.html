@@ -1,7 +1,7 @@
 @if (storeLoading()) {
   <main class="page-content">
     <div class="container">
-      <p class="detail-status" role="status">Album wird geladen…</p>
+      <app-spinner />
     </div>
   </main>
 } @else if (album(); as a) {
@@ -48,7 +48,7 @@
       }
 
       @if (photosLoading()) {
-        <p class="detail-status" role="status">Bilder werden geladen…</p>
+        <app-spinner />
       } @else if (photos(); as ps) {
         @if (ps.length === 0) {
           <p class="detail-status">In diesem Album sind keine Bilder hinterlegt.</p>

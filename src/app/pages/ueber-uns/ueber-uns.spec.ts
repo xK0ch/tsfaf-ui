@@ -43,8 +43,8 @@ describe('UeberUns', () => {
     const fixture = setup(null);
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.team-status')?.textContent).toContain(
-      'Team wird geladen',
+    expect(el.querySelector('app-spinner')?.textContent).toContain(
+      'Wird geladen',
     );
     expect(el.querySelector('.team-grid')).toBeNull();
   });

@@ -38,11 +38,7 @@
 @if (catalog() === null) {
   <section class="page-content">
     <div class="container">
-      <div class="state-box">
-        <div class="state-icon" aria-hidden="true">⏳</div>
-        <h2 class="state-title">Kurse werden geladen</h2>
-        <p class="state-sub">Einen Moment, wir holen die aktuellen Kursdaten.</p>
-      </div>
+      <app-spinner />
     </div>
   </section>
 } @else if (targetGroups().length === 0) {

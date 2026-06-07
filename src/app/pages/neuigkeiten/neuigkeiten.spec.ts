@@ -56,7 +56,7 @@ describe('Neuigkeiten', () => {
     const { fixture } = setup(null);
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.textContent).toContain('Neuigkeiten werden geladen');
+    expect(el.textContent).toContain('Wird geladen');
     expect(el.querySelector('.news-grid')).toBeNull();
   });
 

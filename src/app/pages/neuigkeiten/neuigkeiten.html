@@ -32,7 +32,7 @@
     <div class="list-layout">
       <div>
         @if (loading()) {
-          <p class="news-status" role="status">Neuigkeiten werden geladen…</p>
+          <app-spinner />
         } @else if (isEmpty()) {
           <p class="news-status">Aktuell sind keine Beiträge online.</p>
         } @else {

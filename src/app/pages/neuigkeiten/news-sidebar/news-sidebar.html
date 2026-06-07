@@ -2,7 +2,7 @@
   <div class="sidebar-widget">
     <h2 class="sidebar-title">Alle Beiträge</h2>
     @if (loading()) {
-      <p class="sidebar-empty">wird geladen…</p>
+      <app-spinner label="" />
     } @else if (articles().length === 0) {
       <p class="sidebar-empty">Noch keine Beiträge.</p>
     } @else {

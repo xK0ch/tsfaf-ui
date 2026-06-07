@@ -12,6 +12,7 @@ import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { JoomlaApiService } from '../../core/services/joomla-api.service';
 import type { JoomlaArticle } from '../../core/models/joomla.models';
+import { Spinner } from '../../shared/spinner/spinner';
 
 // ----- Lokale Typen / Konstanten -----
 
@@ -117,7 +118,7 @@ export function buildFaqGroups(articles: readonly JoomlaArticle[]): readonly Faq
 
 @Component({
   selector: 'app-faq',
-  imports: [RouterLink],
+  imports: [RouterLink, Spinner],
   templateUrl: './faq.html',
   styleUrl: './faq.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

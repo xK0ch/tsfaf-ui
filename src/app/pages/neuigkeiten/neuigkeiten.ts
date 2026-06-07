@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { Spinner } from '../../shared/spinner/spinner';
 import { NEWS_PER_PAGE, NewsStore, type NewsArticle } from './neuigkeiten-data';
 import { NewsCover } from './news-cover/news-cover';
 import { NewsSidebar } from './news-sidebar/news-sidebar';
@@ -12,7 +13,7 @@ interface PageItem {
 
 @Component({
   selector: 'app-neuigkeiten',
-  imports: [RouterLink, NewsCover, NewsSidebar],
+  imports: [RouterLink, NewsCover, NewsSidebar, Spinner],
   templateUrl: './neuigkeiten.html',
   styleUrl: './neuigkeiten.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

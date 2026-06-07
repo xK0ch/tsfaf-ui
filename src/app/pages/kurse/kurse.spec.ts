@@ -160,7 +160,7 @@ describe('Kurse', () => {
     const { fixture } = setup({ catalog: null as unknown as DanceClassCatalog });
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.textContent).toContain('Kurse werden geladen');
+    expect(el.textContent).toContain('Wird geladen');
   });
 
   it('zeigt Tabs aus den Target Groups', () => {

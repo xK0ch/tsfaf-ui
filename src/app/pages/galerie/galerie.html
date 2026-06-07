@@ -47,7 +47,7 @@
 <main class="page-content">
   <div class="container">
     @if (loading()) {
-      <p class="gallery-status" role="status">Alben werden geladen…</p>
+      <app-spinner />
     } @else if (isEmpty()) {
       <p class="gallery-status">Aktuell sind keine Alben hinterlegt.</p>
     } @else {

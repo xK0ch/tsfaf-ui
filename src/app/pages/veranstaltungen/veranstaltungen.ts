@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
 
+import { Spinner } from '../../shared/spinner/spinner';
 import { EventDetailPanel } from './event-detail-panel/event-detail-panel';
 import {
   VeranstaltungenStore,
@@ -25,7 +26,7 @@ interface FilterChip {
 
 @Component({
   selector: 'app-veranstaltungen',
-  imports: [EventDetailPanel],
+  imports: [EventDetailPanel, Spinner],
   templateUrl: './veranstaltungen.html',
   styleUrl: './veranstaltungen.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
