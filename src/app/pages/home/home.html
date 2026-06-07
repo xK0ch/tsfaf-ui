@@ -1,0 +1,259 @@
+<!-- ─── HERO ──────────────────────────────────────────────────────── -->
+<section class="hero" aria-label="Hero">
+  <video
+    #heroVideo
+    class="hero-video"
+    [src]="heroVideoUrl"
+    [muted]="true"
+    autoplay
+    loop
+    playsinline
+    preload="auto"
+    aria-hidden="true"
+    (loadedmetadata)="playHeroVideo()"
+  ></video>
+  <div class="hero-overlay" aria-hidden="true"></div>
+  <div class="hero-content">
+    <div class="container">
+      <div class="hero-inner">
+        <div class="hero-eyebrow">
+          <span class="hero-eyebrow-dot" aria-hidden="true"></span>
+          ADTV-Tanzschule · Neumünster
+        </div>
+        <h1 class="hero-title">
+          Tanzen <em>verbindet.</em>
+        </h1>
+        <p class="hero-sub">
+          ADTV-Tanzschule Family &amp; Friends in Neumünster: für jedes Alter, jedes Tempo.
+        </p>
+        <div class="hero-actions">
+          <a routerLink="/kurse" class="btn btn-primary btn-lg">Kurs finden</a>
+          <a routerLink="/gutscheine" class="btn btn-outline-light btn-lg">Gutschein verschenken</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-scroll" aria-hidden="true">
+    <span class="hero-scroll-arrow">↓</span>
+  </div>
+</section>
+
+<!-- ─── ZIELGRUPPEN ───────────────────────────────────────────────── -->
+<section class="section section-zielgruppen">
+  <div class="container">
+    <div class="section-header">
+      <p class="section-eyebrow">Für alle</p>
+      <h2 class="section-title">Wer tanzt hier?</h2>
+      <p class="section-sub">
+        Von den ersten Schritten bis zur goldenen Tanznacht: bei uns ist jeder willkommen.
+      </p>
+    </div>
+    <div class="zg-grid">
+      @for (item of zielgruppen; track item.id) {
+        <button
+          type="button"
+          class="zg-card"
+          [class.is-orange]="item.orange"
+          [class.is-selected]="isZielgruppeActive(item.id)"
+          [attr.aria-expanded]="isZielgruppeActive(item.id)"
+          [attr.aria-controls]="'zg-detail-panel'"
+          (click)="toggleZielgruppe(item.id)"
+        >
+          <div class="zg-bg">
+            <img
+              [ngSrc]="item.imageUrl"
+              [alt]="item.imageAlt"
+              fill
+              priority="false"
+              sizes="(max-width: 600px) 50vw, 25vw"
+              class="zg-img"
+            />
+          </div>
+          <div class="zg-overlay" aria-hidden="true"></div>
+          <div class="zg-content">
+            <h3 class="zg-title">{{ item.title }}</h3>
+            <p class="zg-desc">{{ item.desc }}</p>
+            <span class="zg-arrow" aria-hidden="true">
+              {{ isZielgruppeActive(item.id) ? '−' : '+' }}
+            </span>
+          </div>
+        </button>
+      }
+    </div>
+
+    @if (selectedZielgruppe(); as item) {
+      <article
+        id="zg-detail-panel"
+        class="zg-detail"
+        role="region"
+        [attr.aria-label]="'Mehr über ' + item.title"
+      >
+        <button
+          type="button"
+          class="zg-detail-close"
+          (click)="closeZielgruppe()"
+          aria-label="Detailansicht schließen"
+        >×</button>
+        <div class="zg-detail-grid">
+          <div class="zg-detail-image">
+            <img
+              [ngSrc]="item.imageUrl"
+              [alt]="item.imageAlt"
+              fill
+              priority="false"
+              sizes="(max-width: 700px) 100vw, 40vw"
+            />
+          </div>
+          <div class="zg-detail-body">
+            <p class="zg-detail-eyebrow">Für {{ item.title }}</p>
+            <h3 class="zg-detail-title">{{ item.longTitle }}</h3>
+            <p class="zg-detail-text">{{ item.longText }}</p>
+            <a
+              routerLink="/kurse"
+              [queryParams]="{ gruppe: item.gruppe }"
+              class="btn btn-primary"
+            >
+              Zu den {{ item.ctaLabel }}
+            </a>
+          </div>
+        </div>
+      </article>
+    }
+  </div>
+</section>
+
+<!-- ─── NEWS ──────────────────────────────────────────────────────── -->
+<section class="section section-news">
+  <div class="container">
+    <div class="section-header section-header-split">
+      <div>
+        <p class="section-eyebrow">Aktuelles</p>
+        <h2 class="section-title">Neuigkeiten</h2>
+      </div>
+      <a routerLink="/neuigkeiten" class="section-link">
+        Alle Beiträge <span aria-hidden="true">→</span>
+      </a>
+    </div>
+    @if (newsLoading()) {
+      <p class="news-status" role="status">Wird geladen…</p>
+    } @else if (newsEmpty()) {
+      <p class="news-status">Aktuell sind keine Beiträge online.</p>
+    } @else {
+      <div class="news-grid">
+        @for (item of newsTeaser(); track item.id) {
+          <a [routerLink]="['/neuigkeiten', item.slug]" class="news-card">
+            <div class="news-date">{{ item.dateLong }}</div>
+            <h3 class="news-title">{{ item.title }}</h3>
+            <p class="news-excerpt">{{ item.excerpt }}</p>
+            <span class="news-link">
+              Weiterlesen <span aria-hidden="true">→</span>
+            </span>
+          </a>
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<!-- ─── EVENTS ────────────────────────────────────────────────────── -->
+<section class="section section-events">
+  <div class="container">
+    <div class="section-header section-header-split">
+      <div>
+        <p class="section-eyebrow">Nächste Termine</p>
+        <h2 class="section-title">Veranstaltungen</h2>
+      </div>
+      <a routerLink="/veranstaltungen" class="section-link">
+        Alle Veranstaltungen <span aria-hidden="true">→</span>
+      </a>
+    </div>
+    @if (eventsLoading()) {
+      <p class="events-status" role="status">Veranstaltungen werden geladen…</p>
+    } @else if (eventsEmpty()) {
+      <p class="events-status">Aktuell keine kommenden Veranstaltungen.</p>
+    } @else {
+      <div class="events-list">
+        @for (ev of eventsTeaser(); track ev.id) {
+          <article class="event-card">
+            <div class="date-pill" [attr.aria-label]="ev.day + '. ' + ev.monthShort">
+              <span class="date-pill-day">{{ ev.day }}</span>
+              <span class="date-pill-month">{{ ev.monthShort }}</span>
+            </div>
+            <div class="event-body">
+              <h3 class="event-title">{{ ev.title }}</h3>
+              <div class="event-meta">
+                @if (ev.timeSummary) {
+                  <span class="event-meta-time">{{ ev.timeSummary }}</span>
+                }
+                <span class="tag tag-secondary">{{ ev.typeLabel }}</span>
+                @if (ev.teilnahme === 'voranmeldung') {
+                  <span class="tag">Voranmeldung</span>
+                } @else if (ev.teilnahme === 'eintrittskarte') {
+                  <span class="tag">Eintrittskarte</span>
+                }
+              </div>
+              <p class="event-excerpt">{{ ev.excerpt }}</p>
+              <div class="event-footer">
+                <div class="event-price">
+                  @if (ev.price) { {{ ev.price }} }
+                  @if (ev.priceCard) {
+                    <span class="event-price-card">
+                      mit Kundenkarte: {{ ev.priceCard }}
+                    </span>
+                  }
+                </div>
+                <a
+                  routerLink="/veranstaltungen"
+                  [queryParams]="{ event: ev.slug }"
+                  class="btn btn-ghost btn-sm"
+                >
+                  Details ansehen <span aria-hidden="true">→</span>
+                </a>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<!-- ─── KONTAKT-STRIP ─────────────────────────────────────────────── -->
+<section class="section-sm section-kontakt-strip">
+  <div class="container">
+    <div class="kontakt-grid">
+      <div>
+        <h2 class="oz-title">Öffnungszeiten</h2>
+        <table class="oz-table">
+          <tbody>
+            @for (row of openingHours; track row.day) {
+              <tr>
+                <td>{{ row.day }}</td>
+                <td [class.oz-closed]="row.closed">{{ row.hours }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <p class="oz-note">
+          Während der Schulferien können die Zeiten abweichen — bitte vorab telefonisch oder per E-Mail anfragen.
+        </p>
+      </div>
+
+      <div class="kontakt-divider" aria-hidden="true"></div>
+
+      <div class="kontakt-block">
+        <div class="kontakt-phone">
+          <span class="kontakt-phone-label">Ruf uns an</span>
+          <a href="tel:+4943211490" class="kontakt-phone-number">04321 – 1 49 00</a>
+        </div>
+        <address class="kontakt-address">
+          <strong>Tanzschule Family &amp; Friends</strong>
+          Georg-Fuhg-Straße 6<br>
+          24537 Neumünster<br>
+          <br>
+          <a href="mailto:info@tsfaf.de">info&#64;tsfaf.de</a><br>
+        </address>
+      </div>
+    </div>
+  </div>
+</section>

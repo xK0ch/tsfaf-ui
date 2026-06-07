@@ -1,0 +1,16 @@
+export const environment = {
+  production: true,
+  cotasApiBase: 'https://anmeldung.tanzschule-family-and-friends.de/api/index.php',
+  galleryApiBase: 'https://joomla.tanzschule-family-and-friends.de/gallery-api.php',
+  galleryToken: 'REPLACE_WITH_GALLERY_TOKEN',
+  kontaktApiBase: 'https://joomla.tanzschule-family-and-friends.de/kontakt-api.php',
+  kontaktToken: 'REPLACE_WITH_KONTAKT_TOKEN',
+  joomlaApiBase: 'https://joomla.tanzschule-family-and-friends.de/api/index.php/v1',
+  joomlaToken: 'REPLACE_WITH_JOOMLA_TOKEN',
+  joomlaCategoryFaq: 9,
+  joomlaCategoryNews: 8,
+  joomlaCategoryTeam: 13,
+  joomlaCategoryVeranstaltungen: 14,
+  joomlaImageBase: 'https://joomla.tanzschule-family-and-friends.de',
+  mediaBaseUrl: 'https://video.tsfaf.de/v2/Webseite',
+};

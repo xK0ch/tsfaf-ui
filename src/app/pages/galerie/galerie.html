@@ -1,0 +1,122 @@
+<!-- ─── PAGE HERO ─────────────────────────────────────────────────── -->
+<header class="page-hero">
+  <div class="page-hero-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 260" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="gallery-grad-1" cx="15%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#DC8C50" stop-opacity="0.08" />
+          <stop offset="100%" stop-color="#DC8C50" stop-opacity="0" />
+        </radialGradient>
+        <radialGradient id="gallery-grad-2" cx="90%" cy="40%" r="45%">
+          <stop offset="0%"   stop-color="#64B4C8" stop-opacity="0.07" />
+          <stop offset="100%" stop-color="#64B4C8" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="1200" height="260" fill="white" />
+      <rect width="1200" height="260" fill="url(#gallery-grad-1)" />
+      <rect width="1200" height="260" fill="url(#gallery-grad-2)" />
+      <path
+        d="M -30 190 C 80 70, 260 30, 400 100 C 450 124, 455 175, 415 200 C 345 238, 165 215, 55 228 C -10 236, -30 225, -30 190 Z"
+        fill="#DC8C50" opacity="0.07"
+      />
+      <path
+        d="M 1050 20 C 1140 55, 1220 140, 1195 210 C 1178 248, 1130 255, 1090 235 C 1040 210, 1025 158, 1045 100 C 1055 55, 1010 0, 1050 20 Z"
+        fill="#64B4C8" opacity="0.06"
+      />
+    </svg>
+  </div>
+  <div class="container page-hero-inner">
+    <p class="page-eyebrow">Erinnerungen</p>
+    <h1 class="page-title">Galerie</h1>
+    <p class="page-sub">
+      {{ totalCount() }} Alben, tausende Momente: schau dir an, was wir erlebt haben.
+    </p>
+  </div>
+</header>
+
+<!-- ─── TOOLBAR ───────────────────────────────────────────────────── -->
+<div class="gallery-toolbar">
+  <div class="container toolbar-inner">
+    <p class="results-count">
+      <strong>{{ totalCount() }}</strong> Alben
+    </p>
+  </div>
+</div>
+
+<!-- ─── GRID ──────────────────────────────────────────────────────── -->
+<main class="page-content">
+  <div class="container">
+    @if (loading()) {
+      <p class="gallery-status" role="status">Alben werden geladen…</p>
+    } @else if (isEmpty()) {
+      <p class="gallery-status">Aktuell sind keine Alben hinterlegt.</p>
+    } @else {
+      <div class="album-grid">
+        @for (album of pageAlbums(); track album.id) {
+          <a
+            [routerLink]="['/galerie', album.alias]"
+            class="album-card"
+            [attr.aria-label]="'Album ' + album.title + ' öffnen'"
+          >
+            <div class="album-cover">
+              <div class="album-cover-bg">
+                <app-album-cover
+                  [imageUrl]="album.coverUrl"
+                  [imageAlt]="'Cover ' + album.title"
+                />
+              </div>
+              <div class="album-cover-overlay">
+                <span class="album-cover-icon" aria-hidden="true">▶</span>
+              </div>
+              <div class="album-teal-accent"></div>
+            </div>
+            <div class="album-info">
+              <div class="album-title">{{ album.title }}</div>
+              <div class="album-meta">
+                <span>{{ album.dateShort }}</span>
+                <span>{{ album.imageCount }} Fotos</span>
+              </div>
+            </div>
+          </a>
+        }
+      </div>
+    }
+
+    @if (!loading() && totalPages() > 1) {
+      <nav class="pagination gallery-pagination" aria-label="Seitennavigation">
+        <button
+          type="button"
+          class="page-btn arrow"
+          (click)="prev()"
+          [disabled]="!canPrev()"
+          aria-label="Vorherige Seite"
+        >
+          <span aria-hidden="true">‹</span>
+        </button>
+        @for (token of paginationTokens(); track token.key) {
+          @if (token.kind === 'ellipsis') {
+            <span class="page-ellipsis" aria-hidden="true">…</span>
+          } @else {
+            <button
+              type="button"
+              class="page-btn"
+              [class.active]="currentPage() === token.value"
+              [attr.aria-current]="currentPage() === token.value ? 'page' : null"
+              [attr.aria-label]="'Seite ' + token.value"
+              (click)="goToPage(token.value)"
+            >{{ token.value }}</button>
+          }
+        }
+        <button
+          type="button"
+          class="page-btn arrow"
+          (click)="next()"
+          [disabled]="!canNext()"
+          aria-label="Nächste Seite"
+        >
+          <span aria-hidden="true">›</span>
+        </button>
+      </nav>
+    }
+  </div>
+</main>

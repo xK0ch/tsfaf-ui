@@ -1,0 +1,54 @@
+# Angular-SPA-Setup auf IONOS.
+#
+# Der Angular-Router laeuft mit Path-Routing (PathLocationStrategy, Default).
+# Damit Direkt-Aufrufe wie /kurse, /galerie/<alias> oder /neuigkeiten/<slug>
+# nicht in einem Server-404 enden, leitet mod_rewrite alle Anfragen, die
+# keine echte Datei oder Ordner treffen, auf index.html um. Angular nimmt
+# dann den Pfad und routet clientseitig.
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # ── Legacy-Redirects fuer alte Joomla-URLs ────────────────────────
+  # Damit alte Google-Treffer und Bookmarks nicht auf der Startseite
+  # landen, sondern auf der inhaltlich passenden neuen Route. Reihen-
+  # folge: spezifischer vor allgemeiner.
+
+  # Joomla SEF mit .html-Suffix: /kurse.html -> /kurse
+  RewriteCond %{REQUEST_URI} ^/([^/]+)\.html$
+  RewriteRule ^([^/]+)\.html$ /$1 [R=301,L]
+
+  # JoomGallery-Komponente -> /galerie
+  RewriteRule ^component/joomgallery(/.*)?$ /galerie [R=301,L]
+
+  # K2/Content-Komponente -> Startseite (besseres Mapping fehlt)
+  RewriteRule ^component/(content|k2)(/.*)?$ / [R=301,L]
+
+  # index.php mit Query (Non-SEF) -> Startseite
+  RewriteCond %{QUERY_STRING} option=com_
+  RewriteRule ^index\.php$ /? [R=301,L]
+
+  # ── Angular-SPA-Fallback ─────────────────────────────────────────
+  # Echte Dateien (z.B. /favicon.ico, /robots.txt, /assets/foo.png)
+  # und echte Ordner werden direkt ausgeliefert. Alles andere geht
+  # auf index.html, damit der Angular-Router clientseitig uebernimmt.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# Caching: hashed JS/CSS-Files lange cachen, index.html nie cachen.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|woff2?|png|jpe?g|svg|ico)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "index\.html$">
+    Header set Cache-Control "no-store, no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+# Kompression
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript application/json image/svg+xml
+</IfModule>

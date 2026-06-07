@@ -1,0 +1,327 @@
+<!-- ─── PAGE HERO ─────────────────────────────────────────────────── -->
+<header class="page-hero">
+  <div class="page-hero-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 260" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="kontakt-grad-1" cx="8%" cy="55%" r="50%">
+          <stop offset="0%"   stop-color="#DC8C50" stop-opacity="0.08" />
+          <stop offset="100%" stop-color="#DC8C50" stop-opacity="0" />
+        </radialGradient>
+        <radialGradient id="kontakt-grad-2" cx="92%" cy="40%" r="48%">
+          <stop offset="0%"   stop-color="#64B4C8" stop-opacity="0.07" />
+          <stop offset="100%" stop-color="#64B4C8" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="1200" height="260" fill="white" />
+      <rect width="1200" height="260" fill="url(#kontakt-grad-1)" />
+      <rect width="1200" height="260" fill="url(#kontakt-grad-2)" />
+      <path
+        d="M -40 200 C 70 80, 260 30, 420 100 C 490 130, 495 185, 455 212 C 380 250, 175 225, 60 238 C -5 246, -40 232, -40 200 Z"
+        fill="#DC8C50" opacity="0.07"
+      />
+      <path
+        d="M 1060 15 C 1155 52, 1248 148, 1218 222 C 1198 260, 1143 268, 1098 246 C 1042 219, 1028 162, 1050 100 C 1063 52, 1018 -6, 1060 15 Z"
+        fill="#64B4C8" opacity="0.06"
+      />
+    </svg>
+  </div>
+  <div class="container page-hero-inner">
+    <p class="page-eyebrow">Wir freuen uns</p>
+    <h1 class="page-title">Kontakt</h1>
+    <p class="page-sub">
+      Fragen, Anmeldungen, Veranstaltungsanfragen: meld dich einfach bei uns.
+    </p>
+  </div>
+</header>
+
+<!-- ─── MAIN ──────────────────────────────────────────────────────── -->
+<section class="main-section">
+  <div class="container">
+    <div class="contact-grid">
+
+      <!-- ── Info column ── -->
+      <div class="info-col">
+
+        <!-- Phone -->
+        <article class="info-card">
+          <header class="info-card-header">
+            <span class="info-card-icon info-card-icon-warm" aria-hidden="true">📞</span>
+            <h2 class="info-card-title">Telefon</h2>
+          </header>
+          <div class="info-card-body">
+            <div class="phone-block">
+              <span class="phone-label">Ruf uns an</span>
+              <a href="tel:+4943211490" class="phone-number">04321 – 1 49 00</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Address -->
+        <article class="info-card">
+          <header class="info-card-header">
+            <span class="info-card-icon info-card-icon-cool" aria-hidden="true">📍</span>
+            <h2 class="info-card-title">Adresse und Kontakt</h2>
+          </header>
+          <div class="info-card-body">
+            <address class="address-block">
+              <strong>Tanzschule Family &amp; Friends</strong>
+              Georg-Fuhg-Straße 6<br>
+              24537 Neumünster<br>
+              <br>
+              <a href="mailto:info@tsfaf.de">info&#64;tsfaf.de</a><br>
+            </address>
+          </div>
+        </article>
+
+        <!-- Opening hours -->
+        <article class="info-card">
+          <header class="info-card-header">
+            <span class="info-card-icon info-card-icon-warm" aria-hidden="true">🕐</span>
+            <h2 class="info-card-title">Öffnungszeiten</h2>
+          </header>
+          <div class="info-card-body">
+            <table class="oz-table">
+              <tbody>
+                @for (row of openingHours; track row.day) {
+                  <tr>
+                    <td>{{ row.day }}</td>
+                    <td [class.oz-closed]="row.closed">{{ row.hours }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+            <p class="oz-note">
+              Während der Schulferien können die Zeiten abweichen — bitte vorab telefonisch oder per E-Mail anfragen.
+            </p>
+          </div>
+        </article>
+
+        <!-- Map -->
+        <div>
+          <p class="info-section-label">Auf der Karte</p>
+          @if (mapConsented()) {
+            <iframe
+              class="map-frame"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=9.9472%2C54.0641%2C9.9772%2C54.0801&amp;layer=mapnik&amp;marker=54.0720723%2C9.9622051"
+              title="Tanzschule Family und Friends auf der Karte"
+              loading="lazy"
+              allowfullscreen
+            ></iframe>
+          } @else {
+            <div class="map-placeholder">
+              <span class="map-placeholder-icon" aria-hidden="true">🗺</span>
+              <p class="map-placeholder-text">
+                Karte von OpenStreetMap<br>
+                <span class="map-placeholder-text-small">
+                  Klick zum Laden, OpenStreetMap-Daten werden übertragen
+                </span>
+              </p>
+              <button type="button" class="map-placeholder-btn" (click)="loadMap()">
+                Karte laden
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Anfahrt -->
+        <article class="info-card">
+          <header class="info-card-header">
+            <span class="info-card-icon info-card-icon-cool" aria-hidden="true">🚗</span>
+            <h2 class="info-card-title">Anfahrt</h2>
+          </header>
+          <div class="info-card-body">
+            <div class="anfahrt-block">
+              <h3>Mit dem Auto</h3>
+              <p>
+                Aus Richtung Stadt biegt man von der Roonstraße rechts in die
+                Georg-Fuhg-Straße ein. Aus Richtung Aukrug biegt man von der
+                Wasbeker Straße links in die Memellandstraße (LOG-In) und
+                dann zweimal rechts. Parkplätze sind ausreichend an der
+                Tanzschule vorhanden.
+              </p>
+              <h3>Mit öffentlichen Verkehrsmitteln</h3>
+              <p>
+                Bis ca. 20:00 Uhr ist die Tanzschule mit den Buslinien
+                <strong>9</strong> (Haltestelle „Berufsschule", werktags im
+                Stundentakt), <strong>4</strong> (Haltestelle „Legienstraße",
+                werktags im 20-Minutentakt) oder <strong>33</strong>
+                (Haltestelle „Meisenweg", werktags im 40-Minutentakt)
+                erreichbar. Abends fährt das stündlich verkehrende, aber
+                30 Minuten vorher zu bestellende Anruf-Sammeltaxi ab den
+                gleichen Haltestellen.
+              </p>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- ── Form column ── -->
+      <div class="form-col">
+        <div class="form-card">
+          @if (step() === 'success') {
+            <div class="success-state">
+              <div class="success-icon" aria-hidden="true">✓</div>
+              <h2 class="success-title">Danke!</h2>
+              <p class="success-sub">
+                Wir haben deine Nachricht erhalten und melden uns bald bei dir.
+              </p>
+              <button type="button" class="btn btn-outline-secondary btn-sm" (click)="resetForm()">
+                Neue Nachricht schreiben
+              </button>
+            </div>
+          } @else if (step() === 'error') {
+            <div class="success-state error-state">
+              <div class="success-icon" aria-hidden="true">!</div>
+              <h2 class="success-title">Da ist etwas schief gegangen</h2>
+              <p class="success-sub">
+                Wir konnten deine Nachricht gerade nicht versenden.
+                Bitte probier es in einem Moment noch einmal — oder ruf uns
+                direkt an unter <strong>04321 – 1 49 00</strong>.
+              </p>
+              <button type="button" class="btn btn-outline-secondary btn-sm" (click)="backToForm()">
+                Erneut versuchen
+              </button>
+            </div>
+          } @else {
+            <h2 class="form-title">Schreib uns</h2>
+            <p class="form-sub">Wir antworten innerhalb von 1 bis 2 Werktagen.</p>
+
+            <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+              <!-- Honeypot, hidden from real users -->
+              <input
+                #honeypot
+                type="text"
+                name="website"
+                class="honeypot"
+                tabindex="-1"
+                autocomplete="off"
+                aria-hidden="true"
+              />
+
+              <div class="form-row">
+                <div class="field field-block">
+                  <label for="kf-name" class="field-label">
+                    Name <span class="required" aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    id="kf-name"
+                    type="text"
+                    class="kontakt-input"
+                    formControlName="name"
+                    placeholder="Maria Musterfrau"
+                    autocomplete="name"
+                  />
+                  @if (form.controls.name.touched && form.controls.name.invalid) {
+                    <span class="field-error">Bitte gib deinen Namen ein.</span>
+                  }
+                </div>
+                <div class="field field-block">
+                  <label for="kf-phone" class="field-label">
+                    Telefon <span class="field-optional">(optional)</span>
+                  </label>
+                  <input
+                    id="kf-phone"
+                    type="tel"
+                    class="kontakt-input"
+                    formControlName="phone"
+                    placeholder="04321 – 1 49 00"
+                    autocomplete="tel"
+                  />
+                </div>
+              </div>
+
+              <div class="field field-block">
+                <label for="kf-email" class="field-label">
+                  E-Mail <span class="required" aria-hidden="true">*</span>
+                </label>
+                <input
+                  id="kf-email"
+                  type="email"
+                  class="kontakt-input"
+                  formControlName="email"
+                  placeholder="deine@email.de"
+                  autocomplete="email"
+                />
+                @if (form.controls.email.touched && form.controls.email.invalid) {
+                  <span class="field-error">
+                    @if (form.controls.email.hasError('required')) {
+                      Bitte gib deine E-Mail-Adresse ein.
+                    } @else {
+                      Bitte gib eine gültige E-Mail-Adresse ein.
+                    }
+                  </span>
+                }
+              </div>
+
+              <div class="field field-block">
+                <label for="kf-subject" class="field-label">
+                  Betreff <span class="required" aria-hidden="true">*</span>
+                </label>
+                <div class="kontakt-select-wrap">
+                  <select id="kf-subject" class="kontakt-input" formControlName="subject">
+                    <option value="">Bitte wählen ...</option>
+                    @for (opt of subjectOptions; track opt.value) {
+                      <option [value]="opt.value">{{ opt.label }}</option>
+                    }
+                  </select>
+                </div>
+                @if (form.controls.subject.touched && form.controls.subject.invalid) {
+                  <span class="field-error">Bitte wähle einen Betreff.</span>
+                }
+              </div>
+
+              <div class="field field-block">
+                <label for="kf-message" class="field-label">
+                  Nachricht <span class="required" aria-hidden="true">*</span>
+                </label>
+                <textarea
+                  id="kf-message"
+                  class="kontakt-input kontakt-textarea"
+                  formControlName="message"
+                  rows="4"
+                  placeholder="Was möchtest du uns mitteilen?"
+                ></textarea>
+                @if (form.controls.message.touched && form.controls.message.invalid) {
+                  <span class="field-error">Bitte schreib uns kurz, worum es geht.</span>
+                }
+              </div>
+
+              <label class="checkbox-label form-consent">
+                <input type="checkbox" formControlName="datenschutz" />
+                <span>
+                  Ich habe die <a routerLink="/datenschutz" target="_blank" rel="noopener">Datenschutzerklärung</a>
+                  gelesen und stimme der Verarbeitung meiner Daten zu.
+                  <span class="required" aria-hidden="true">*</span>
+                </span>
+              </label>
+              @if (form.controls.datenschutz.touched && form.controls.datenschutz.invalid) {
+                <span class="field-error form-consent-error">Bitte stimme der Datenschutzerklärung zu.</span>
+              }
+
+              <div class="form-actions">
+                <button
+                  type="submit"
+                  class="btn btn-primary btn-lg form-actions-submit"
+                  [disabled]="step() === 'loading' || form.invalid"
+                >
+                  @if (step() === 'loading') {
+                    <span class="form-spinner" aria-hidden="true"></span>
+                    Wird gesendet ...
+                  } @else {
+                    Nachricht senden
+                  }
+                </button>
+                <p class="form-actions-hint">
+                  Lieber telefonisch?
+                  <a href="tel:+4943211490" class="form-actions-phone">04321 – 1 49 00</a>
+                </p>
+              </div>
+            </form>
+          }
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

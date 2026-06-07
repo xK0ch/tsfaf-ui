@@ -1,0 +1,411 @@
+:host {
+  display: block;
+  padding-top: 72px;
+}
+
+/* ─── INFOTEXT BANNER ────────────────────────────────────────────── */
+/* Wird angezeigt wenn die aktive Kategorie / Tab einen konfigurierten
+   Hinweistext aus cotas/config/<env>/config.json -> infotexts hat. */
+.infotext-banner {
+  background: #FBF0E5;
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  padding: var(--space-16) var(--space-20);
+  margin-bottom: var(--space-24);
+  color: var(--color-text);
+  font-size: var(--text-small);
+  line-height: 1.55;
+}
+
+.infotext-banner p { margin: 0 0 var(--space-8); }
+.infotext-banner p:last-child { margin-bottom: 0; }
+.infotext-banner strong { color: var(--color-primary-deep); }
+
+/* ─── FILTER AREA ───────────────────────────────────────────────── */
+.filter-area {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Sticky nur auf Desktop. Auf Mobile scrollt der Filter mit dem Content
+   weg, weil bei kleiner Hoehe sticky den ohnehin knappen Viewport halbiert. */
+@media (min-width: 900px) {
+  .filter-area {
+    position: sticky;
+    top: 72px;
+    z-index: 50;
+  }
+}
+
+.zg-tabs {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.zg-tabs-inner {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.zg-tabs-inner::-webkit-scrollbar {
+  display: none;
+}
+
+.zg-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: 14px var(--space-20);
+  font-family: inherit;
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  border: none;
+  background: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.zg-tab:hover {
+  color: var(--color-text);
+}
+
+.zg-tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.zg-tab-icon {
+  font-size: 16px;
+}
+
+.zg-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+}
+
+.zg-tab.active .zg-tab-count {
+  background: rgba(220, 140, 80, .15);
+  color: var(--color-primary);
+}
+
+.cat-chips {
+  padding: var(--space-12) 0;
+}
+
+.cat-chips-inner {
+  display: flex;
+  gap: var(--space-8);
+  flex-wrap: wrap;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: var(--radius-xl);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  border: 1.5px solid var(--color-border);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.chip:hover {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary-deep);
+}
+
+.chip.active {
+  background: var(--color-secondary);
+  color: #fff;
+  border-color: var(--color-secondary);
+}
+
+/* ─── MAIN CONTENT ──────────────────────────────────────────────── */
+.page-content {
+  padding: 48px 0 96px;
+}
+
+.results-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-24);
+  flex-wrap: wrap;
+  gap: var(--space-12);
+}
+
+.results-count {
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+}
+
+.results-count strong {
+  color: var(--color-text);
+}
+
+.results-count em {
+  font-style: italic;
+  color: var(--color-text);
+}
+
+/* ─── COURSE GRID ───────────────────────────────────────────────── */
+/* Eine Karte pro KATEGORIE. Jede Karte enthaelt mehrere Termin-Zeilen.
+   Cards sind dadurch hoeher und brauchen breiteren Container. */
+.course-grid {
+  display: grid;
+  gap: var(--space-20);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 800px) {
+  .course-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.course-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition:
+    box-shadow var(--transition-base),
+    transform var(--transition-base);
+}
+
+.course-card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-3px);
+}
+
+.course-card-accent {
+  height: 4px;
+  flex-shrink: 0;
+}
+
+.course-card-body {
+  padding: 20px 20px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.course-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-12);
+}
+
+.course-name {
+  flex: 1;
+  font-size: var(--text-h3);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.course-desc {
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+  line-height: 1.55;
+  /* pre-wrap erhaelt Zeilenumbrueche aus dem info_text — die
+     Beschreibungen sind oft mehrere Absaetze lang. */
+  white-space: pre-wrap;
+}
+
+.course-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.course-meta-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+}
+
+.meta-icon {
+  font-size: 13px;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+  opacity: .7;
+}
+
+/* ─── PRO-KATEGORIE INFOTEXT ─────────────────────────────────────── */
+.course-infotext {
+  background: #FBF0E5;
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  padding: var(--space-12) var(--space-16);
+  font-size: var(--text-small);
+  color: var(--color-text);
+  line-height: 1.55;
+}
+.course-infotext p { margin: 0 0 var(--space-4); }
+.course-infotext p:last-child { margin-bottom: 0; }
+.course-infotext strong { color: var(--color-primary-deep); }
+
+/* ─── TERMINE-LISTE INNERHALB EINER KARTE ──────────────────────── */
+.termine-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.termin-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: var(--space-16);
+  padding: var(--space-12) 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.termin-row:last-child { border-bottom: 0; }
+.termin-row:hover     { background: var(--color-bg); }
+
+.termin-when {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.termin-when strong {
+  font-size: var(--text-small);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.termin-time,
+.termin-instructor {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.termin-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.termin-price {
+  font-weight: 700;
+  font-size: var(--text-small);
+}
+
+.termin-weeks {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+/* "Ausgebucht"-Tag pro Termin. */
+.termin-seats {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.termin-seats-full {
+  color: var(--color-danger);
+}
+
+.termin-action {
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .termin-row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'when meta'
+      'action action';
+    gap: var(--space-8);
+    padding: var(--space-12);
+  }
+  .termin-when   { grid-area: when; }
+  .termin-meta   { grid-area: meta; }
+  .termin-action { grid-area: action; justify-self: stretch; }
+  .termin-action > * { width: 100%; }
+}
+
+/* ─── AVAILABILITY BAR ──────────────────────────────────────────── */
+.avail-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.avail-bar-track {
+  height: 4px;
+  background: var(--color-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.avail-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width .4s ease-out;
+}
+
+.avail-bar-label {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+/* ─── EMPTY STATE ───────────────────────────────────────────────── */
+.state-box {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: 64px var(--space-32);
+  text-align: center;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.state-icon {
+  font-size: 40px;
+  opacity: .25;
+}
+
+.state-title {
+  font-size: var(--text-h3);
+  font-weight: 700;
+}
+
+.state-sub {
+  font-size: var(--text-body);
+  color: var(--color-text-muted);
+  max-width: 380px;
+  line-height: 1.6;
+}

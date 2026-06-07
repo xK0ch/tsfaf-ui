@@ -1,0 +1,86 @@
+<a class="skip-link" href="#main-content">Zum Inhalt springen</a>
+
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a routerLink="/" class="site-logo" aria-label="Zur Startseite">
+      <img
+        ngSrc="/logo.png"
+        width="36"
+        height="36"
+        priority
+        alt=""
+        class="site-logo-img"
+      />
+      <span class="site-brand">Family &amp;<br><em>Friends</em></span>
+    </a>
+
+    <nav class="site-nav" aria-label="Hauptnavigation">
+      @for (item of navItems; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          class="site-nav-link"
+        >{{ item.label }}</a>
+      }
+    </nav>
+
+    <a routerLink="/kurse" class="btn btn-primary btn-sm site-cta">Kurs finden</a>
+
+    <button
+      type="button"
+      class="site-hamburger"
+      [attr.aria-expanded]="drawerOpen()"
+      aria-controls="mobile-drawer"
+      aria-label="Menü öffnen"
+      (click)="toggleDrawer()"
+    >
+      <span aria-hidden="true">☰</span>
+    </button>
+  </div>
+</header>
+
+<div
+  id="mobile-drawer"
+  class="mobile-drawer"
+  [class.open]="drawerOpen()"
+  [attr.aria-hidden]="!drawerOpen()"
+>
+  <button
+    type="button"
+    class="mobile-backdrop"
+    aria-label="Menü schließen"
+    (click)="closeDrawer()"
+  ></button>
+
+  <div class="mobile-panel" role="dialog" aria-modal="true" aria-label="Navigation">
+    <div class="mobile-panel-head">
+      <a routerLink="/" class="site-logo" aria-label="Zur Startseite" (click)="closeDrawer()">
+        <img ngSrc="/logo.png" width="32" height="32" alt="" class="site-logo-img" />
+        <span class="site-brand">Family &amp;<br><em>Friends</em></span>
+      </a>
+      <button
+        type="button"
+        class="mobile-close"
+        aria-label="Menü schließen"
+        (click)="closeDrawer()"
+      >
+        <span aria-hidden="true">✕</span>
+      </button>
+    </div>
+    <nav class="mobile-nav" aria-label="Mobile Navigation">
+      @for (item of navItems; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          class="mobile-nav-link"
+        >
+          <span>{{ item.label }}</span>
+          <span class="mobile-nav-arrow" aria-hidden="true">→</span>
+        </a>
+      }
+    </nav>
+    <a routerLink="/kurse" class="btn btn-primary btn-lg mobile-cta">
+      Kurs finden
+    </a>
+  </div>
+</div>

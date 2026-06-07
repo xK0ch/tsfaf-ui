@@ -1,0 +1,217 @@
+<!-- ─── PAGE HERO ─────────────────────────────────────────────────── -->
+<header class="page-hero">
+  <div class="page-hero-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 260" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="kurse-grad-1" cx="15%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#DC8C50" stop-opacity="0.08" />
+          <stop offset="100%" stop-color="#DC8C50" stop-opacity="0" />
+        </radialGradient>
+        <radialGradient id="kurse-grad-2" cx="90%" cy="40%" r="45%">
+          <stop offset="0%"   stop-color="#64B4C8" stop-opacity="0.07" />
+          <stop offset="100%" stop-color="#64B4C8" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="1200" height="260" fill="white" />
+      <rect width="1200" height="260" fill="url(#kurse-grad-1)" />
+      <rect width="1200" height="260" fill="url(#kurse-grad-2)" />
+      <path
+        d="M -30 190 C 80 70, 260 30, 400 100 C 450 124, 455 175, 415 200 C 345 238, 165 215, 55 228 C -10 236, -30 225, -30 190 Z"
+        fill="#DC8C50" opacity="0.07"
+      />
+      <path
+        d="M 1050 20 C 1140 55, 1220 140, 1195 210 C 1178 248, 1130 255, 1090 235 C 1040 210, 1025 158, 1045 100 C 1055 55, 1010 0, 1050 20 Z"
+        fill="#64B4C8" opacity="0.06"
+      />
+    </svg>
+  </div>
+  <div class="container page-hero-inner">
+    <p class="page-eyebrow">Kursangebot</p>
+    <h1 class="page-title">Kurse</h1>
+    <p class="page-sub">
+      Wähle deine Zielgruppe und finde den passenden Kurs: von den Minis bis zu den Senioren.
+    </p>
+  </div>
+</header>
+
+<!-- ─── LOADING / EMPTY-STATES ────────────────────────────────────── -->
+@if (catalog() === null) {
+  <section class="page-content">
+    <div class="container">
+      <div class="state-box">
+        <div class="state-icon" aria-hidden="true">⏳</div>
+        <h2 class="state-title">Kurse werden geladen</h2>
+        <p class="state-sub">Einen Moment, wir holen die aktuellen Kursdaten.</p>
+      </div>
+    </div>
+  </section>
+} @else if (targetGroups().length === 0) {
+  <section class="page-content">
+    <div class="container">
+      <div class="state-box">
+        <div class="state-icon" aria-hidden="true">🎭</div>
+        <h2 class="state-title">Aktuell keine Kurse</h2>
+        <p class="state-sub">
+          Wir konnten keine Kurse vom Server abrufen. Schau bald wieder vorbei oder ruf uns an:
+          <strong>{{ phoneNumber() }}</strong>
+        </p>
+      </div>
+    </div>
+  </section>
+} @else {
+  <!-- ─── FILTER AREA ───────────────────────────────────────────────── -->
+  <div class="filter-area">
+    <div class="zg-tabs">
+      <div class="container">
+        <div class="zg-tabs-inner" role="tablist" aria-label="Zielgruppe wählen">
+          @for (g of targetGroups(); track g.id) {
+            <button
+              type="button"
+              role="tab"
+              class="zg-tab"
+              [class.active]="currentGroupId() === g.id"
+              [attr.aria-selected]="currentGroupId() === g.id"
+              (click)="selectGroup(g.id)"
+            >
+              {{ g.bez }}
+              <span class="zg-tab-count">{{ groupCounts()[g.id] || 0 }}</span>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    @if (categories().length > 1) {
+      <div class="cat-chips">
+        <div class="container">
+          <div class="cat-chips-inner">
+            <button
+              type="button"
+              class="chip"
+              [class.active]="allCategoriesActive()"
+              [attr.aria-pressed]="allCategoriesActive()"
+              (click)="resetCategory()"
+            >Alle</button>
+            @for (cat of categories(); track cat.id) {
+              <button
+                type="button"
+                class="chip"
+                [class.active]="activeCategoryIds().has(cat.id)"
+                [attr.aria-pressed]="activeCategoryIds().has(cat.id)"
+                (click)="toggleCategory(cat.id)"
+              >{{ cat.bez }}</button>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- ─── MAIN CONTENT ──────────────────────────────────────────────── -->
+  <section class="page-content">
+    <div class="container">
+      <div class="results-meta">
+        <p class="results-count">
+          <strong>{{ filteredCategoryCount() }}</strong>
+          @if (filteredCategoryCount() === 1) { Kurs } @else { Kurse }
+          mit
+          <strong>{{ filteredTermineCount() }}</strong>
+          @if (filteredTermineCount() === 1) { Termin } @else { Terminen }
+          @if (activeCategoryLabel()) {
+            in <em>{{ activeCategoryLabel() }}</em>
+          }
+        </p>
+      </div>
+
+      @if (filteredCategoryCount() === 0) {
+        <div class="state-box">
+          <div class="state-icon" aria-hidden="true">🎭</div>
+          <h2 class="state-title">Aktuell keine Kurse</h2>
+          <p class="state-sub">
+            In dieser Auswahl gibt es gerade keine Kurse. Schau bald wieder vorbei oder ruf uns an:
+            <strong>{{ phoneNumber() }}</strong>
+          </p>
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="resetCategory()">
+            Alle Kategorien anzeigen
+          </button>
+        </div>
+      } @else {
+        <div class="course-grid">
+          @for (cat of filteredCategories(); track cat.id) {
+            <article class="course-card">
+              <div class="course-card-body">
+                <div class="course-card-head">
+                  <h3 class="course-name">{{ cat.bez }}</h3>
+                  @if (categoryFull(cat)) {
+                    <span class="badge badge-full">
+                      <span class="badge-dot" aria-hidden="true"></span>
+                      Ausgebucht
+                    </span>
+                  }
+                </div>
+
+                @if (descriptionFor(cat); as desc) {
+                  <p class="course-desc">{{ desc }}</p>
+                }
+
+                @if (infotextForCategory(cat.id); as html) {
+                  <div class="course-infotext" [innerHTML]="html"></div>
+                }
+              </div>
+
+              <ul class="termine-list" aria-label="Termine">
+                @for (t of cat.classes; track t.id) {
+                  <li class="termin-row">
+                    <div class="termin-when">
+                      <strong>{{ t.tag }}, {{ t.tmpl_kurs_beginn }}</strong>
+                      <span class="termin-time">
+                        {{ startTime(t) }} – {{ endTime(t) }} Uhr
+                        @if (duration(t) > 0) { · {{ duration(t) }} Min. }
+                      </span>
+                      @if (t.kursleiter) {
+                        <span class="termin-instructor">{{ t.kursleiter }}</span>
+                      }
+                    </div>
+                    <div class="termin-meta">
+                      @if (priceNumber(t) > 0) {
+                        <span class="termin-price">{{ priceNumber(t) | number:'1.2-2' }} €</span>
+                      }
+                      @if (weeksLabel(t)) {
+                        <span class="termin-weeks">{{ weeksLabel(t) }}</span>
+                      }
+                      @if (isFull(t)) {
+                        <span class="termin-seats termin-seats-full">Ausgebucht</span>
+                      }
+                    </div>
+                    <div class="termin-action">
+                      @if (isFull(t)) {
+                        <button type="button" class="btn btn-primary btn-sm" disabled>
+                          Ausgebucht
+                        </button>
+                      } @else if (isOnlineRegistrationBlocked(t)) {
+                        <a
+                          class="btn btn-outline-secondary btn-sm"
+                          [href]="phoneHref()"
+                          [attr.aria-label]="'Telefonisch anmelden: ' + phoneNumber()"
+                        >
+                          📞 Anrufen
+                        </a>
+                      } @else {
+                        <a
+                          class="btn btn-primary btn-sm"
+                          [routerLink]="['/kurse/anmeldung', t.id]"
+                        >
+                          Anmelden
+                        </a>
+                      }
+                    </div>
+                  </li>
+                }
+              </ul>
+            </article>
+          }
+        </div>
+      }
+    </div>
+  </section>
+}

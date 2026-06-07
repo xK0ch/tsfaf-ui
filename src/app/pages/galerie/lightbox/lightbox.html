@@ -1,0 +1,50 @@
+@if (current(); as photo) {
+  <div
+    class="lightbox-backdrop"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Bildansicht"
+    (click)="onBackdropClick($event)"
+    (touchstart)="onTouchStart($event)"
+    (touchend)="onTouchEnd($event)"
+  >
+    <button
+      type="button"
+      class="lightbox-close"
+      (click)="close()"
+      aria-label="Schließen"
+    >✕</button>
+
+    <div class="lightbox-inner">
+      <button
+        type="button"
+        class="lightbox-nav prev"
+        (click)="prev()"
+        [disabled]="!canPrev()"
+        aria-label="Vorheriges Bild"
+      >‹</button>
+
+      <div class="lightbox-img-wrap" [attr.data-idx]="idx()">
+        <img
+          [src]="photo.original"
+          [alt]="photo.caption"
+          class="lightbox-img"
+          decoding="async"
+        />
+      </div>
+
+      <button
+        type="button"
+        class="lightbox-nav next"
+        (click)="next()"
+        [disabled]="!canNext()"
+        aria-label="Nächstes Bild"
+      >›</button>
+    </div>
+
+    <div class="lightbox-counter" aria-live="polite">
+      {{ idx() + 1 }} / {{ total() }}
+    </div>
+    <div class="lightbox-caption">{{ photo.caption }}</div>
+  </div>
+}

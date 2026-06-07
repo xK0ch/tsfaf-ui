@@ -1,0 +1,695 @@
+:host {
+  display: block;
+}
+
+/* ─── HERO ─────────────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+/*
+ * Hintergrund-Video: full-bleed, deckt den ganzen Hero-Bereich ab.
+ * object-fit: cover damit das Video ohne Verzerrung den Container
+ * fuellt; Ueberhang wird abgeschnitten (typisch wenn das Quell-
+ * Format nicht zum Viewport-Aspect passt). Background-Farbe als
+ * Fallback waehrend das Video noch laedt oder wenn es nicht
+ * abspielbar ist.
+ */
+.hero-video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--color-text);
+  pointer-events: none;
+}
+
+/*
+ * Dunkler Overlay-Gradient ueber dem Video damit Text + Buttons
+ * lesbar bleiben, egal welcher Frame gerade laeuft. Etwas dunkler
+ * als beim SVG-Hintergrund vorher, weil Videos i.d.R. hellere und
+ * texturierte Stellen haben.
+ */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    135deg,
+    rgba(42, 37, 32, .80) 0%,
+    rgba(42, 37, 32, .45) 60%,
+    rgba(42, 37, 32, .35) 100%
+  );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  padding: 120px 0 80px;
+}
+
+.hero-inner {
+  max-width: 700px;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: var(--text-small);
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .75);
+  margin-bottom: var(--space-24);
+}
+
+.hero-eyebrow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+.hero-title {
+  font-size: var(--text-display);
+  font-weight: 700;
+  line-height: 1.05;
+  color: #fff;
+  margin-bottom: var(--space-24);
+  text-wrap: pretty;
+}
+
+.hero-title em {
+  font-style: normal;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-sub {
+  font-size: var(--text-body-lg);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, .82);
+  margin-bottom: 40px;
+  max-width: 560px;
+  text-wrap: pretty;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+}
+
+.hero-scroll {
+  position: absolute;
+  bottom: var(--space-32);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-8);
+  color: rgba(255, 255, 255, .5);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  animation: scroll-bounce 2s infinite;
+}
+
+.hero-scroll-arrow {
+  font-size: 18px;
+}
+
+@keyframes scroll-bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(6px); }
+}
+
+@media (max-width: 600px) {
+  .hero-title { font-size: clamp(34px, 8vw, 48px); }
+  .hero-sub   { font-size: 16px; }
+  .hero-content { text-align: center; }
+  .hero-inner { max-width: 100%; }
+  .hero-actions { justify-content: center; }
+  .hero-eyebrow { justify-content: center; }
+}
+
+/* ─── ZIELGRUPPEN ──────────────────────────────────────────────── */
+.section-zielgruppen { background: var(--color-bg); }
+
+.zg-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-16);
+}
+
+@media (min-width: 900px) {
+  .zg-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-24);
+  }
+}
+
+.zg-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  min-height: 220px;
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  transition:
+    box-shadow var(--transition-base),
+    transform var(--transition-base),
+    outline-color var(--transition-fast);
+  /* Button-Reset, weil .zg-card seit der Detail-Panel-Erweiterung
+     ein <button> ist und nicht mehr ein <a>. Default-Browser-Styles
+     fuer button (background, border, font, text-align) wegnehmen. */
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
+}
+
+.zg-card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-4px);
+}
+
+.zg-card:hover .zg-arrow,
+.zg-card:focus-visible .zg-arrow {
+  transform: scale(1.15);
+}
+
+.zg-card:focus-visible {
+  outline-color: var(--color-primary);
+}
+
+/* Aktiver Zustand: oranger Akzent-Ring, damit der User sofort sieht
+   welche Card gerade unten im Detail-Panel angezeigt wird. */
+.zg-card.is-selected {
+  outline-color: var(--color-primary);
+  box-shadow: var(--shadow-hover);
+}
+
+.zg-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/*
+ * Photo full-bleed in der Card. NgOptimizedImage mit `fill` setzt
+ * position: absolute auf das <img> — wir muessen nur object-fit
+ * sicherstellen und eine sanfte Hover-Skalierung mitgeben.
+ */
+.zg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform var(--transition-base);
+}
+
+.zg-card:hover .zg-img {
+  transform: scale(1.04);
+}
+
+.zg-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  /* Stark genug, damit der weisse Titel + Beschreibung auf jedem
+     Foto lesbar bleibt (WCAG AA Kontrast). */
+  background: linear-gradient(
+    to top,
+    rgba(42, 37, 32, .78) 0%,
+    rgba(42, 37, 32, .45) 45%,
+    rgba(42, 37, 32, .18) 100%
+  );
+}
+
+.zg-content {
+  position: relative;
+  z-index: 2;
+  padding: var(--space-20) var(--space-24);
+}
+
+.zg-title {
+  font-size: var(--text-h3);
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: var(--space-4);
+}
+
+.zg-desc {
+  font-size: 13px;
+  color: rgba(255, 255, 255, .8);
+  margin-bottom: var(--space-8);
+  line-height: 1.4;
+}
+
+.zg-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .15);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  transition: transform var(--transition-base), background var(--transition-base);
+}
+
+/* ─── Zielgruppen-Detail-Panel ─────────────────────────────────── */
+/*
+ * Wird unter dem 4-Card-Grid eingeblendet, sobald der User eine Card
+ * anklickt. Zwei Spalten auf Desktop (Bild links, Text+CTA rechts),
+ * gestackt auf Mobile. Smooth Fade-in via Animation.
+ */
+.zg-detail {
+  position: relative;
+  margin-top: var(--space-32);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  animation: zg-detail-in var(--transition-base) ease-out;
+}
+
+@keyframes zg-detail-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.zg-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+@media (min-width: 700px) {
+  .zg-detail-grid {
+    grid-template-columns: 40% 60%;
+  }
+}
+
+.zg-detail-image {
+  position: relative;
+  min-height: 220px;
+  background: var(--color-bg);
+}
+
+@media (min-width: 700px) {
+  .zg-detail-image {
+    min-height: 100%;
+  }
+}
+
+.zg-detail-image img {
+  object-fit: cover;
+  object-position: center;
+}
+
+.zg-detail-body {
+  padding: var(--space-24) var(--space-24) var(--space-32);
+}
+
+@media (min-width: 700px) {
+  .zg-detail-body {
+    padding: var(--space-32) var(--space-32) var(--space-32);
+  }
+}
+
+.zg-detail-eyebrow {
+  font-size: var(--text-small);
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin: 0 0 var(--space-8);
+}
+
+.zg-detail-title {
+  font-size: var(--text-h3);
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0 0 var(--space-16);
+  color: var(--color-text);
+}
+
+.zg-detail-text {
+  font-size: var(--text-body);
+  line-height: 1.65;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-24);
+}
+
+.zg-detail-close {
+  position: absolute;
+  top: var(--space-12);
+  right: var(--space-12);
+  z-index: 3;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(255, 255, 255, .92);
+  color: var(--color-text);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.zg-detail-close:hover {
+  transform: scale(1.06);
+  background: #fff;
+}
+
+.zg-detail-close:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ─── EVENTS ───────────────────────────────────────────────────── */
+.section-events { background: var(--color-bg); }
+
+.events-status {
+  padding: var(--space-32) 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--text-body);
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.event-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-24);
+  display: flex;
+  gap: var(--space-20);
+  align-items: flex-start;
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.event-card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.event-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.event-title {
+  font-size: var(--text-h3);
+  font-weight: 700;
+  margin-bottom: var(--space-8);
+  line-height: 1.25;
+}
+
+.event-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8) var(--space-16);
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-12);
+}
+
+.event-excerpt {
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  margin-bottom: var(--space-12);
+}
+
+.event-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+}
+
+.event-price {
+  font-weight: 600;
+}
+
+.event-price-card {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-left: var(--space-8);
+  font-weight: 400;
+}
+
+/* ─── NEWS ─────────────────────────────────────────────────────── */
+.section-news { background: var(--color-surface); }
+
+.news-grid {
+  display: grid;
+  gap: var(--space-24);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 700px) {
+  .news-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.news-card {
+  background: var(--color-bg);
+  border-radius: var(--radius-lg);
+  padding: var(--space-24);
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  color: inherit;
+  transition:
+    box-shadow var(--transition-base),
+    transform var(--transition-base),
+    background var(--transition-base);
+}
+
+.news-card:hover {
+  background: var(--color-surface);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.news-card:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.news-date {
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+}
+
+.news-title {
+  font-size: var(--text-h3);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--color-text);
+}
+
+.news-excerpt {
+  font-size: var(--text-body);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  flex: 1;
+}
+
+.news-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--color-secondary);
+  transition: gap var(--transition-fast);
+}
+
+.news-link:hover {
+  gap: var(--space-8);
+}
+
+.news-status {
+  padding: var(--space-32) 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--text-body);
+}
+
+/* ─── KONTAKT-STRIP ────────────────────────────────────────────── */
+/*
+ * Alternierende Section-Hintergruende (creme/weiss) auf der Home:
+ *   Zielgruppen -> creme   (--color-bg)
+ *   News        -> weiss   (--color-surface)
+ *   Events      -> creme   (--color-bg)
+ *   Kontakt     -> weiss   (--color-surface)
+ */
+.section-kontakt-strip {
+  background: var(--color-surface);
+}
+
+.kontakt-grid {
+  display: grid;
+  gap: var(--space-48);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 800px) {
+  .kontakt-grid {
+    grid-template-columns: 1fr 1px 1fr;
+    align-items: start;
+  }
+}
+
+.kontakt-divider {
+  display: none;
+  background: var(--color-border);
+  width: 1px;
+  align-self: stretch;
+}
+
+@media (min-width: 800px) {
+  .kontakt-divider { display: block; }
+}
+
+.oz-title {
+  font-size: var(--text-h3);
+  font-weight: 700;
+  margin-bottom: var(--space-24);
+}
+
+.oz-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.oz-table tr {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.oz-table tr:last-child {
+  border-bottom: none;
+}
+
+.oz-table td {
+  padding: var(--space-12) 0;
+  font-size: var(--text-body);
+}
+
+.oz-table td:first-child {
+  color: var(--color-text-muted);
+  width: 50%;
+}
+
+.oz-table td:last-child {
+  font-weight: 600;
+  text-align: right;
+}
+
+.oz-closed {
+  color: var(--color-text-muted) !important;
+  font-weight: 400 !important;
+}
+
+.oz-note {
+  margin-top: var(--space-16);
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.kontakt-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+
+.kontakt-phone {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.kontakt-phone-label {
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.kontakt-phone-number {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1;
+  transition: color var(--transition-fast);
+}
+
+.kontakt-phone-number:hover {
+  color: var(--color-primary);
+}
+
+.kontakt-address {
+  font-style: normal;
+  font-size: var(--text-body);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.kontakt-address strong {
+  color: var(--color-text);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.kontakt-address a {
+  color: inherit;
+  transition: color var(--transition-fast);
+}
+
+.kontakt-address a:hover {
+  color: var(--color-primary);
+}
+

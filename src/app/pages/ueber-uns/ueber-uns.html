@@ -1,0 +1,326 @@
+<!-- ─── PAGE HERO ─────────────────────────────────────────────────── -->
+<header class="page-hero">
+  <div class="page-hero-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 320" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="uu-grad-1" cx="5%" cy="60%" r="55%">
+          <stop offset="0%"   stop-color="#DC8C50" stop-opacity="0.08" />
+          <stop offset="100%" stop-color="#DC8C50" stop-opacity="0" />
+        </radialGradient>
+        <radialGradient id="uu-grad-2" cx="95%" cy="35%" r="50%">
+          <stop offset="0%"   stop-color="#64B4C8" stop-opacity="0.07" />
+          <stop offset="100%" stop-color="#64B4C8" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="1200" height="320" fill="white" />
+      <rect width="1200" height="320" fill="url(#uu-grad-1)" />
+      <rect width="1200" height="320" fill="url(#uu-grad-2)" />
+      <path
+        d="M -50 240 C 60 100, 280 40, 440 120 C 510 155, 520 215, 475 245 C 395 285, 190 258, 70 272 C 0 280, -50 270, -50 240 Z"
+        fill="#DC8C50" opacity="0.07"
+      />
+      <path
+        d="M 1060 10 C 1160 55, 1260 155, 1225 240 C 1202 282, 1145 292, 1098 268 C 1040 238, 1025 178, 1048 112 C 1062 60, 1015 -14, 1060 10 Z"
+        fill="#64B4C8" opacity="0.06"
+      />
+    </svg>
+  </div>
+  <div class="container page-hero-inner">
+    <p class="page-eyebrow">Tanzschule</p>
+    <h1 class="page-title">Über uns</h1>
+    <p class="page-sub">
+      Herzlich willkommen bei Family &amp; Friends, einer Tanzschule, die mehr ist als nur Tanzen.
+    </p>
+
+    <svg class="brush-divider" width="200" height="20" viewBox="0 0 200 20" aria-hidden="true">
+      <path
+        d="M 4 14 C 40 4, 100 3, 150 10 C 172 13, 188 17, 196 14"
+        stroke="#DC8C50" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.5"
+      />
+      <path
+        d="M 4 10 C 50 18, 110 19, 165 10 C 180 7, 192 9, 196 12"
+        stroke="#64B4C8" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.4"
+      />
+    </svg>
+
+    <div class="stats-row">
+      @for (s of heroStats; track s.label) {
+        <div class="stat-box">
+          <div class="stat-number">{{ s.value }}</div>
+          <div class="stat-label">{{ s.label }}</div>
+        </div>
+      }
+    </div>
+  </div>
+</header>
+
+<!-- ─── INTRO SPLIT ───────────────────────────────────────────────── -->
+<section class="section section-alt" id="intro">
+  <div class="container">
+    <div class="intro-grid">
+      <div class="intro-text">
+        <p class="section-eyebrow">Wer wir sind</p>
+        <h2 class="section-title">Tanz verbindet, seit über 10 Jahren</h2>
+        <div class="section-body">
+          <p>
+            Willkommen bei Family &amp; Friends in Neumünster, wo der Name Programm ist!
+          </p>
+          <p>
+            Seit über 10 Jahren ist Tanzen für uns viel mehr als nur Schritte lernen, es ist pure
+            Lebensfreude, die verbindet. Es ist ein Ort, an dem aus Kursteilnehmern Freunde werden
+            und die ganze Familie ein Stück Zuhause findet.
+          </p>
+          <p>
+            Als ADTV-zertifizierte Tanzschule brennen wir für das, was wir tun. Unser gesamtes Team,
+            von den Tanzlehrenden bis zum Service, ist mit vollem Herzen und jeder Menge Spaß dabei.
+            Wir unterrichten nicht nur, wir teilen unsere Begeisterung jeden Tag mit dir.
+          </p>
+          <p>
+            Bei uns steht der Spaß am Tanzen im Mittelpunkt, und zwar in jeder Lebensphase. Von A wie
+            Agilando bis Z wie Zumba, von den spielerischen Schritten der Kleinsten über
+            energiegeladenen Hip-Hop bis zum Paartanz ist für jeden das Richtige dabei.
+          </p>
+          <p>
+            Ob vor oder nach dem Kurs, unser gemütliches Foyer lädt dazu ein, es sich gemütlich zu
+            machen, zu quatschen und neue Leute kennenzulernen.
+          </p>
+          <p>
+            Komm vorbei und werde Teil unserer Family &amp; Friends! Wir freuen uns auf dich.
+          </p>
+        </div>
+        <div class="intro-actions">
+          <a routerLink="/kurse" class="btn btn-primary">Kursangebot entdecken</a>
+          <a routerLink="/kontakt" class="btn btn-outline-secondary">Kontakt aufnehmen</a>
+        </div>
+      </div>
+
+      <div class="intro-visual">
+        <div class="intro-visual-bg" aria-hidden="true"></div>
+        <div class="intro-visual-card">
+          <p class="intro-visual-eyebrow">Unsere Partner</p>
+          <ul class="partner-grid">
+            @for (p of partners; track p.id) {
+              <li class="partner-item">
+                <a
+                  [href]="p.url"
+                  class="partner-link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  [attr.aria-label]="p.name"
+                >
+                  <img
+                    class="partner-logo"
+                    [src]="p.imageUrl"
+                    [alt]="p.imageAlt"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TEAM ──────────────────────────────────────────────────────── -->
+<section class="section" id="team">
+  <div class="container">
+    <div class="team-header">
+      <p class="section-eyebrow">Das Team</p>
+      <h2 class="section-title">Wer dich bei uns begrüßt</h2>
+      <p class="section-body">
+        Tanzlehrerinnen, Tanzlehrer und Service-Team — alle mit Herz, Erfahrung und ganz viel Energie.
+      </p>
+    </div>
+    @if (teamLoading()) {
+      <p class="team-status" role="status">Team wird geladen…</p>
+    } @else if (teamEmpty()) {
+      <p class="team-status">Aktuell sind keine Team-Mitglieder hinterlegt.</p>
+    } @else {
+      <div class="team-grid">
+        @for (member of team(); track member.id) {
+          <app-team-card [member]="member" />
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<!-- ─── EINBLICKE (Tanzschulfilm) ─────────────────────────────────── -->
+<section class="section section-video" id="einblicke">
+  <div class="container">
+    <p class="section-eyebrow">Tanzschulfilm</p>
+    <h2 class="section-title">Einblicke in unsere Tanzschule</h2>
+    <p class="section-body video-intro">
+      In knapp 3:30 Minuten ein Gefühl dafür bekommen, was uns ausmacht: Kurse, Säle, Stimmung.
+    </p>
+
+    <div class="video-frame">
+      @if (videoLoaded()) {
+        <video
+          class="video-player"
+          [src]="videoUrl"
+          controls
+          autoplay
+          playsinline
+          preload="metadata"
+          aria-label="Tanzschulfilm der Tanzschule Family und Friends"
+        ></video>
+      } @else {
+        <button
+          type="button"
+          class="video-poster"
+          (click)="loadVideo()"
+          aria-label="Tanzschulfilm abspielen"
+        >
+          <div class="video-poster-bg" aria-hidden="true">
+            <svg viewBox="0 0 1200 675" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <linearGradient id="video-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%"   stop-color="#2A2520" />
+                  <stop offset="100%" stop-color="#3A332C" />
+                </linearGradient>
+              </defs>
+              <rect width="1200" height="675" fill="url(#video-grad)" />
+              <path
+                d="M -40 480 C 240 200, 720 140, 1010 280 C 1130 340, 1170 460, 1090 540 C 940 690, 540 580, 240 600 C 60 612, -40 580, -40 480 Z"
+                fill="#DC8C50" opacity="0.18"
+              />
+              <path
+                d="M 760 -30 C 1010 30, 1280 220, 1230 460 C 1198 560, 1085 590, 990 540 C 870 478, 830 360, 820 240 C 810 130, 720 -50, 760 -30 Z"
+                fill="#64B4C8" opacity="0.16"
+              />
+            </svg>
+          </div>
+          <span class="video-poster-overlay" aria-hidden="true"></span>
+          <span class="video-poster-content">
+            <span class="video-play" aria-hidden="true">
+              <svg viewBox="0 0 80 80" width="80" height="80">
+                <circle cx="40" cy="40" r="38" fill="rgba(255,255,255,.96)" />
+                <path d="M 32 24 L 32 56 L 58 40 Z" fill="#2A2520" />
+              </svg>
+            </span>
+            <span class="video-poster-meta">
+              <span class="video-poster-title">Tanzschulfilm</span>
+              <span class="video-poster-sub">ca. 3:30 Min · Klick zum Abspielen</span>
+            </span>
+          </span>
+        </button>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ─── RÄUMLICHKEITEN ────────────────────────────────────────────── -->
+<section class="section section-alt" id="raeumlichkeiten">
+  <div class="container">
+    <p class="section-eyebrow">Räumlichkeiten</p>
+    <h2 class="section-title">Unsere Tanzflächen</h2>
+    <p class="section-body rooms-intro">
+      Drei Säle mit insgesamt 700 m² Tanzfläche und ein Foyer mit Bar, alles modern ausgestattet.
+    </p>
+    <div class="rooms-strip">
+      @for (room of rooms; track room.id; let i = $index) {
+        <button
+          type="button"
+          class="room-card"
+          (click)="openRoomLightbox(i)"
+          [attr.aria-label]="'Foto von ' + room.name + ' in voller Größe öffnen'"
+        >
+          <div class="room-card-bg">
+            <img
+              [ngSrc]="room.imageUrl"
+              [alt]="room.imageAlt"
+              fill
+              priority="false"
+              sizes="(max-width: 700px) 80vw, 25vw"
+              class="room-img"
+            />
+          </div>
+          <div class="room-card-overlay" aria-hidden="true"></div>
+          <span class="room-card-zoom" aria-hidden="true">⛶</span>
+          <div class="room-card-content">
+            <h3 class="room-name">{{ room.name }}</h3>
+            <p class="room-detail">{{ room.detail }}</p>
+          </div>
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (lightboxOpen()) {
+    <app-lightbox
+      [photos]="roomPhotos()"
+      [startIdx]="lightboxIdx()"
+      (closed)="closeRoomLightbox()"
+    />
+  }
+</section>
+
+<!-- ─── ADTV STRIP ────────────────────────────────────────────────── -->
+<section class="adtv-strip">
+  <div class="adtv-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 200" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+      <path
+        d="M -40 160 C 100 40, 380 10, 580 80 C 680 117, 690 170, 640 195 C 540 235, 250 200, 80 215 C -10 222, -40 200, -40 160 Z"
+        fill="#DC8C50" opacity="0.12"
+      />
+      <path
+        d="M 900 -10 C 1050 20, 1280 100, 1255 180 C 1237 220, 1170 228, 1118 205 C 1050 176, 1035 122, 1060 62 C 1076 10, 1010 -25, 900 -10 Z"
+        fill="#64B4C8" opacity="0.10"
+      />
+    </svg>
+  </div>
+  <div class="container adtv-inner">
+    <div class="adtv-text">
+      <h2 class="adtv-title">ADTV-zertifiziert</h2>
+      <p class="adtv-sub">
+        Als Mitglied im Allgemeinen Deutschen Tanzlehrerverband (ADTV) stehen wir für
+        geprüfte Ausbildungsqualität, verbindliche Berufsethik und ein bundesweites Netzwerk
+        von über 1.200 Tanzschulen.
+      </p>
+    </div>
+    <div class="adtv-badges">
+      <div class="adtv-badge">
+        <span class="adtv-badge-icon" aria-hidden="true">🏅</span>
+        <div>
+          <p class="adtv-badge-label">Mitglied</p>
+          <p class="adtv-badge-val">ADTV</p>
+        </div>
+      </div>
+      <div class="adtv-badge">
+        <span class="adtv-badge-icon" aria-hidden="true">📜</span>
+        <div>
+          <p class="adtv-badge-label">Qualität</p>
+          <p class="adtv-badge-val">Geprüft</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── VALUES ────────────────────────────────────────────────────── -->
+<section class="section" id="werte">
+  <div class="container">
+    <div class="section-header values-header">
+      <p class="section-eyebrow">Was uns ausmacht</p>
+      <h2 class="section-title">Unsere Werte</h2>
+    </div>
+    <div class="values-grid">
+      @for (v of values; track v.label) {
+        <article class="value-card">
+          <div
+            class="value-icon-wrap"
+            [style.background]="v.orange ? '#FBF0E5' : '#E8F4F8'"
+            aria-hidden="true"
+          >{{ v.icon }}</div>
+          <h3 class="value-title">{{ v.label }}</h3>
+          <p class="value-desc">{{ v.desc }}</p>
+        </article>
+      }
+    </div>
+  </div>
+</section>

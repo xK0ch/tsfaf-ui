@@ -1,0 +1,74 @@
+<!-- ─── PAGE HERO ─────────────────────────────────────────────────── -->
+<header class="page-hero">
+  <div class="page-hero-bg" aria-hidden="true">
+    <svg viewBox="0 0 1200 260" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="gs-grad-1" cx="15%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#DC8C50" stop-opacity="0.08" />
+          <stop offset="100%" stop-color="#DC8C50" stop-opacity="0" />
+        </radialGradient>
+        <radialGradient id="gs-grad-2" cx="90%" cy="40%" r="45%">
+          <stop offset="0%"   stop-color="#64B4C8" stop-opacity="0.07" />
+          <stop offset="100%" stop-color="#64B4C8" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="1200" height="260" fill="white" />
+      <rect width="1200" height="260" fill="url(#gs-grad-1)" />
+      <rect width="1200" height="260" fill="url(#gs-grad-2)" />
+      <path
+        d="M -30 190 C 80 70, 260 30, 400 100 C 450 124, 455 175, 415 200 C 345 238, 165 215, 55 228 C -10 236, -30 225, -30 190 Z"
+        fill="#DC8C50" opacity="0.07"
+      />
+      <path
+        d="M 1050 20 C 1140 55, 1220 140, 1195 210 C 1178 248, 1130 255, 1090 235 C 1040 210, 1025 158, 1045 100 C 1055 55, 1010 0, 1050 20 Z"
+        fill="#64B4C8" opacity="0.06"
+      />
+    </svg>
+  </div>
+  <div class="container page-hero-inner">
+    <p class="page-eyebrow">Tanzkurs verschenken</p>
+    <h1 class="page-title">Gutscheine</h1>
+    <p class="page-sub">
+      Wähle eine Gutschein-Vorlage, leg den Betrag und einen persönlichen Gruß fest:
+      so einfach wird Tanzen zum Geschenk.
+    </p>
+  </div>
+</header>
+
+<!-- ─── CONTENT ───────────────────────────────────────────────────── -->
+<section class="page-content">
+  <div class="container">
+    @if (vouchers() === null) {
+      <div class="state-box">
+        <div class="state-icon" aria-hidden="true">⏳</div>
+        <h2 class="state-title">Gutscheine werden geladen</h2>
+        <p class="state-sub">Einen Moment bitte.</p>
+      </div>
+    } @else if (vouchers()!.length === 0) {
+      <div class="state-box">
+        <div class="state-icon" aria-hidden="true">🎁</div>
+        <h2 class="state-title">Aktuell keine Vorlagen</h2>
+        <p class="state-sub">Schau später wieder vorbei oder ruf uns an: <strong>04321 1 49 00</strong></p>
+      </div>
+    } @else {
+      <p class="step-label">Schritt 1: Gutschein-Vorlage wählen</p>
+      <div class="voucher-grid">
+        @for (v of vouchers(); track v.id) {
+          <a
+            class="voucher-card"
+            [routerLink]="['/gutscheine', v.id]"
+            [attr.aria-label]="'Gutschein-Vorlage auswählen'"
+          >
+            <img
+              class="voucher-thumb"
+              [src]="v.thumbnailUrl"
+              alt="Gutschein-Vorlage"
+              loading="lazy"
+            />
+            <span class="voucher-overlay">Diese Vorlage wählen →</span>
+          </a>
+        }
+      </div>
+    }
+  </div>
+</section>
