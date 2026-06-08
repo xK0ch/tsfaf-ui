@@ -90,8 +90,6 @@ function mkCatalog(): DanceClassCatalog {
 }
 
 const EMPTY_CONFIG: CotasSiteConfig = {
-  no_online_registration: [],
-  infotexts: [],
   enforce_no_partner_categories: [],
   enforce_partner_target_groups: [],
   phone: '04321 1 49 00',
@@ -329,16 +327,15 @@ describe('Kurse', () => {
     expect(cmp.currentGroupId()).toBe('ZG-A');
   });
 
-  it('isOnlineRegistrationBlocked erkennt no_online Kategorien', () => {
-    const { fixture } = setup({
-      config: { ...EMPTY_CONFIG, no_online_registration: ['CAT-1'] },
-    });
+  it('isOnlineRegistrationBlocked blockt Clubs (kzclub=1), nicht regulaere Kurse', () => {
+    const { fixture } = setup();
     fixture.detectChanges();
     const cmp = fixture.componentInstance as unknown as {
       isOnlineRegistrationBlocked(c: CotasDanceClass): boolean;
     };
-    expect(cmp.isOnlineRegistrationBlocked(mkClass({ kategorie_id: 'CAT-1' }))).toBe(true);
-    expect(cmp.isOnlineRegistrationBlocked(mkClass({ kategorie_id: 'CAT-XYZ' }))).toBe(false);
+    expect(cmp.isOnlineRegistrationBlocked(mkClass({ kzclub: '1' }))).toBe(true);
+    expect(cmp.isOnlineRegistrationBlocked(mkClass({ kzclub: '0' }))).toBe(false);
+    expect(cmp.isOnlineRegistrationBlocked(mkClass({ kzclub: 1 as unknown as string }))).toBe(true);
   });
 
   it('isFull erkennt full=1, "1", true; rest behandelt als open', () => {

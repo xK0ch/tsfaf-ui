@@ -73,8 +73,6 @@ describe('Anmeldung', () => {
         }),
       loadConfig: () =>
         of({
-          no_online_registration: [],
-          infotexts: [],
           enforce_no_partner_categories: [],
           enforce_partner_target_groups: [],
           phone: '04321',
@@ -398,8 +396,6 @@ describe('Anmeldung', () => {
       previewRegistration: () => of({ dance_class: mkClass(), contracts: [] }),
       loadConfig: () =>
         of({
-          no_online_registration: [],
-          infotexts: [],
           enforce_no_partner_categories: [],
           enforce_partner_target_groups: [],
           phone: '04321',
@@ -450,8 +446,6 @@ describe('Anmeldung', () => {
         }),
       loadConfig: () =>
         of({
-          no_online_registration: [],
-          infotexts: [],
           enforce_no_partner_categories: [],
           enforce_partner_target_groups: [],
           phone: '04321',
@@ -492,11 +486,13 @@ describe('Anmeldung', () => {
       tmpl_kurs_beginn: '13.08.2019',
     });
     const el = fixture.nativeElement as HTMLElement;
-    // Im Summary-Block der Anmeldungs-Uebersicht darf kein "Beginn:"
-    // mehr auftauchen, weil Abos kein sinnvolles Startdatum haben.
-    const summary = el.querySelector('.summary-list');
-    expect(summary?.textContent).not.toContain('Beginn:');
-    expect(summary?.textContent).not.toContain('13.08.2019');
+    // Bei Abos (kzclub=1) ist Online-Anmeldung komplett blockiert,
+    // das gesamte Anmelde-Formular wird durch die Telefon-CTA er-
+    // setzt. Damit gibt es weder die summary-list noch die "Beginn:"-
+    // Zeile mehr — implizit ist also auch das alte Anfangsdatum nicht
+    // mehr sichtbar.
+    expect(el.querySelector('.summary-list')).toBeNull();
+    expect(el.textContent).not.toContain('13.08.2019');
   });
 
   it('Template zeigt "Beginn:" bei Kursen mit gepflegtem Datum', () => {

@@ -53,14 +53,10 @@ describe('CotasApiService', () => {
     const req = http.expectOne(`${BASE}/config`);
     expect(req.request.method).toBe('GET');
     req.flush({
-      no_online_registration: ['CAT-A'],
-      infotexts: [{ category_ids: ['CAT-A'], body: '<p>info</p>' }],
       phone: '04321 1 49 00',
       // enforce_* fehlen absichtlich
     });
 
-    expect(cfg?.no_online_registration).toEqual(['CAT-A']);
-    expect(cfg?.infotexts).toHaveLength(1);
     expect(cfg?.phone).toBe('04321 1 49 00');
     // Defaults wenn nicht im Body:
     expect(cfg?.enforce_no_partner_categories).toEqual([]);

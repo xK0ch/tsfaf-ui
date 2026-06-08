@@ -30,8 +30,6 @@ export type {
 } from '../models/cotas.models';
 
 const EMPTY_CONFIG: CotasSiteConfig = {
-  no_online_registration: [],
-  infotexts: [],
   enforce_no_partner_categories: [],
   enforce_partner_target_groups: [],
   phone: '04321 1 49 00',
@@ -60,17 +58,20 @@ export class CotasApiService {
   // ---------- Site-Config ----------
 
   /**
-   * Laedt no_online_registration / infotexts / Telefon usw. aus der
-   * Server-Config (cotas/config/<env>/config.json). Faellt im Fehlerfall
-   * auf einen leeren Default zurueck damit die UI nicht haengt.
+   * Laedt Partner-Settings + Telefon aus der Server-Config
+   * (cotas/config/<env>/config.json). Faellt im Fehlerfall auf einen
+   * leeren Default zurueck damit die UI nicht haengt.
+   *
+   * Frueher kamen hier auch `no_online_registration` und `infotexts`
+   * her — beide werden jetzt direkt aus dem kzclub-Flag der Kurse
+   * abgeleitet (siehe kurse.ts). Server-Config-Felder duerfen daher
+   * leer oder entfernt sein.
    */
   loadConfig(): Observable<CotasSiteConfig> {
     return this.http.get<CotasSiteConfig>(`${this.base}/config`).pipe(
       map(cfg => ({
         ...EMPTY_CONFIG,
         ...cfg,
-        no_online_registration: cfg?.no_online_registration ?? [],
-        infotexts: cfg?.infotexts ?? [],
         enforce_no_partner_categories: cfg?.enforce_no_partner_categories ?? [],
         enforce_partner_target_groups: cfg?.enforce_partner_target_groups ?? [],
       })),

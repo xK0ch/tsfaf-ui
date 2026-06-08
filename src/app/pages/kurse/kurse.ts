@@ -47,6 +47,38 @@ export function slugify(value: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+/**
+ * Hinweistexte fuer Clubs (kzclub=1): erklaeren warum die Anmeldung
+ * nicht online stattfindet und werben fuer Telefon-Kontakt /
+ * Probestunde. Werden pro Kategorie-Card angezeigt.
+ *
+ * Diskriminierung per Zielgruppe:
+ *   - Kinder       -> CLUB_INFOTEXT_KIDS (familiaerer Ton, Eltern-Ansprache)
+ *   - alle anderen -> CLUB_INFOTEXT_GENERIC (kuerzer, direkt an Erwachsene)
+ *
+ * Frueher lagen die Texte in `config.json` (cotas-Webmodule); das wurde
+ * ersetzt durch Hardcoding weil die Pflege per UUID-Liste fehleranfaellig
+ * war und die Texte sich faktisch nie aendern. Wer die Texte aendern
+ * will: hier umschreiben und neu deployen.
+ */
+const CLUB_INFOTEXT_KIDS =
+  '<p><strong>Gemeinsam den richtigen Platz finden</strong></p>'
+  + '<p>Für den Start in unseren Kinderclubs setzen wir auf persönlichen '
+  + 'Kontakt statt auf schnelle Formulare. In einem entspannten Telefonat '
+  + 'finden wir gemeinsam heraus, welche Gruppe am besten zu den '
+  + 'Bedürfnissen deines Kindes passt. So schaffen wir von Anfang an '
+  + 'Vertrauen und Ruhe. Kommt danach gerne vorbei und lasst euer Kind '
+  + 'in einer Probestunde ganz unbeschwert ausprobieren, wie viel Freude '
+  + 'das Tanzen bei uns macht.</p>';
+
+const CLUB_INFOTEXT_GENERIC =
+  '<p><strong>Lust auf eine Probestunde?</strong></p>'
+  + '<p>Hier handelt es sich um einen Club, daher findet die Anmeldung '
+  + 'nicht online statt. Schnapp dir einfach das Telefon und melde dich '
+  + 'bei uns. So können wir direkt einen Termin für dein erstes '
+  + 'Reinschnuppern vereinbaren und alle deine Fragen in Ruhe '
+  + 'beantworten. Ein kurzer Anruf genügt!</p>';
+
 @Component({
   selector: 'app-kurse',
   imports: [DecimalPipe, RouterLink, Spinner],
@@ -194,27 +226,6 @@ export class Kurse {
       .join(', ');
   });
 
-  /**
-   * Globaler Infotext-Banner ueber den Cards. Greift nur bei spezifischer
-   * Filter-Auswahl (NICHT bei "Alle" — da waere der Banner zu generisch).
-   * Bei mehreren aktiven Kategorien zeigen wir den ersten matchenden;
-   * detaillierte/pro-Kategorie Infotexte rendern wir zusaetzlich pro
-   * Karte (siehe infotextForCategory).
-   */
-  protected readonly currentInfotextHtml = computed<SafeHtml | null>(() => {
-    const cfg = this.config();
-    if (!cfg || !cfg.infotexts.length) return null;
-    const active = this.activeCategoryIds();
-    if (active.size === 0) return null;
-
-    for (const it of cfg.infotexts) {
-      if (it.category_ids.some(id => active.has(id))) {
-        return this.sanitizer.bypassSecurityTrustHtml(it.body);
-      }
-    }
-    return null;
-  });
-
   // ----- Aktionen -----
 
   /**
@@ -286,29 +297,34 @@ export class Kurse {
   }
 
   /**
-   * Kategorie ist auf "no_online_registration" geflaggt: User muss
-   * stattdessen anrufen.
+   * Online-Anmeldung ist fuer alle Tanz-Clubs (kzclub=1) geblockt.
+   * Diese Kurse werden ueber Probestunde / Telefon / Direktkontakt
+   * gebucht, nicht ueber das Anmelde-Formular. Frueher gab es dafuer
+   * eine explizite Kategorie-UUID-Liste in der Cotas-config.json
+   * (`no_online_registration`); Auswertung der echten Daten hat
+   * gezeigt, dass die Liste 1:1 alle Clubs enthielt. Wir leiten das
+   * jetzt direkt aus dem kzclub-Flag ab und sparen uns die Pflege.
+   *
+   * Falls einzelne Clubs spaeter doch online-anmeldbar sein sollen,
+   * waere hier eine Whitelist die richtige Stelle (z.B. via Config).
    */
-  protected isOnlineRegistrationBlockedById(categoryId: string): boolean {
-    const cfg = this.config();
-    if (!cfg) return false;
-    return cfg.no_online_registration.includes(categoryId);
-  }
-
   protected isOnlineRegistrationBlocked(c: CotasDanceClass): boolean {
-    return this.isOnlineRegistrationBlockedById(c.kategorie_id);
+    return this.isAbo(c);
   }
 
-  /** Per-Kategorie Infotext (kommt zusaetzlich zum globalen Banner). */
-  protected infotextForCategory(categoryId: string): SafeHtml | null {
-    const cfg = this.config();
-    if (!cfg) return null;
-    for (const it of cfg.infotexts) {
-      if (it.category_ids.includes(categoryId)) {
-        return this.sanitizer.bypassSecurityTrustHtml(it.body);
-      }
-    }
-    return null;
+  /**
+   * Hinweistext fuer Club-Kategorien. Nimmt einen repraesentativen
+   * Kurs der Kategorie und entscheidet anhand von kzclub +
+   * zielgruppen_bez welcher Text gerendert wird. Nicht-Clubs bekommen
+   * keinen Text. Texte siehe Konstanten oben in dieser Datei.
+   */
+  protected infotextForCategory(cat: CategoryWithClasses): SafeHtml | null {
+    const sample = cat.classes[0];
+    if (!sample || !this.isAbo(sample)) return null;
+    const html = sample.zielgruppen_bez === 'Kinder'
+      ? CLUB_INFOTEXT_KIDS
+      : CLUB_INFOTEXT_GENERIC;
+    return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
   protected phoneNumber(): string {

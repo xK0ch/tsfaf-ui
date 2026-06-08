@@ -95,19 +95,20 @@ export class Anmeldung {
     () => (this.state().data?.contracts ?? []) as CotasContract[],
   );
 
-  // ----- Site-Config (no_online_registration etc) -----
+  // ----- Site-Config (Partner-Regeln, Telefon) -----
 
   protected readonly config = toSignal<CotasSiteConfig | null>(this.api.loadConfig(), {
     initialValue: null,
   });
 
-  /** True wenn diese Kategorie auf der no_online_registration-Liste steht. */
-  protected readonly onlineRegistrationBlocked = computed<boolean>(() => {
-    const c = this.course();
-    const cfg = this.config();
-    if (!c || !cfg) return false;
-    return cfg.no_online_registration.includes(c.kategorie_id);
-  });
+  /**
+   * Online-Anmeldung ist fuer alle Clubs (kzclub=1) geblockt. Siehe
+   * Begruendung in kurse.ts::isOnlineRegistrationBlocked. Damit ist
+   * dieser Check identisch zu isAboCourse, wird aber separat exposed
+   * weil die Semantik im Template anders ist ("zeige Telefon-CTA
+   * statt Online-Formular").
+   */
+  protected readonly onlineRegistrationBlocked = computed<boolean>(() => this.isAboCourse());
 
   /**
    * Abo (Cotas-"Tanz-Club", kzclub == 1): keine Startdatums-Anzeige.

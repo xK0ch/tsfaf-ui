@@ -4,8 +4,8 @@
 }
 
 /* ─── INFOTEXT BANNER ────────────────────────────────────────────── */
-/* Wird angezeigt wenn die aktive Kategorie / Tab einen konfigurierten
-   Hinweistext aus cotas/config/<env>/config.json -> infotexts hat. */
+/* Wird pro Kategorie-Karte angezeigt wenn der Kurs ein Club ist
+   (kzclub=1). Texte siehe kurse.ts CLUB_INFOTEXT_KIDS / _GENERIC. */
 .infotext-banner {
   background: #FBF0E5;
   border-left: 3px solid var(--color-primary);

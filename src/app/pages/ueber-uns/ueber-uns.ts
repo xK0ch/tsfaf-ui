@@ -90,7 +90,7 @@ export class UeberUns {
     { value: '10+', label: 'Jahre Erfahrung' },
     { value: '700 m²', label: 'Tanzfläche' },
     { value: '3 Säle', label: 'mit moderner Technik' },
-    { value: '5', label: 'qualifizierte Lehrkräfte' },
+    { value: '6', label: 'qualifizierte Lehrkräfte' },
   ];
 
   /**

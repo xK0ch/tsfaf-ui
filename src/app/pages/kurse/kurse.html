@@ -150,7 +150,7 @@
                   <p class="course-desc">{{ desc }}</p>
                 }
 
-                @if (infotextForCategory(cat.id); as html) {
+                @if (infotextForCategory(cat); as html) {
                   <div class="course-infotext" [innerHTML]="html"></div>
                 }
               </div>
