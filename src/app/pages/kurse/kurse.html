@@ -159,7 +159,7 @@
                 @for (t of cat.classes; track t.id) {
                   <li class="termin-row">
                     <div class="termin-when">
-                      <strong>{{ t.tag }}, {{ t.tmpl_kurs_beginn }}</strong>
+                      <strong>{{ dayAndStart(t) }}</strong>
                       <span class="termin-time">
                         {{ startTime(t) }} – {{ endTime(t) }} Uhr
                         @if (duration(t) > 0) { · {{ duration(t) }} Min. }

@@ -328,6 +328,35 @@ export class Kurse {
     return (c.ende ?? '').slice(0, 5);
   }
 
+  /**
+   * Abo (Tanz-Club) in Cotas: das Feld `kzclub` ist '1' bzw. 1. Diese
+   * Kurse laufen kontinuierlich — das Startdatum ist meist Jahre alt
+   * und verwirrt Interessenten ("ist der Kurs noch aktuell?"). Wir
+   * zeigen fuer Abos deshalb nur den Wochentag, fuer normale Kurse
+   * wie bisher Wochentag plus Anfangsdatum.
+   *
+   * Default bei fehlendem oder unbekanntem Wert: kein Abo (= Datum
+   * anzeigen). Belt-and-suspenders auch fuer den Fall, dass Cotas das
+   * Feld irgendwann anders liefert.
+   */
+  protected isAbo(c: CotasDanceClass): boolean {
+    return (
+      c.kzclub === '1'
+      || (typeof c.kzclub === 'number' && c.kzclub === 1)
+    );
+  }
+
+  /**
+   * Anzeige des Termins: bei Kursen "Dienstag, 13.08.2026", bei Abos
+   * nur "Dienstag". Faengt zusaetzlich den Fall ab, dass das Anfangs-
+   * datum in Cotas leer gelassen wurde.
+   */
+  protected dayAndStart(c: CotasDanceClass): string {
+    if (this.isAbo(c)) return c.tag;
+    const date = (c.tmpl_kurs_beginn ?? '').trim();
+    return date ? `${c.tag}, ${date}` : c.tag;
+  }
+
   protected duration(c: CotasDanceClass): number {
     const parse = (s: string): number | null => {
       const [h, m] = (s ?? '').split(':').map(n => parseInt(n, 10));

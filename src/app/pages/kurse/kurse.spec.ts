@@ -376,6 +376,89 @@ describe('Kurse', () => {
     expect(text.length).toBeGreaterThan(200);
     expect(text.startsWith('Tanz!')).toBe(true);
   });
+
+  // ─── Abo / kzclub ────────────────────────────────────────────────
+
+  it('isAbo erkennt kzclub als "1" (String) und 1 (Number)', () => {
+    const { fixture } = setup();
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance as unknown as {
+      isAbo(c: CotasDanceClass): boolean;
+    };
+    expect(cmp.isAbo(mkClass({ kzclub: '1' }))).toBe(true);
+    expect(cmp.isAbo(mkClass({ kzclub: 1 as unknown as string }))).toBe(true);
+  });
+
+  it('isAbo gibt false fuer Kurs (kzclub 0/"0"/leer)', () => {
+    const { fixture } = setup();
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance as unknown as {
+      isAbo(c: CotasDanceClass): boolean;
+    };
+    expect(cmp.isAbo(mkClass({ kzclub: '0' }))).toBe(false);
+    expect(cmp.isAbo(mkClass({ kzclub: 0 as unknown as string }))).toBe(false);
+    expect(cmp.isAbo(mkClass({ kzclub: '' }))).toBe(false);
+  });
+
+  it('dayAndStart: Kurs mit Datum -> "Tag, Datum"', () => {
+    const { fixture } = setup();
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance as unknown as {
+      dayAndStart(c: CotasDanceClass): string;
+    };
+    const c = mkClass({ kzclub: '0', tag: 'Dienstag', tmpl_kurs_beginn: '13.08.2026' });
+    expect(cmp.dayAndStart(c)).toBe('Dienstag, 13.08.2026');
+  });
+
+  it('dayAndStart: Kurs ohne Datum -> nur "Tag"', () => {
+    const { fixture } = setup();
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance as unknown as {
+      dayAndStart(c: CotasDanceClass): string;
+    };
+    const c = mkClass({ kzclub: '0', tag: 'Mittwoch', tmpl_kurs_beginn: '' });
+    expect(cmp.dayAndStart(c)).toBe('Mittwoch');
+  });
+
+  it('dayAndStart: Abo ignoriert das Datum (zeigt nur den Tag)', () => {
+    const { fixture } = setup();
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance as unknown as {
+      dayAndStart(c: CotasDanceClass): string;
+    };
+    const c = mkClass({ kzclub: '1', tag: 'Donnerstag', tmpl_kurs_beginn: '13.08.2019' });
+    expect(cmp.dayAndStart(c)).toBe('Donnerstag');
+  });
+
+  it('Template zeigt bei Abo-Kurs in der Liste kein Datum an', () => {
+    const aboClass = mkClass({
+      id: 'abo-1',
+      kzclub: '1',
+      tag: 'Mittwoch',
+      tmpl_kurs_beginn: '13.08.2019',
+      kurs_bez: 'Tanz-Club',
+      kategorie_id: 'CAT-ABO',
+      kategorie_bez: 'Club',
+    });
+    const cat: CategoryWithClasses = {
+      id: 'CAT-ABO',
+      bez: 'Club',
+      priority: 1,
+      classes: [aboClass],
+    };
+    const catalog: DanceClassCatalog = {
+      targetGroups: [
+        { id: 'ZG-A', name: 'A', bez: 'A', beschreibung: '', priority: 1, active: 'active' },
+      ],
+      classesByGroup: new Map([['ZG-A', [aboClass]]]),
+      categoriesByGroup: new Map([['ZG-A', [cat]]]),
+    };
+    const { fixture } = setup({ catalog });
+    fixture.detectChanges();
+    const when = (fixture.nativeElement as HTMLElement).querySelector('.termin-when strong');
+    expect(when?.textContent).toBe('Mittwoch');
+    expect(when?.textContent).not.toContain('13.08.2019');
+  });
 });
 
 describe('slugify', () => {

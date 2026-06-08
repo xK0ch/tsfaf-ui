@@ -428,4 +428,146 @@ describe('Anmeldung', () => {
     expect(cmp.invalidServerFields()).toContain('email');
     expect(cmp.step()).toBe('error');
   });
+
+  // ─── Abo (kzclub) ───────────────────────────────────────────────
+  //
+  // Eigene Setup-Helfer um den Kurs flexibel zu definieren: die Standard-
+  // setup()-Funktion fixiert das Cotas-mkClass(), aber fuer diese Tests
+  // brauchen wir verschiedene kzclub/Datum-Kombis pro Test.
+
+  function setupWithClass(over: Partial<CotasDanceClass>) {
+    const contracts: CotasContract[] = [
+      { id: '99', kurskennung: 'KK-22', bezeichnung: 'Normal', zahlbetrag: '96.00' },
+    ];
+    const apiMock = {
+      previewRegistration: () =>
+        of({
+          dance_class: mkClass(over),
+          contracts,
+          partner: 0,
+          same_bank: 1,
+          debit_charge: 0,
+        }),
+      loadConfig: () =>
+        of({
+          no_online_registration: [],
+          infotexts: [],
+          enforce_no_partner_categories: [],
+          enforce_partner_target_groups: [],
+          phone: '04321',
+        }),
+      submitRegistration: () => of({ errors: false }),
+    };
+    TestBed.configureTestingModule({
+      imports: [Anmeldung],
+      providers: [
+        provideRouter([]),
+        { provide: CotasApiService, useValue: apiMock },
+        { provide: ActivatedRoute, useValue: { params: of({ id: '22' }) } },
+      ],
+    });
+    const fixture = TestBed.createComponent(Anmeldung);
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  it('isAboCourse: gibt true fuer kzclub=1, false sonst', () => {
+    const aboFix = setupWithClass({ kzclub: '1' });
+    const aboCmp = aboFix.componentInstance as unknown as {
+      isAboCourse: { (): boolean };
+    };
+    expect(aboCmp.isAboCourse()).toBe(true);
+
+    TestBed.resetTestingModule();
+    const kursFix = setupWithClass({ kzclub: '0' });
+    const kursCmp = kursFix.componentInstance as unknown as {
+      isAboCourse: { (): boolean };
+    };
+    expect(kursCmp.isAboCourse()).toBe(false);
+  });
+
+  it('Template versteckt die "Beginn:"-Zeile bei Abo-Kursen', () => {
+    const fixture = setupWithClass({
+      kzclub: '1',
+      tmpl_kurs_beginn: '13.08.2019',
+    });
+    const el = fixture.nativeElement as HTMLElement;
+    // Im Summary-Block der Anmeldungs-Uebersicht darf kein "Beginn:"
+    // mehr auftauchen, weil Abos kein sinnvolles Startdatum haben.
+    const summary = el.querySelector('.summary-list');
+    expect(summary?.textContent).not.toContain('Beginn:');
+    expect(summary?.textContent).not.toContain('13.08.2019');
+  });
+
+  it('Template zeigt "Beginn:" bei Kursen mit gepflegtem Datum', () => {
+    const fixture = setupWithClass({
+      kzclub: '0',
+      tmpl_kurs_beginn: '15.06.2026',
+    });
+    const el = fixture.nativeElement as HTMLElement;
+    const summary = el.querySelector('.summary-list');
+    expect(summary?.textContent).toContain('Beginn:');
+    expect(summary?.textContent).toContain('15.06.2026');
+  });
+
+  it('Template versteckt "Beginn:" bei Kursen ohne gepflegtes Datum', () => {
+    const fixture = setupWithClass({
+      kzclub: '0',
+      tmpl_kurs_beginn: '',
+    });
+    const el = fixture.nativeElement as HTMLElement;
+    const summary = el.querySelector('.summary-list');
+    expect(summary?.textContent).not.toContain('Beginn:');
+  });
+
+  it('paymentReference enthaelt Datum bei Kurs mit Datum', () => {
+    const fixture = setupWithClass({
+      kzclub: '0',
+      kurs_bez: 'Discofox',
+      tmpl_kurs_beginn: '15.06.2026',
+    });
+    const cmp = fixture.componentInstance as unknown as {
+      form: { patchValue(v: Record<string, unknown>): void };
+      paymentReference: { (): string };
+    };
+    cmp.form.patchValue({ vorname: 'Max', nachname: 'Muster' });
+    fixture.detectChanges();
+    const ref = cmp.paymentReference();
+    expect(ref).toContain('Discofox');
+    expect(ref).toContain('15.06.2026');
+  });
+
+  it('paymentReference laesst Datum bei Abo-Kursen weg', () => {
+    const fixture = setupWithClass({
+      kzclub: '1',
+      kurs_bez: 'Tanz-Club',
+      tmpl_kurs_beginn: '13.08.2019',
+    });
+    const cmp = fixture.componentInstance as unknown as {
+      form: { patchValue(v: Record<string, unknown>): void };
+      paymentReference: { (): string };
+    };
+    cmp.form.patchValue({ vorname: 'Max', nachname: 'Muster' });
+    fixture.detectChanges();
+    const ref = cmp.paymentReference();
+    expect(ref).toContain('Tanz-Club');
+    expect(ref).not.toContain('13.08.2019');
+  });
+
+  it('paymentReference laesst Datum auch bei Kurs ohne gepflegtes Datum weg', () => {
+    const fixture = setupWithClass({
+      kzclub: '0',
+      kurs_bez: 'Discofox',
+      tmpl_kurs_beginn: '',
+    });
+    const cmp = fixture.componentInstance as unknown as {
+      form: { patchValue(v: Record<string, unknown>): void };
+      paymentReference: { (): string };
+    };
+    cmp.form.patchValue({ vorname: 'Max', nachname: 'Muster' });
+    fixture.detectChanges();
+    const ref = cmp.paymentReference();
+    expect(ref).toContain('Discofox');
+    expect(ref).not.toContain('Kursdatum');
+  });
 });

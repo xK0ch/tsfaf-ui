@@ -84,10 +84,12 @@
             <span class="summary-icon" aria-hidden="true">🕐</span>
             <span><strong>{{ c.tag }}</strong>, {{ c.tmpl_start }} Uhr</span>
           </li>
-          <li>
-            <span class="summary-icon" aria-hidden="true">📅</span>
-            <span>Beginn: <strong>{{ c.tmpl_kurs_beginn }}</strong></span>
-          </li>
+          @if (!isAboCourse() && c.tmpl_kurs_beginn.trim()) {
+            <li>
+              <span class="summary-icon" aria-hidden="true">📅</span>
+              <span>Beginn: <strong>{{ c.tmpl_kurs_beginn }}</strong></span>
+            </li>
+          }
           @if (c.einheiten) {
             <li>
               <span class="summary-icon" aria-hidden="true">🔁</span>

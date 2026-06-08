@@ -109,6 +109,20 @@ export class Anmeldung {
     return cfg.no_online_registration.includes(c.kategorie_id);
   });
 
+  /**
+   * Abo (Cotas-"Tanz-Club", kzclub == 1): keine Startdatums-Anzeige.
+   * Diese Kurse laufen kontinuierlich; das Startdatum ist hier nicht
+   * sinnvoll ("Beginn vor 5 Jahren" verwirrt Interessenten).
+   */
+  protected readonly isAboCourse = computed<boolean>(() => {
+    const c = this.course();
+    if (!c) return false;
+    return (
+      c.kzclub === '1'
+      || (typeof c.kzclub === 'number' && c.kzclub === 1)
+    );
+  });
+
   protected readonly phoneNumber = computed(() => this.config()?.phone ?? '04321 1 49 00');
 
   protected readonly phoneHref = computed(
@@ -225,8 +239,15 @@ export class Anmeldung {
     const name = [v, n].filter(Boolean).join(' ') || 'Vorname Nachname';
     const c = this.course();
     const kurs = c?.kurs_bez?.trim() || 'Kursname';
-    const datum = c?.tmpl_kurs_beginn?.trim() || 'Kursdatum';
-    return `Kursanmeldung ${name} · ${kurs} · ${datum}`;
+    // Datum nur bei nicht-Abo-Kursen anhaengen. Bei Abos (Tanz-Clubs)
+    // ist das Anfangsdatum irrelevant — der Verwendungszweck endet
+    // dann beim Kursnamen.
+    const datum = !this.isAboCourse() ? c?.tmpl_kurs_beginn?.trim() : undefined;
+    const parts = [`Kursanmeldung ${name}`, kurs];
+    if (datum) {
+      parts.push(datum);
+    }
+    return parts.join(' · ');
   });
 
   /** Kurz "Kopiert!" einblenden nach erfolgreichem Clipboard-Copy. */
