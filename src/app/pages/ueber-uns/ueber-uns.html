@@ -43,6 +43,17 @@
       />
     </svg>
 
+    <figure class="hero-team-photo">
+      <img
+        [ngSrc]="teamPhotoUrl"
+        width="1600"
+        height="900"
+        priority
+        alt="Das Team der Tanzschule Family und Friends in Neumünster"
+        sizes="100vw"
+      />
+    </figure>
+
     <div class="stats-row">
       @for (s of heroStats; track s.label) {
         <div class="stat-box">

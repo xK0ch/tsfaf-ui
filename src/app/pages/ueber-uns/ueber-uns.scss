@@ -18,6 +18,24 @@
   margin-bottom: 0;
 }
 
+/* ─── HERO TEAM PHOTO ───────────────────────────────────────────── */
+/* Statisches Gruppenfoto zwischen Brush-Divider und Stats. Liegt
+   auf dem Media-Server, wird priorisiert geladen (Above-the-Fold).
+   Faellt auf die volle Container-Breite, damit es visuell zur Wirkung
+   der Stats-Row darunter passt. */
+.hero-team-photo {
+  margin: var(--space-24) 0 0;
+  border-radius: var(--radius-lg, 16px);
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+}
+
 /* ─── STATS ROW ─────────────────────────────────────────────────── */
 .stats-row {
   display: grid;

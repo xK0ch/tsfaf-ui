@@ -20,6 +20,17 @@ const MEDIA_BASE = environment.mediaBaseUrl;
  */
 const TANZSCHULFILM_URL = `${MEDIA_BASE}/Tanzschulfilm.mp4`;
 
+/**
+ * Gruppenfoto des kompletten Teams. Statisch (kein Joomla), liegt
+ * direkt im Webseite-Root des Media-Servers. Wird im Page-Hero
+ * zwischen Begruessungstext und Stats-Zahlen gerendert.
+ *
+ * Falls der Dateiname auf dem Server ein anderer ist (z.B. mit
+ * unterschiedlicher Endung oder Gross-/Kleinschreibung), hier
+ * anpassen.
+ */
+const TEAM_PHOTO_URL = `${MEDIA_BASE}/Team/Teamfoto.jpg`;
+
 interface HeroStat {
   readonly value: string;
   readonly label: string;
@@ -71,19 +82,15 @@ export class UeberUns {
    * Team-Mitglieder aus Joomla (Kategorie "Team", id 13). Sortiert per
    * Joomla-Ordering. Im Loading wird ein kleiner Hinweis gezeigt.
    */
-  protected readonly team = computed<readonly TeamMember[]>(
-    () => this.teamStore.members() ?? [],
-  );
+  protected readonly team = computed<readonly TeamMember[]>(() => this.teamStore.members() ?? []);
   protected readonly teamLoading = this.teamStore.loading;
-  protected readonly teamEmpty = computed(
-    () => !this.teamLoading() && this.team().length === 0,
-  );
+  protected readonly teamEmpty = computed(() => !this.teamLoading() && this.team().length === 0);
 
   protected readonly heroStats: readonly HeroStat[] = [
-    { value: '10+',    label: 'Jahre Erfahrung' },
+    { value: '10+', label: 'Jahre Erfahrung' },
     { value: '700 m²', label: 'Tanzfläche' },
     { value: '3 Säle', label: 'mit moderner Technik' },
-    { value: '5',      label: 'qualifizierte Lehrkräfte' },
+    { value: '5', label: 'qualifizierte Lehrkräfte' },
   ];
 
   /**
@@ -137,12 +144,42 @@ export class UeberUns {
   ];
 
   protected readonly values: readonly ValueCard[] = [
-    { icon: '🤝', label: 'Gemeinschaft',   desc: 'Bei uns tanzt du nie allein. Wir sind eine Gemeinschaft aus allen Altersgruppen und Tanzlevels.',                                              orange: true  },
-    { icon: '📜', label: 'ADTV-Qualität',  desc: 'Als ADTV-zertifizierte Tanzschule stehen wir für geprüfte Ausbildung und höchste Lehrqualität.',                                              orange: false },
-    { icon: '🌈', label: 'Für alle',       desc: 'Von 1,5 bis 90: unser Angebot reicht von den Minis bis zur Parkinson-Gruppe, niemand wird ausgelassen.',                                        orange: true  },
-    { icon: '📍', label: 'Neumünster',     desc: '700 m² reine Tanzfläche in einem 1.500 m² großen Gebäude auf 3.600 m² Grundstück. Drei moderne Säle, Foyer mit Bar, Licht- und Soundtechnik auf dem neuesten Stand.',                              orange: false },
-    { icon: '❤️', label: 'Mit Herz',       desc: 'Seit über 10 Jahren tanzen wir mit Leidenschaft und freuen uns über jeden neuen Tanzschüler.',                                                orange: true  },
-    { icon: '🎓', label: 'Weiterbildung',  desc: 'Unser Team bildet sich kontinuierlich weiter: neue Stile, neue Methoden, immer auf dem neuesten Stand.',                                      orange: false },
+    {
+      icon: '🤝',
+      label: 'Gemeinschaft',
+      desc: 'Bei uns tanzt du nie allein. Wir sind eine Gemeinschaft aus allen Altersgruppen und Tanzlevels.',
+      orange: true,
+    },
+    {
+      icon: '📜',
+      label: 'ADTV-Qualität',
+      desc: 'Als ADTV-zertifizierte Tanzschule stehen wir für geprüfte Ausbildung und höchste Lehrqualität.',
+      orange: false,
+    },
+    {
+      icon: '🌈',
+      label: 'Für alle',
+      desc: 'Von 1,5 bis 90: unser Angebot reicht von den Minis bis zur Parkinson-Gruppe, niemand wird ausgelassen.',
+      orange: true,
+    },
+    {
+      icon: '📍',
+      label: 'Neumünster',
+      desc: '700 m² reine Tanzfläche in einem 1.500 m² großen Gebäude auf 3.600 m² Grundstück. Drei moderne Säle, Foyer mit Bar, Licht- und Soundtechnik auf dem neuesten Stand.',
+      orange: false,
+    },
+    {
+      icon: '❤️',
+      label: 'Mit Herz',
+      desc: 'Seit über 10 Jahren tanzen wir mit Leidenschaft und freuen uns über jeden neuen Tanzschüler.',
+      orange: true,
+    },
+    {
+      icon: '🎓',
+      label: 'Weiterbildung',
+      desc: 'Unser Team bildet sich kontinuierlich weiter: neue Stile, neue Methoden, immer auf dem neuesten Stand.',
+      orange: false,
+    },
   ];
 
   // ─── Tanzschulfilm ────────────────────────────────────────────
@@ -152,6 +189,9 @@ export class UeberUns {
   // ungewolltes Vorladen (371 MB) und ist datenschutzfreundlich.
   protected readonly videoUrl = TANZSCHULFILM_URL;
   protected readonly videoLoaded = signal(false);
+
+  /** Gruppenfoto im Hero. Statisch, liegt auf dem Media-Server. */
+  protected readonly teamPhotoUrl = TEAM_PHOTO_URL;
 
   protected loadVideo(): void {
     this.videoLoaded.set(true);
@@ -163,7 +203,7 @@ export class UeberUns {
       name: 'Saal 1',
       detail: 'ca. 260 m²',
       orange: true,
-      imageUrl: `${MEDIA_BASE}/Raeumlichkeiten/Saal_1.JPG`,
+      imageUrl: `${MEDIA_BASE}/Raeumlichkeiten/Saal_1.jpg`,
       imageAlt: 'Innenansicht von Saal 1 mit Tanzfläche',
     },
     {
@@ -171,7 +211,7 @@ export class UeberUns {
       name: 'Saal 2',
       detail: 'ca. 200 m²',
       orange: false,
-      imageUrl: `${MEDIA_BASE}/Raeumlichkeiten/Saal_2.JPG`,
+      imageUrl: `${MEDIA_BASE}/Raeumlichkeiten/Saal_2.jpg`,
       imageAlt: 'Innenansicht von Saal 2 mit Tanzfläche',
     },
     {
@@ -179,7 +219,7 @@ export class UeberUns {
       name: 'Saal 3',
       detail: 'ca. 240 m²',
       orange: true,
-      imageUrl: `${MEDIA_BASE}/Raeumlichkeiten/Saal_3.JPG`,
+      imageUrl: `${MEDIA_BASE}/Raeumlichkeiten/Saal_3.jpg`,
       imageAlt: 'Innenansicht von Saal 3 mit Tanzfläche',
     },
     {
@@ -187,7 +227,7 @@ export class UeberUns {
       name: 'Foyer',
       detail: 'Bar und Loungebereich',
       orange: false,
-      imageUrl: `${MEDIA_BASE}/Raeumlichkeiten/Foyer.JPG`,
+      imageUrl: `${MEDIA_BASE}/Raeumlichkeiten/Foyer.jpg`,
       imageAlt: 'Foyer mit Bar und Loungebereich',
     },
     {
@@ -195,7 +235,7 @@ export class UeberUns {
       name: 'Garderobe',
       detail: 'Umkleiden und Dusche',
       orange: true,
-      imageUrl: `${MEDIA_BASE}/Raeumlichkeiten/Umkleide.JPG`,
+      imageUrl: `${MEDIA_BASE}/Raeumlichkeiten/Umkleide.jpg`,
       imageAlt: 'Umkleidebereich mit Dusche',
     },
   ];
@@ -228,5 +268,4 @@ export class UeberUns {
   protected closeRoomLightbox(): void {
     this.lightboxOpen.set(false);
   }
-
 }

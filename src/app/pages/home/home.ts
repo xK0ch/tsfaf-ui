@@ -130,7 +130,7 @@ export class Home {
       desc: 'Ab 1,5 Jahren spielerisch tanzen',
       orange: true,
       gruppe: 'kinder',
-      imageUrl: `${MEDIA_BASE}/Altersgruppen/kinder.png`,
+      imageUrl: `${MEDIA_BASE}/Altersgruppen/Kinder.jpg`,
       imageAlt: 'Tanzende Kinder in der Tanzschule',
       longTitle: 'Ein Ort zum Entfalten',
       longText:
@@ -146,7 +146,7 @@ export class Home {
       desc: 'Hip Hop, Videoclip & mehr',
       orange: false,
       gruppe: 'jugendliche',
-      imageUrl: `${MEDIA_BASE}/Altersgruppen/jugendliche.png`,
+      imageUrl: `${MEDIA_BASE}/Altersgruppen/Jugendliche.jpg`,
       imageAlt: 'Jugendliche beim Tanzen',
       longTitle: 'Dein Raum zum Tanzen und Sein',
       longText:
@@ -162,7 +162,7 @@ export class Home {
       desc: 'Discofox, Standards & mehr',
       orange: true,
       gruppe: 'erwachsene',
-      imageUrl: `${MEDIA_BASE}/Altersgruppen/erwachsene.png`,
+      imageUrl: `${MEDIA_BASE}/Altersgruppen/Erwachsene.jpg`,
       imageAlt: 'Erwachsene beim Paartanz',
       longTitle: 'Zeit für euch, Schritt für Schritt',
       longText:
@@ -179,7 +179,7 @@ export class Home {
       desc: 'Tanzen hält Körper und Geist fit',
       orange: false,
       gruppe: 'senioren',
-      imageUrl: `${MEDIA_BASE}/Altersgruppen/senioren.png`,
+      imageUrl: `${MEDIA_BASE}/Altersgruppen/Senioren.jpg`,
       imageAlt: 'Senioren beim Tanzen',
       longTitle: 'Lebensfreude im Einklang',
       longText:
@@ -202,7 +202,7 @@ export class Home {
   protected readonly selectedZielgruppe = computed<Zielgruppe | null>(() => {
     const id = this.selectedZielgruppeId();
     if (!id) return null;
-    return this.zielgruppen.find(z => z.id === id) ?? null;
+    return this.zielgruppen.find((z) => z.id === id) ?? null;
   });
 
   protected isZielgruppeActive(id: string): boolean {
