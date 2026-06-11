@@ -29,13 +29,9 @@
   RewriteCond %{QUERY_STRING} option=com_
   RewriteRule ^index\.php$ /? [R=301,L]
 
-  # ── Angular-SPA-Fallback ─────────────────────────────────────────
-  # Echte Dateien (z.B. /favicon.ico, /robots.txt, /assets/foo.png)
-  # und echte Ordner werden direkt ausgeliefert. Alles andere geht
-  # auf index.html, damit der Angular-Router clientseitig uebernimmt.
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^ index.html [L]
+  RewriteRule ^ index.html [END]
 </IfModule>
 
 # Caching: hashed JS/CSS-Files lange cachen, index.html nie cachen.

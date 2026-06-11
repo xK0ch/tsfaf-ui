@@ -164,8 +164,22 @@ function parseDate(raw: string | null | undefined): Date {
   return new Date(y, m - 1, d);
 }
 
-function stripHtml(html: string): string {
-  return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+function htmlToText(html: string): string {
+  if (!html) return '';
+  if (typeof document === 'undefined') {
+    return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  return (div.textContent ?? '').replace(/\s+/g, ' ').trim();
+}
+
+function decodeEntities(s: string): string {
+  if (!s) return '';
+  if (typeof document === 'undefined') return s;
+  const ta = document.createElement('textarea');
+  ta.innerHTML = s;
+  return ta.value;
 }
 
 function truncate(text: string, max: number): string {
@@ -245,8 +259,8 @@ export function mapVeranstaltung(j: JoomlaArticle): VeranstaltungItem {
   const priceCard = readStringField(attrs['preis-mit-kundenkarte']).trim();
 
   const bodyHtml = j.text ?? '';
-  const metadesc = readStringField(attrs['metadesc']).trim();
-  const excerpt = metadesc || truncate(stripHtml(bodyHtml), 160);
+  const metadesc = decodeEntities(readStringField(attrs['metadesc']).trim());
+  const excerpt = metadesc || truncate(htmlToText(bodyHtml), 160);
 
   // start + end mit Datum kombinieren (fuer ICS-Export).
   // End < Start -> end ist am Folgetag.
@@ -271,7 +285,7 @@ export function mapVeranstaltung(j: JoomlaArticle): VeranstaltungItem {
   return {
     id: j.id,
     slug: j.alias || `event-${j.id}`,
-    title: j.title,
+    title: decodeEntities(j.title),
     type,
     typeLabel,
     tagClass: tagClassFor(type),
