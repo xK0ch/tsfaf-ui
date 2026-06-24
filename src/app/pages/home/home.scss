@@ -120,15 +120,26 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-8);
-  color: rgba(255, 255, 255, .5);
-  font-size: 11px;
+  /* Vorher rgba(.5) + 11px war fuer manche Besucher (Hinweis vom Kunden)
+     so dezent, dass sie gar nicht gemerkt haben dass es weitergeht.
+     Jetzt deutlich praesenter, mit Text-Shadow fuer Lesbarkeit auf
+     hellem wie dunklem Video-Frame. */
+  color: rgba(255, 255, 255, .92);
+  font-size: 13px;
+  font-weight: 600;
   letter-spacing: .08em;
   text-transform: uppercase;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, .5);
   animation: scroll-bounce 2s infinite;
 }
 
+.hero-scroll-label {
+  /* Erbt color/font-size/etc. vom .hero-scroll Container. */
+}
+
 .hero-scroll-arrow {
-  font-size: 18px;
+  font-size: 32px;
+  line-height: 1;
 }
 
 @keyframes scroll-bounce {
