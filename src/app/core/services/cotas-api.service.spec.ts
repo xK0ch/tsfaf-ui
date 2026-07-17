@@ -93,7 +93,7 @@ describe('CotasApiService', () => {
 
   // ─── normalize-Catalog Verhalten ──────────────────────────────────
 
-  it('loadCatalog: flacht verschachtelte dance_classes und filtert finished+non-kzclub raus', () => {
+  it('loadCatalog: flacht verschachtelte dance_classes und filtert vergangene Nicht-Club-Kurse raus', () => {
     let cat: ReturnType<typeof Object> | undefined;
     service.loadCatalog().subscribe(c => (cat = c));
 
@@ -147,13 +147,36 @@ describe('CotasApiService', () => {
       dance_classes: {
         'ZG-A': [
           [
-            mkClass({ id: '1', kurs_bez: 'B Klasse', kategorie_priority: '10' }),
-            // finished + nicht kzclub -> rausfliegen
-            mkClass({ id: '2', kurs_bez: 'Finished', finished: 1, kzclub: '0' }),
-            // finished + kzclub -> bleibt
-            mkClass({ id: '3', kurs_bez: 'Club', finished: 1, kzclub: '1' }),
+            // Zukunftsdatum + non-club -> bleibt
+            mkClass({
+              id: '1',
+              kurs_bez: 'B Klasse',
+              kategorie_priority: '10',
+              kurs_beginn: '2999-01-01',
+            }),
+            // Vergangenheit + non-club -> rausfliegen
+            mkClass({
+              id: '2',
+              kurs_bez: 'Alt',
+              kurs_beginn: '2020-05-01',
+              kzclub: '0',
+            }),
+            // Vergangenheit + club -> bleibt (Clubs laufen dauerhaft)
+            mkClass({
+              id: '3',
+              kurs_bez: 'Club',
+              kurs_beginn: '2015-01-01',
+              kzclub: '1',
+            }),
           ],
-          [mkClass({ id: '4', kurs_bez: 'A Klasse', kategorie_priority: '5' })],
+          [
+            mkClass({
+              id: '4',
+              kurs_bez: 'A Klasse',
+              kategorie_priority: '5',
+              kurs_beginn: '2999-01-01',
+            }),
+          ],
         ],
       },
     };
@@ -161,7 +184,7 @@ describe('CotasApiService', () => {
     const req = http.expectOne(`${BASE}/danceclasses`);
     req.flush(resp);
 
-    // 1 + 3 + 4 bleiben uebrig (id=2 finished+non-club rausgefiltert)
+    // 1 + 3 + 4 bleiben uebrig (id=2 = vergangenes Nicht-Club-Kursdatum)
     const flat = cat?.['classesByGroup'].get('ZG-A') ?? [];
     expect(flat).toHaveLength(3);
     expect(flat.find((c: CotasDanceClass) => c.id === '2')).toBeUndefined();

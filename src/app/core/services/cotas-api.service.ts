@@ -186,7 +186,7 @@ function normalizeCatalog(resp: CotasDanceClassesResponse): DanceClassCatalog {
 
   for (const tg of targetGroups) {
     const raw = resp.dance_classes?.[tg.id];
-    const flat = flattenClasses(raw).filter(c => !isFinishedNonClub(c));
+    const flat = flattenClasses(raw).filter(c => !isPastNonClub(c));
 
     // Sortieren: erst kategorie_priority, dann kurs_bez
     flat.sort((a, b) => {
@@ -239,21 +239,33 @@ function flattenClasses(raw: CotasDanceClass[][] | CotasDanceClass[] | undefined
 }
 
 /**
- * Spiegelt das Filter-Verhalten der alten PHP-Seite:
- *   if (!$dance_class->finished || $dance_class->kzclub) ... zeigen
- * Sprich: abgelaufene Kurse rausschmeissen, ausser es ist ein laufender
- * Club (kzclub == 1). Damit verschwinden vom Chef "abgelaufene"
- * Termine genau wie auf der alten Webseite.
+ * Filtert Kurse deren Anfangsdatum in der Vergangenheit liegt. Der von
+ * Cotas gelieferte `finished`-Flag ist dafuer unzuverlaessig: bei
+ * 8-Wochen-Kursen wird er offenbar erst nach `kurs_beginn + einheiten*7d`
+ * gesetzt, sodass laengst gestartete Kurse noch als finished=0 kommen
+ * und damit sichtbar bleiben (User-Beschwerde 07/2026: alte Mai-Kurse
+ * standen im Juli noch drin, weil Cotas sie erst Mitte Juli als beendet
+ * markiert). Wir entscheiden deshalb clientseitig anhand des Datums.
+ *
+ * Clubs (kzclub=1) sind ausgenommen — sie laufen kontinuierlich, ihr
+ * `kurs_beginn` ist der historische Start und deshalb praktisch immer
+ * in der Vergangenheit.
  */
-function isFinishedNonClub(c: CotasDanceClass): boolean {
-  const finished =
-    c.finished === 1 ||
-    (typeof c.finished === 'string' && c.finished === '1') ||
-    (typeof c.finished === 'boolean' && c.finished);
-
+function isPastNonClub(c: CotasDanceClass): boolean {
   const isClub =
     c.kzclub === '1' ||
     (typeof c.kzclub === 'number' && c.kzclub === 1);
+  if (isClub) return false;
 
-  return finished && !isClub;
+  // ISO-String "YYYY-MM-DD" -> Vergleich lexikografisch reicht. Wir
+  // ziehen "heute" aus dem Client. Reine Datumsebene (kein Zeit-Offset)
+  // reicht, weil Cotas kurs_beginn nur tagesgenau fuehrt.
+  const beginn = (c.kurs_beginn ?? '').trim();
+  if (!beginn) return false;
+  const today = new Date();
+  const iso =
+    today.getFullYear().toString().padStart(4, '0') + '-' +
+    (today.getMonth() + 1).toString().padStart(2, '0') + '-' +
+    today.getDate().toString().padStart(2, '0');
+  return beginn < iso;
 }

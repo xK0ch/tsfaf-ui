@@ -35,7 +35,7 @@ describe('Footer', () => {
   it('zeigt Telefonnummer als tel-Link', () => {
     const fixture = setup();
     const tel = (fixture.nativeElement as HTMLElement).querySelector(
-      'a[href="tel:+4943211490"]',
+      'a[href="tel:+49432114900"]',
     );
     expect(tel?.textContent).toContain('04321');
   });

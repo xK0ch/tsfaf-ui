@@ -56,7 +56,7 @@ describe('Impressum', () => {
   it('Kontakt: Telefon + E-Mail', () => {
     const fixture = setup();
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('a[href="tel:+4943211490"]')).not.toBeNull();
+    expect(el.querySelector('a[href="tel:+49432114900"]')).not.toBeNull();
     expect(el.querySelector('a[href="mailto:info@tsfaf.de"]')).not.toBeNull();
   });
 
