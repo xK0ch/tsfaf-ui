@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tanzschule-family-and-friends.de/sitemap.xml

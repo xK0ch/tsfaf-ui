@@ -1,0 +1,117 @@
+:host {
+  display: block;
+  padding-top: 72px;
+}
+
+.page-content {
+  padding: var(--space-48) 0 var(--space-96);
+}
+
+.step-label {
+  font-size: var(--text-h3);
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 var(--space-24);
+  line-height: var(--lh-heading);
+}
+
+/* ─── GRID ──────────────────────────────────────────────────────── */
+
+.voucher-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-20);
+}
+
+@media (max-width: 600px) {
+  .voucher-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-12);
+  }
+}
+
+.voucher-card {
+  position: relative;
+  display: block;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  text-decoration: none;
+  color: inherit;
+  aspect-ratio: 3 / 2;
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+.voucher-card:hover,
+.voucher-card:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+.voucher-card:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.voucher-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.voucher-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: var(--space-12) var(--space-16);
+  background: linear-gradient(0deg, rgba(42, 37, 32, .75) 0%, rgba(42, 37, 32, 0) 100%);
+  color: #fff;
+  font-size: var(--text-small);
+  font-weight: 600;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity var(--transition-base),
+    transform var(--transition-base);
+}
+
+.voucher-card:hover .voucher-overlay,
+.voucher-card:focus-visible .voucher-overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── STATE BOX ─────────────────────────────────────────────────── */
+
+.state-box {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-64) var(--space-32);
+  text-align: center;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-16);
+}
+
+.state-icon {
+  font-size: 40px;
+  opacity: .5;
+}
+
+.state-title {
+  font-size: var(--text-h3);
+  font-weight: 700;
+}
+
+.state-sub {
+  font-size: var(--text-body);
+  color: var(--color-text-muted);
+  max-width: 380px;
+  line-height: 1.55;
+}

@@ -1,0 +1,65 @@
+<article class="team-card">
+  @if (member().imageUrl; as imageUrl) {
+    <button
+      type="button"
+      class="team-photo team-photo-clickable"
+      (click)="openLightbox()"
+      [attr.aria-label]="'Foto von ' + member().name + ' vergrößern'"
+    >
+      <img
+        [src]="imageUrl"
+        [alt]="member().imageAlt"
+        loading="lazy"
+        decoding="async"
+        class="team-photo-img"
+      />
+      <span class="team-photo-zoom" aria-hidden="true">⤢</span>
+    </button>
+  } @else {
+    <div
+      class="team-photo team-photo-initials"
+      [style.background]="avatarBackground()"
+      aria-hidden="true"
+    >
+      <span class="team-initials">{{ initials() }}</span>
+    </div>
+  }
+
+  <div class="team-info">
+    <h3 class="team-name">{{ member().name }}</h3>
+    @if (member().role) {
+      <p class="team-role">{{ member().role }}</p>
+    }
+    @if (member().qualifications.length > 0) {
+      <ul class="team-quals">
+        @for (q of member().qualifications; track q) {
+          <li class="qual-tag">{{ q }}</li>
+        }
+      </ul>
+    }
+  </div>
+
+  @if (member().imageUrl; as imageUrl) {
+    <dialog
+      #lightbox
+      class="team-lightbox"
+      (click)="onBackdropClick($event)"
+      [attr.aria-label]="'Foto von ' + member().name"
+    >
+      <div class="team-lightbox-inner">
+        <button
+          type="button"
+          class="team-lightbox-close"
+          (click)="closeLightbox()"
+          aria-label="Foto schließen"
+        >×</button>
+        <img
+          [src]="imageUrl"
+          [alt]="member().imageAlt"
+          class="team-lightbox-img"
+        />
+        <p class="team-lightbox-caption">{{ member().name }}</p>
+      </div>
+    </dialog>
+  }
+</article>

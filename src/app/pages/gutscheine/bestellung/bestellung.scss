@@ -1,0 +1,371 @@
+:host {
+  display: block;
+  padding-top: 72px;
+}
+
+.page-hero-inner {
+  padding-top: var(--space-32);
+  padding-bottom: var(--space-24);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--color-secondary-deep);
+  margin-bottom: var(--space-16);
+  text-decoration: none;
+  transition: color var(--transition-fast), gap var(--transition-fast);
+}
+.back-link:hover { color: var(--color-primary); gap: var(--space-8); }
+
+.page-content { padding: var(--space-48) 0 var(--space-96); }
+
+/* ─── Layout: Sidebar + Form ─────────────────────────────────────── */
+
+.bestellung-grid {
+  display: grid;
+  gap: var(--space-32);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 900px) {
+  .bestellung-grid {
+    grid-template-columns: 320px 1fr;
+    align-items: start;
+  }
+}
+
+/* ─── Voucher Preview Sidebar ────────────────────────────────────── */
+
+.voucher-preview {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-20);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-16);
+}
+
+@media (min-width: 900px) {
+  .voucher-preview {
+    position: sticky;
+    top: calc(72px + var(--space-16));
+    align-self: start;
+  }
+}
+
+.preview-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.preview-eyebrow::before {
+  content: '';
+  width: 16px;
+  height: 2px;
+  background: var(--color-primary);
+  border-radius: 2px;
+}
+
+.preview-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: var(--radius-md);
+}
+
+.preview-amount {
+  font-size: var(--text-h2);
+  font-weight: 700;
+  color: var(--color-text);
+  text-align: center;
+  margin: 0;
+}
+
+/* ─── Formular ───────────────────────────────────────────────────── */
+
+.bestell-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+
+.form-section {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-24);
+}
+
+@media (min-width: 600px) {
+  .form-section { padding: var(--space-32); }
+}
+
+.form-section-title {
+  font-size: var(--text-h3);
+  font-weight: 700;
+  margin: 0 0 var(--space-20);
+  color: var(--color-text);
+  line-height: var(--lh-heading);
+}
+
+.form-section > .field + .field,
+.form-section > .field + .form-row,
+.form-section > .form-row + .field,
+.form-section > .form-row + .form-row,
+.form-section > .checkbox-label + .field,
+.form-section > .checkbox-label + .form-row,
+.form-section > .field + .checkbox-label,
+.form-section > .form-row + .checkbox-label {
+  margin-top: var(--space-16);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-16);
+  align-items: start;
+}
+
+.form-row-3-1 { grid-template-columns: 3fr 1fr; }
+.form-row-1-3 { grid-template-columns: 1fr 3fr; }
+
+@media (max-width: 600px) {
+  .form-row,
+  .form-row-3-1,
+  .form-row-1-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── SEPA Info Block ────────────────────────────────────────────── */
+
+.sepa-info {
+  margin: var(--space-16) 0 var(--space-8);
+  font-size: var(--text-small);
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+.sepa-info p { margin-bottom: var(--space-8); }
+.sepa-info p:last-child { margin-bottom: 0; }
+.sepa-info-heading {
+  font-weight: 700;
+  color: var(--color-text);
+  margin-top: var(--space-16);
+  margin-bottom: var(--space-4);
+}
+.sepa-info-heading:first-child { margin-top: 0; }
+.sepa-info strong { color: var(--color-text); font-weight: 600; }
+
+.form-section > .sepa-info + .field,
+.form-section > .sepa-info + .form-row {
+  margin-top: var(--space-16);
+}
+
+/* ─── Inline-Link inside checkbox label ──────────────────────────── */
+
+.checkbox-label a,
+.checkbox-label .link-button {
+  color: var(--color-secondary-deep);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color var(--transition-fast);
+}
+.checkbox-label a:hover,
+.checkbox-label .link-button:hover { color: var(--color-secondary); }
+
+.link-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  display: inline;
+}
+
+/* ─── Server-Fehler ──────────────────────────────────────────────── */
+
+.form-server-error {
+  margin-top: var(--space-20);
+  padding: var(--space-16);
+  background: rgba(168, 69, 63, .06);
+  border-left: 3px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  font-size: var(--text-small);
+  color: var(--color-text);
+  line-height: 1.55;
+}
+.form-server-error strong { color: var(--color-danger); display: block; margin-bottom: var(--space-4); }
+.form-server-error p { margin: var(--space-8) 0; }
+
+.form-actions {
+  display: flex;
+  gap: var(--space-12);
+  flex-wrap: wrap;
+  margin-top: var(--space-20);
+}
+
+/* ─── Overlays (Success + AGB) ───────────────────────────────────── */
+
+.success-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(42, 37, 32, .55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-16);
+  z-index: 100;
+  animation: fadeIn .25s ease-out;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.success-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-32);
+  max-width: 480px;
+  text-align: center;
+  box-shadow: var(--shadow-hover);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-16);
+}
+
+.success-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-success);
+  color: #fff;
+  font-size: 28px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-4);
+}
+
+.success-title {
+  font-size: var(--text-h2);
+  font-weight: 700;
+  line-height: var(--lh-heading);
+}
+
+.success-text {
+  font-size: var(--text-body);
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+
+/* ─── AGB-Modal ──────────────────────────────────────────────────── */
+
+.agb-card {
+  position: relative;
+  max-width: 640px;
+  text-align: left;
+  align-items: stretch;
+  padding: var(--space-32);
+  max-height: 85vh;
+}
+
+.agb-title {
+  font-size: var(--text-h2);
+  font-weight: 700;
+  line-height: var(--lh-heading);
+  margin: 0 var(--space-32) var(--space-20) 0;
+  color: var(--color-text);
+}
+
+.agb-body {
+  flex: 1;
+  overflow-y: auto;
+  font-size: var(--text-small);
+  line-height: 1.55;
+  color: var(--color-text);
+  padding-right: var(--space-12);
+  margin-bottom: var(--space-20);
+}
+
+.agb-body h3 {
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: var(--space-16) 0 var(--space-4);
+  line-height: var(--lh-heading);
+}
+
+.agb-body h3:first-child { margin-top: 0; }
+
+.agb-body p {
+  margin-bottom: var(--space-12);
+  text-align: justify;
+}
+
+.agb-body p:last-child { margin-bottom: 0; }
+
+.agb-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.agb-close {
+  position: absolute;
+  top: var(--space-12);
+  right: var(--space-12);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: none;
+  border: 0;
+  font-size: 18px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.agb-close:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* ─── State Box ──────────────────────────────────────────────────── */
+
+.state-box {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-64) var(--space-32);
+  text-align: center;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-16);
+}
+
+.state-icon { font-size: 40px; opacity: .5; }
+.state-title { font-size: var(--text-h3); font-weight: 700; }
+.state-sub {
+  font-size: var(--text-body);
+  color: var(--color-text-muted);
+  max-width: 380px;
+  line-height: 1.55;
+}

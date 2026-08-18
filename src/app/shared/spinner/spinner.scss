@@ -1,0 +1,59 @@
+/* Wrapper: zentriert in der Spalte/Section gerendert, mit etwas
+   Vertikal-Padding damit der Spinner nicht direkt am Rand klebt. */
+.spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-12, 12px);
+  padding: var(--space-32, 32px) var(--space-16, 16px);
+  color: var(--color-text-muted, #6b6b6b);
+}
+
+/* Punkte-Reihe */
+.spinner-dots {
+  display: inline-flex;
+  gap: 12px;
+}
+
+.spinner-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-primary, #DC8C50);
+  animation: spinner-pulse 1.2s ease-in-out infinite both;
+}
+
+/* Zeitversatz pro Punkt, damit die Welle laeuft. Negativ damit der
+   Effekt sofort beim Mount sichtbar ist statt erst nach 1.2s. */
+.spinner-dot:nth-child(1) { animation-delay: -0.32s; }
+.spinner-dot:nth-child(2) { animation-delay: -0.16s; }
+.spinner-dot:nth-child(3) { animation-delay: 0s; }
+
+@keyframes spinner-pulse {
+  0%, 80%, 100% {
+    transform: scale(0.4);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Begleittext */
+.spinner-label {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+/* Reduced-Motion-Respekt: Animation entfernen, Punkte bleiben sichtbar
+   damit das Status-Signal nicht verloren geht. */
+@media (prefers-reduced-motion: reduce) {
+  .spinner-dot {
+    animation: none;
+    opacity: 0.7;
+    transform: scale(0.8);
+  }
+}

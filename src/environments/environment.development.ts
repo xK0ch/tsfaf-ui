@@ -1,0 +1,16 @@
+export const environment = {
+  production: false,
+  cotasApiBase: '/cotas-api',
+  galleryApiBase: '/gallery-api',
+  galleryToken: '',
+  kontaktApiBase: '/kontakt-api',
+  kontaktToken: '',
+  joomlaApiBase: '/joomla-api/api/index.php/v1',
+  joomlaToken: '',
+  joomlaCategoryFaq: 9,
+  joomlaCategoryNews: 8,
+  joomlaCategoryTeam: 13,
+  joomlaCategoryVeranstaltungen: 14,
+  joomlaImageBase: 'https://joomla.tanzschule-family-and-friends.de',
+  mediaBaseUrl: 'https://video.tsfaf.de/v2/Webseite',
+};
